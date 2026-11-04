@@ -74,7 +74,7 @@ Rules the engine must follow:
 
 ## Tabs
 
-The page shows one tab at a time (URL hash, e.g. `#schedule`, so tabs can be bookmarked). Each section goes to a tab by its optional `tab` id; without it, by kind: `list` → `overview`, `schedule` → `schedule`, `calendar` → `calendar`, `course` → `courses`, `contacts`/`links`/`table` → `info`. By default the tabs are Overview, Schedule, Calendar, Courses, Info, and empty ones are hidden.
+The page shows one tab at a time (URL hash, e.g. `#schedule`, so tabs can be bookmarked). Each section goes to a tab by its optional `tab` id; without it, by kind (see "News and To-Do tabs" and "v2.1" below for the full default mapping). Empty tabs are hidden.
 
 To define your own, add a top-level `tabs: [ { id: "admin", title: "Admin" }, … ]` and put `tab: "admin"` on sections. Sections with an unknown or missing tab in a custom list fall into the first tab. While the filter box has text, matches from every tab are shown.
 
@@ -104,7 +104,7 @@ window.HUB_DATA = {
 
 - **Per-semester calendar:** one `calendar` object per semester (a single month list, no inner `semesters` array). `image`/`pdf` are relative to `data/<set>/`.
 - **Automatic semester:** semesters are ordered by the start of `weeks.segments[0]` (or, with no weeks, by `calendar.periods[0].from`). The active one is the last semester whose start is ≤ today; before the first it is the first, after the last it is the last. A semester with neither weeks nor periods is never auto-selected. The user can pick any semester; the choice lives in the URL hash (`#<semesterId>/<tab>`), so links and reloads keep it. With no hash, the automatic one opens.
-- **Navigation:** year chips (hidden when there is only one year), then semester chips for that year (the automatic one is marked "now"), then the tabs of the selected semester.
+- **Navigation:** a sidebar (an off-canvas drawer on phones): logos and title at the top, search, the tabs of the selected semester, and at the bottom a **Year** select (hidden when there is only one year) and a **Semester** select for that year (the automatic one reads "… · now"). Changing either goes through the URL hash.
 - **Common sections:** `common` sections are prepended to every semester's sections (so Administrative info is written once). Tick state is stored per semester for semester sections and shared for `common` ones.
 - **Course ids** only need to be unique inside a semester.
 - **Legacy flat shape** (the `meta/weeks/courses/timetable/…/sections` layout above, no `years`) is still accepted: the engine wraps it into one year with one semester, using `meta.academicYear` / `meta.semester` as titles. A legacy `calendar.semesters` list is ignored in v2.
@@ -133,7 +133,7 @@ window.HUB_DATA = {
 - `{ kind: "directory", title: "Contacts" }` → default tab `contacts` ("Contacts"). Builds one directory: first the programme contacts (`common` sections of kind `contacts`, plus this semester's `contacts` sections), then "by subject" – each course's teachers and `contacts`, grouped under the course title. Emails/phones are links.
 - The existing `contacts` section kind still works for hand-written lists; `course` sections additionally show the course's contacts and grading summary under the header line.
 
-Default tabs become: Overview, Schedule, Calendar, Courses, Study plan, Contacts, Info (empty ones hidden). Section → default tab: `studyplan` → `plan`, `directory` → `contacts`, `contacts` (hand-written) → `contacts`; `links`/`table` stay in `info`.
+Section → default tab (the full default tab list is in "News and To-Do tabs" below): `studyplan` → `plan`, `directory` → `contacts`, `contacts` (hand-written) → `contacts`; `links`/`table` stay in `info`.
 
 ## Footer, author and logos (meta)
 
@@ -145,7 +145,9 @@ meta: {
   disclaimer: "Unofficial student-made page; the faculty's website and secretariat are authoritative."   // optional
 }
 ```
-The footer shows the logos (each linked if `url`), the programme line, "Made by <author>" and the disclaimer. The old "Data set: <name>" line is gone. Nothing is shown for keys that are absent.
+The same logo row is shown at the **top of the sidebar** (and the top of the phone drawer) and in the footer (each logo linked if `url`, given the `bg` badge if set); the footer also has the programme line, "Made by <author>" and the disclaimer. Nothing is shown for keys that are absent.
+
+**Default data set:** `index.html` has `<meta name="hub-default-set" content="aie">`; that set opens when the URL has no `?set=`. Without the meta tag the default is `sample`.
 
 Calendar rendering note: period kinds `vac` and `break` are drawn exactly like `daysOff` (one hatched "Vacation / day off" style); `teach` and `exam` keep their own colours.
 
@@ -165,3 +167,5 @@ Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study pl
   ```
   Items sort by `date` descending (ties keep file order). Each shows the date as a badge, the title in bold, then `text`, then the tags. Items with a date in the last 7 days get a "new" badge. The filter box searches news items like list items.
 - Typical split: **News** = only the dated announcements feed (`kind: "news"`); **To-Do** = tickable tasks and deadlines (including "Do now" and research-topic deadlines); **Info** = administrative notes (cards, certificates, rooms, faculty pages), contacts and useful links.
+
+Sections that describe administrative information (cards, certificates, rooms, faculty pages) are ordinary `list` sections placed on the Info tab with `tab: "info"`; the News tab is meant for the dated `news` feed only.

@@ -2,7 +2,7 @@
 
 ## Privacy rule
 
-Never commit real names, phone numbers, email addresses, invite links or meeting links (Zoom, Meet, Teams, ...), in code, data, issues or screenshots. Only `data/sample/` is tracked and it must contain fictional placeholders.
+Never commit real names, phone numbers, email addresses, invite links or meeting links (Zoom, Meet, Teams, ...), in code, data, issues or screenshots. `data/sample/` must contain fictional placeholders only. The other tracked set (`data/aie/`) is the maintainer's published data; keep it free of invite and meeting links, phone numbers and personal names too.
 
 ## Before opening a PR
 
@@ -14,3 +14,7 @@ Never commit real names, phone numbers, email addresses, invite links or meeting
 ## Proposing a new section kind
 
 Open an issue first with: the kind name, its fields (follow the style of the existing kinds in [docs/SCHEMA.md](docs/SCHEMA.md)), a small data example, and why existing kinds (`list`, `table`, `links`, ...) do not fit. In the PR, update `docs/SCHEMA.md`, the renderer in `src/`, the `KINDS` list in `scripts/validate.mjs` (it validates both the legacy and the years/semesters shapes), and add an example to the sample data.
+
+## Commit messages
+
+Use Conventional Commits (`feat: ...`, `fix: ...`, `docs: ...`, `ci: ...`, `chore: ...`; `feat!:` or a `BREAKING CHANGE:` footer for breaking changes). Release Please reads them to pick the version and write the changelog.

@@ -1,0 +1,37 @@
+name: Release Please
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      # append the project links to the notes of a freshly created release
+      - name: Add links to the release notes
+        if: ${{ steps.rp.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.rp.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          NAME: ${{ github.event.repository.name }}
+        run: |
+          body="$(gh release view "$TAG" --repo "$REPO" --json body --jq .body)"
+          {
+            printf '%s\n\n---\n\n' "$body"
+            printf '**Links**\n\n'
+            printf -- '- Live site: https://%s.github.io/%s/\n' "$OWNER" "$NAME"
+            printf -- '- Sample data set: https://%s.github.io/%s/?set=sample\n' "$OWNER" "$NAME"
+            printf -- '- Data format: https://github.com/%s/blob/%s/docs/SCHEMA.md\n' "$REPO" "$TAG"
+            printf -- '- Reuse guide: https://github.com/%s/blob/%s/docs/REUSE.md\n' "$REPO" "$TAG"
+            printf -- '- Changelog: https://github.com/%s/blob/%s/CHANGELOG.md\n' "$REPO" "$TAG"
+          } > notes.md
+          gh release edit "$TAG" --repo "$REPO" --notes-file notes.md

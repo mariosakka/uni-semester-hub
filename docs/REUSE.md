@@ -25,6 +25,7 @@ Add an object to `years`: `{ id: "y2", title: "Year 2 · 2027–2028", semesters
 
 ## News and To-Do
 
+- The News tab is the dated announcements feed only. Administrative notes (cards, certificates, rooms, faculty pages) go in an ordinary `list` section with `tab: "info"`, next to contacts and useful links.
 - Put announcements and teacher updates in a `{ kind: "news", items: [ { date, title, text, source, unconfirmed, course } ] }` section: the News tab shows them newest first, and items from the last 7 days get a "new" badge. Add a line each time something is announced instead of editing old text; mark reports not yet confirmed by the teacher or faculty with `unconfirmed: true` and `source`.
 - Put tasks and deadlines in a list with tickable items (`"[ ] …"`) or `highlight: true`; it appears in the To-Do tab. Other lists go to News. Old `tab: "overview"` still works (it means News), but the validator warns.
 
@@ -49,7 +50,7 @@ Timetable image or xlsx
 Official calendar PDF
 - Copy the teaching, exam and vacation date ranges into the semester's `calendar.periods`, holidays into `daysOff`, exam and deadline dates into `keyDates`.
 - Count teaching weeks to fill `weeks.segments`; the number must match the official week count.
-- Put the PDF or a picture in `data/<set>/assets/` and reference it via `calendar.pdf` / `calendar.image` (do not commit it if it is not public).
+- Put the PDF or a picture in `data/<set>/` and reference it via `calendar.pdf` / `calendar.image` (paths are relative to the data set folder; do not commit it if it is not public).
 
 ## Sharing a template without private content
 
@@ -57,3 +58,15 @@ Official calendar PDF
 - Use placeholders (`"Teacher A"`, `"https://example.com/"`) and publish it as a `data/<name>/` folder or a gist, not your working file.
 - Write deviations as short factual notes ("No class") and mark anything not confirmed by the teacher or faculty `unconfirmed: true`.
 - Before sharing, search the folder for `@`, `+`, `http`, `zoom`, `meet.` and `t.me`, then run the validator.
+
+## Branding: logos, author and footer
+
+Set `meta.logos` (images in `data/<set>/logos/`, `bg` for logos with white artwork), `meta.author`, `meta.programmeLine` and `meta.disclaimer`. The logos appear at the top of the sidebar and in the footer; keys you leave out show nothing. Only use logos you may use, and keep the "unofficial page" disclaimer if you are not the institution.
+
+## Which data set opens by default, and publishing
+
+`index.html` names the default set in `<meta name="hub-default-set" content="...">`. For a fork: change it to your set (or `sample`), remove `!data/aie/` from `.gitignore` and delete `data/aie/`, then add your own. Everything tracked in git is public once GitHub Pages is on (Settings, Pages, Source: GitHub Actions), so keep invite links, meeting links, phone numbers and personal names out of any published set.
+
+## Releases
+
+Commits on `main` use Conventional Commits (`feat:`, `fix:`, `docs:`, `ci:`, `chore:`); Release Please opens a release PR that updates `CHANGELOG.md` and the version, and merging it publishes a GitHub release with a links section. See the README.
