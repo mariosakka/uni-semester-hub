@@ -1,7 +1,7 @@
 // Run: node src/semester.test.js   Pure checks for normalize / flatten / autoSemester / semesterView / parseRoute.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const ctx = vm.createContext({console});
-for (const f of ["util", "semester", "plan"]) vm.runInContext(fs.readFileSync(path.join(__dirname, f + ".js"), "utf8"), ctx);
+for (const f of ["strings", "util", "semester", "plan"]) vm.runInContext(fs.readFileSync(path.join(__dirname, f + ".js"), "utf8"), ctx);
 const run = (code, vars = {}) => { Object.assign(ctx, vars); return vm.runInContext(code, ctx); };
 
 const sem = (id, start, extra = {}) => ({id, title: id, weeks: start ? {segments: [{start, count: 12}]} : undefined, ...extra});

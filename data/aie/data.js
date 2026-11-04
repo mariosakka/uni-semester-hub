@@ -57,7 +57,7 @@ window.HUB_DATA = {
     },
     {
       "kind": "studyplan",
-      "title": "Study plan"
+      "title": "Study plan <span class='tag off'>official</span>"
     },
     {
       "kind": "contacts",
@@ -892,7 +892,7 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "hc",
               "items": [
-                "Wed 17–18 course, Wed 18–20 lab SG2. Evaluation: <b>V</b> (continuous verification, no final exam), 5 ECTS (study plan). Wed 4 Nov: no class; from the following week Wednesday meetings are <b>online only</b> to year-end (teacher reminder, 3 Nov).",
+                "Wed 17–18 course, Wed 18–20 lab SG2. Evaluation: <b>V</b> (continuous verification, no final exam), 5 ECTS (official study plan). Wed 4 Nov: no class; from the following week Wednesday meetings are <b>online only</b> to year-end (teacher reminder, 3 Nov).",
                 "Homework: what you did in class last Wednesday must be uploaded to the platform by <b>Tue 10 Nov, 23:00</b>."
               ]
             },
@@ -902,7 +902,7 @@ window.HUB_DATA = {
               "course": "ml",
               "title": "Applied Machine Learning for Eng. Systems (\"Mr. Bujor\")",
               "items": [
-                "Thu 17–19 course, labs 15–17 (SG1) and 19–21 (SG2). Evaluation: <b>E</b> (final exam), 5 ECTS (study plan). Thu 5 Nov reported online.",
+                "Thu 17–19 course, labs 15–17 (SG1) and 19–21 (SG2). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan). Thu 5 Nov reported online.",
                 "Teacher (28 Oct, official): reinforcement learning is the current topic; the part before project work starts is better in person. Online options are discussed in class, not from one day to the next.",
                 "<b>Next SAP session: Thu 12 Nov</b> (the SAP contact told the teacher; the 22 Oct lab started at 15:30 and the lecture with the SAP profs at 17:00).",
                 "<b>SAP:</b> a guest from SAP came to the ML course on 15 Oct (in person, from 17:00). Course repo, where SAP invitations and materials are posted: <a href='https://github.com/pradu3/amles-oct2026'>pradu3/amles-oct2026</a>.",
@@ -917,7 +917,7 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "de",
               "items": [
-                "Mon 17–19 course (Dascălu, also the dean), Tue 18–20 project/lab (Cosmin, online on Teams). Evaluation: <b>E</b> (final exam), 5 ECTS (study plan).",
+                "Mon 17–19 course (Dascălu, also the dean), Tue 18–20 project/lab (Cosmin, online on Teams). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan).",
                 "Teams: install MS Teams, sign in with your UPB account, open the \"Data Eng\" class; the lab is the recurring \"Laboratory\" meeting at 18:00. The project should be weekly, pending the e-learning platform (Dascălu, 25 Sep).",
                 "<b>Wed 4 Nov from 18:00:</b> recovery lab for the cancelled Tue 27 Oct lab (Cosmin, official). Past guest lecture: Devista Software (LegalTech), 19 Oct.",
                 "Azure for Students account with your faculty email: <a href='https://azure.microsoft.com/en-us/free/students'>sign up</a>.",
@@ -930,7 +930,7 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "fai",
               "items": [
-                "Tue 20–22 course, online (Zoom), even weeks only (2 h every 2 weeks ≈ 1 h/week). Fri 17–19 lab SG1 (Geamănu). Evaluation: <b>E</b> (final exam), 5 ECTS (study plan).",
+                "Tue 20–22 course, online (Zoom), even weeks only (2 h every 2 weeks ≈ 1 h/week). Fri 17–19 lab SG1 (Geamănu). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan).",
                 "Course Moodle: <a href='https://moodle.adrianchifu.com/course/view.php?id=27'>moodle.adrianchifu.com</a> (separate account: use \"Forgot password\" → search by your faculty email; the Zoom link is on the course page).",
                 "Zoom link is posted on Prof. Chifu's Moodle and on the Politehnica platform. The Moodle link didn't work for some on 20 Oct; installing the Zoom app fixed it.",
                 "Fri 27 Nov and 4 Dec lab: reportedly online (teacher at a conference) – unconfirmed."
@@ -945,7 +945,7 @@ window.HUB_DATA = {
               "items": [
                 "[ ] Pick a research topic <b>and a coordinator by the beginning of December</b>.",
                 "Topic proposals (more coming next week): <a href='https://docs.google.com/spreadsheets/d/1pXD1p3bzzxDnJImbCp37k5w3q9AKQRV46xQ5eJV6Zpo/edit?usp=sharing'>Google Sheet</a>. You may also propose your own topic to a specific professor – the list is not mandatory.",
-                "<b>18–22 Jan 2027</b> (week 14): present Research 1 to a committee. Research I is worth <b>10 ECTS</b>, evaluation V (study plan). Posted by Dascălu on 18 Oct.",
+                "<b>18–22 Jan 2027</b> (week 14): present Research 1 to a committee. Research I is worth <b>10 ECTS</b>, evaluation V (official study plan). Posted by Dascălu on 18 Oct.",
                 "Upload on Moodle: a written report of ≥15 pages with ≥20 relevant references, plus a PowerPoint (objectives, methodology, progress, main results).",
                 "Source: Dascălu, 18 Oct (official)."
               ]
@@ -1064,7 +1064,7 @@ window.HUB_DATA = {
               "ects": 10,
               "evaluation": "V",
               "grading": {
-                "notes": "V = continuous verification, no final exam; weights not published · 12 h/week of supervised research (study plan)"
+                "notes": "V = continuous verification, no final exam; weights not published · 12 h/week of supervised research (official study plan)"
               }
             }
           ],
@@ -1193,7 +1193,7 @@ window.HUB_DATA = {
               "ects": 10,
               "evaluation": "V",
               "grading": {
-                "notes": "V = continuous verification, no final exam; weights not published · 12 h/week of supervised research (study plan)"
+                "notes": "V = continuous verification, no final exam; weights not published · 12 h/week of supervised research (official study plan)"
               }
             },
             {
@@ -1254,7 +1254,7 @@ window.HUB_DATA = {
               "ects": 30,
               "evaluation": "V",
               "grading": {
-                "notes": "V = continuous verification, no final exam; weights not published · 26 h/week; 364 h assisted + 386 h individual; passing the dissertation examination carries 10 ECTS (study plan)"
+                "notes": "V = continuous verification, no final exam; weights not published · 26 h/week; 364 h assisted + 386 h individual; passing the dissertation examination carries 10 ECTS (official study plan)"
               }
             }
           ]

@@ -2,7 +2,7 @@
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const root = path.join(__dirname, "..");
 const ctx = vm.createContext({window: {}, console});
-for (const f of ["util", "semester", "schedule", "calendar", "plan", "render"]) vm.runInContext(fs.readFileSync(path.join(root, "src", f + ".js"), "utf8"), ctx, {filename: f});
+for (const f of ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]) vm.runInContext(fs.readFileSync(path.join(root, "src", f + ".js"), "utf8"), ctx, {filename: f});
 const set = process.argv[2] || "sample";
 vm.runInContext(fs.readFileSync(path.join(root, "data", set, "data.js"), "utf8"), ctx);
 const run = code => vm.runInContext(code, ctx);
@@ -30,7 +30,6 @@ for (let i = 0; i < count; i++) {
   assert(ics.startsWith("BEGIN:VCALENDAR") && ics.endsWith("END:VCALENDAR"), "calendar envelope");
   assert(ics.split("\r\n").every(l => l.length <= 75), "lines folded to <=75 chars");
   assert.strictEqual(new Set(ics.match(/UID:.*/g)).size, begins, "unique UIDs");
-  if (run(`!!(${V}.calendar && ${V}.calendar.semesters)`)) assert.strictEqual(run(`defaultSemester(${V}, new Date('2000-01-01'))`), 0, "defaultSemester before start");
   console.log(`${set}: semester ${run("SEMS[" + i + "].id")}: ${n} weeks, ${begins} ics events - ok`);
   if (set.startsWith("aie") && timetabled === 1) { // spot checks on known deviations (first timetabled semester)
     const wk = w => run(`weekSessions(${V}, ${w})`);

@@ -24,7 +24,7 @@ function timeline(D) {
   for (let m = parseDate(segs[0].start); m <= end; m = addDays(m, 7)) {
     const w = nums[iso(m)] || null;
     const fri = addDays(m, 4), hit = ps.filter(p => p.from <= iso(fri) && p.to >= iso(m)).sort((x, y) => y.from.localeCompare(x.from))[0];
-    out.push({m, w, label: w ? "" : hit ? hit.label : "No classes"});
+    out.push({m, w, label: w ? "" : hit ? hit.label : t("schedule.noClasses")});
   }
   return out;
 }
@@ -34,15 +34,11 @@ function currentIndex(T, today = new Date()) {
   return i < 0 ? T.length - 1 : i;
 }
 const isNow = (e, today = new Date()) => today >= e.m && today < addDays(e.m, 7);
-const parityOf = w => (w % 2 ? "odd" : "even");
 
 const courseOf = (D, id) => (D.courses || []).find(c => c.id === id) || {id, title: id, color: "grey"};
-const sessionTitle = (D, e) => { const c = courseOf(D, e.course); return `${c.short || c.title} (${e.type}${e.group ? " SG" + e.group : ""})`; };
-
-function visible(D, e) { // no preference set for this course = show every subgroup
-  const g = ((D.meta || {}).me || {}).groups || {}, mine = g[e.course] ?? g.default;
-  return !e.group || mine === undefined || mine === String(e.group);
-}
+const TYPE_KEYS = {course: "type.course", lab: "type.lab", project: "type.project", seminar: "type.seminar"};
+const typeName = type => TYPE_KEYS[type] ? t(TYPE_KEYS[type]) : type;
+const sessionTitle = (D, e) => { const c = courseOf(D, e.course); return `${c.short || c.title} (${typeName(e.type)}${e.group ? " " + t("schedule.subgroup", {n: e.group}) : ""})`; };
 
 // every session of week w, with status ok | dev (differs from the timetable) | cancel
 function weekSessions(D, w) {
@@ -72,7 +68,7 @@ function weekSessions(D, w) {
   return out;
 }
 
-const place = s => s.mode === "online" ? "Online" : (s.room || "In person");
+const place = s => s.mode === "online" ? t("schedule.online") : (s.room || t("schedule.inPerson"));
 
 // hour range of the grid, stable across weeks
 function hourRange(D) {
@@ -87,14 +83,14 @@ const stamp = (d, h) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDa
 
 // iCalendar text with one event per session (cancelled ones left out); floating local time
 function buildIcs(D, now = new Date()) {
-  const name = (D.meta || {}).title || "Timetable", ts = now.toISOString().replace(/[-:]|\.\d+/g, "");
+  const name = (D.meta || {}).title || t("ics.calendarName"), ts = now.toISOString().replace(/[-:]|\.\d+/g, "");
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//uni-hub//EN", "CALSCALE:GREGORIAN", fold("X-WR-CALNAME:" + icsEsc(name))];
   for (let w = 1; w <= weekCount(D); w++) for (const s of weekSessions(D, w)) {
     if (s.status === "cancel") continue;
     out.push("BEGIN:VEVENT", `UID:${s.course}-${s.type}-${s.start}-${s.key}@uni-hub`, `DTSTAMP:${ts}`,
       `DTSTART:${stamp(s.date, s.start)}`, `DTEND:${stamp(s.date, s.end)}`,
-      fold("SUMMARY:" + icsEsc(s.title + (s.mode === "online" ? " [online]" : ""))), fold("LOCATION:" + icsEsc(place(s))),
-      fold("DESCRIPTION:" + icsEsc(s.teacher + (s.note ? "\n" + s.note + (s.u ? " (unconfirmed)" : "") : ""))), "END:VEVENT");
+      fold("SUMMARY:" + icsEsc(s.title + (s.mode === "online" ? t("schedule.onlineTag") : ""))), fold("LOCATION:" + icsEsc(place(s))),
+      fold("DESCRIPTION:" + icsEsc(s.teacher + (s.note ? "\n" + s.note + (s.u ? t("ics.unconfirmed") : "") : ""))), "END:VEVENT");
   }
   out.push("END:VCALENDAR");
   return out.join("\r\n");
@@ -103,7 +99,7 @@ function buildIcs(D, now = new Date()) {
 // iOS Safari only starts a blob download if the link is in the DOM and the URL outlives the click, so: append, click,
 // revoke 10 s later. Without `download` support (very old browsers) the .ics opens as a data: URL, which iOS offers to add to Calendar.
 function downloadIcs(D) {
-  const text = buildIcs(D), a = document.createElement("a"), name = ((D.meta || {}).calendarFilename || "timetable") + (D.legacy || !D.id ? "" : "-" + D.id) + ".ics";
+  const text = buildIcs(D), a = document.createElement("a"), name = ((D.meta || {}).calendarFilename || t("ics.fileName")) + (D.legacy || !D.id ? "" : "-" + D.id) + ".ics";
   if (!("download" in a) || !window.URL || !URL.createObjectURL) { location.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(text); return; }
   a.href = URL.createObjectURL(new Blob([text], {type: "text/calendar;charset=utf-8"}));
   a.download = name; a.style.display = "none";
@@ -111,18 +107,71 @@ function downloadIcs(D) {
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
 
+// swatches reuse the CSS of the real blocks; one legend under both the grid and the phone agenda
+function scheduleLegendHTML(D) {
+  const lg = (cls, label, mark = "") => `<span class="lg"><i class="sw ${cls}" aria-hidden="true">${mark}</i>${esc(label)}</span>`;
+  const used = new Set([...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])].map(e => e.course));
+  return `<div class="slegend" role="group" aria-label="${esc(t("schedule.legend.label"))}">` +
+    lg("dev", t("schedule.legend.differs")) + lg("cx", t("schedule.legend.notHeld")) + lg("off", t("schedule.legend.dayOff")) +
+    lg("unc", t("schedule.legend.unconfirmed"), "?") + lg("extra", t("schedule.legend.extra")) +
+    (D.courses || []).filter(c => used.has(c.id)).map(c => lg(`cs c-${esc(c.color || "grey")}`, c.short || c.title)).join("") + `</div>`;
+}
+
+// subgroup chooser: a disclosure under the toolbar (inline on wide screens, a bottom sheet on phones, see CSS)
+function groupsHTML(D) {
+  const gs = discoverGroups(D);
+  if (!gs.length) return "";
+  const all = [...new Set(gs.flatMap(g => g.groups))].sort();
+  const opt = (v, text, on) => `<option value="${esc(v)}"${on ? " selected" : ""}>${esc(text)}</option>`;
+  return `<div class="gwrap"><button type="button" id="gbtn" aria-expanded="${D._gopen ? "true" : "false"}" aria-controls="gpanel">${esc(t("schedule.groups.button"))}</button>` +
+    `<span class="chip gchip">${esc(groupSummary(D))}</span>` +
+    `<div id="gpanel" class="gpanel" role="group" aria-label="${esc(t("schedule.groups.title"))}"${D._gopen ? "" : " hidden"}><h3>${esc(t("schedule.groups.title"))}</h3>` +
+    gs.map(g => { const c = courseOf(D, g.course), cur = groupFor(D, g.course);
+      return `<label class="grow c-${esc(c.color || "grey")}"><span>${esc(c.short || c.title)}</span><select data-c="${esc(g.course)}">` +
+        opt("all", t("schedule.groups.all"), cur === "all") + g.groups.map(v => opt(v, t("schedule.groups.option", {n: v}), cur === v)).join("") + `</select></label>`; }).join("") +
+    `<div class="gpre"><button type="button" data-p="all">${esc(t("schedule.groups.presetAll"))}</button>` +
+    all.map(v => `<button type="button" data-p="${esc(v)}">${esc(t("schedule.groups.presetN", {n: v}))}</button>`).join("") +
+    `<button type="button" data-p="reset">${esc(t("schedule.groups.reset"))}</button></div>` +
+    `<button type="button" id="gclose">${esc(t("schedule.groups.close"))}</button></div></div>`;
+}
+
+let closeGroups = null; // closes the open chooser of the schedule currently shown; Esc and outside clicks are handled once, here
+if (typeof document !== "undefined" && document.addEventListener) { // (node tests load this file without a DOM)
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && closeGroups) closeGroups(true); });
+  document.addEventListener("click", e => { if (closeGroups && !e.target.closest(".gwrap")) closeGroups(false); });
+}
+
+function wireGroups(box, D, rerender) {
+  const btn = box.querySelector("#gbtn"), panel = box.querySelector("#gpanel");
+  if (!btn) { closeGroups = null; return; }
+  const open = on => { D._gopen = on; panel.hidden = !on; btn.setAttribute("aria-expanded", String(on)); };
+  closeGroups = refocus => { if (panel.hidden) return; open(false); if (refocus) btn.focus(); };
+  const changed = focus => { D._gfocus = focus; (D.refresh || rerender)(); }; // the new render restores focus to `focus`
+  btn.onclick = () => { open(panel.hidden); if (!panel.hidden) panel.querySelector("select").focus(); };
+  box.querySelector("#gclose").onclick = () => closeGroups(true);
+  panel.onchange = e => { const sel = e.target.closest("select[data-c]"); if (sel) { setGroup(D, sel.dataset.c, sel.value); changed(`select[data-c="${sel.dataset.c}"]`); } };
+  panel.onclick = e => {
+    const b = e.target.closest("button[data-p]");
+    if (!b) return;
+    if (b.dataset.p === "reset") resetGroups(D); else setAllGroups(D, b.dataset.p);
+    changed(`button[data-p="${b.dataset.p}"]`);
+  };
+  if (D._gfocus) { const f = panel.querySelector(D._gfocus); D._gfocus = null; if (f && !panel.hidden) f.focus(); }
+}
+
 function renderSchedule(box, D, i) {
   const T = timeline(D), real = currentIndex(T);
-  if (i === undefined) i = real;
+  if (i === undefined) i = D._wi === undefined ? real : D._wi;
+  D._wi = i; // the shown week, kept for refresh() after a subgroup change
   const e = T[i], w = e.w, m = e.m, live = isNow(T[real]);
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"], sess = w ? weekSessions(D, w) : [];
+  const days = [0, 1, 2, 3, 4].map(k => dayName(addDays(m, k), "short")), sess = w ? weekSessions(D, w) : [];
   const [H0, H1] = hourRange(D), RH = 64, offs = D.daysOff || {};
   const head = days.map((d, k) => `<div class="sh">${d} ${fmtDate(addDays(m, k))}</div>`).join("");
   const times = Array.from({length: H1 - H0}, (_, k) => `<div>${H0 + k}:00</div>`).join("");
   // an extra session beside a cancelled one: cancelled takes the left half, extra the right half
   const side = s => s.extra ? "left:50%;" : s.status === "cancel" && sess.some(x => x.extra && x.day === s.day && x.start < s.end && x.end > s.start) ? "right:50%;" : "";
   const inner = s => `<b>${fmtTime(s.start)}–${fmtTime(s.end)}</b> <span class="t">${esc(s.title)}</span>` +
-    `<small>${esc(s.teacher)}<br>${s.status === "cancel" ? "NOT HELD" : esc(place(s))}</small>` +
+    `<small>${esc(s.teacher)}<br>${s.status === "cancel" ? esc(t("schedule.notHeld")) : esc(place(s))}</small>` +
     (s.note ? `<span class="badge">${s.status === "cancel" ? "✕" : "⚠"} ${esc(s.note)}${s.u ? " ?" : ""}</span>` : "");
   const cls = s => `c-${courseOf(D, s.course).color || "grey"} ${s.status === "cancel" ? "cx" : ""} ${s.status === "dev" ? "dev" : ""}`;
   const dayOff = k => !w ? e.label : offs[iso(addDays(m, k))]; // vacation week: every day shows the label
@@ -130,7 +179,7 @@ function renderSchedule(box, D, i) {
   const agenda = `<div class="agenda">` + days.map((d, k) => {
     const off = dayOff(k), list = sess.filter(s => s.day === k).sort((x, y) => x.start - y.start);
     return `<div class="ag ${off ? "off" : ""}"><h3>${d} ${fmtDate(addDays(m, k))}${off ? ` <span class="agoff">${esc(off)}</span>` : ""}</h3>` +
-      (list.map(s => `<div class="acard ${cls(s)}">${inner(s)}</div>`).join("") || (off ? "" : `<p class="note">No classes</p>`)) + `</div>`;
+      (list.map(s => `<div class="acard ${cls(s)}">${inner(s)}</div>`).join("") || (off ? "" : `<p class="note">${esc(t("schedule.noClasses"))}</p>`)) + `</div>`;
   }).join("") + `</div>`;
   const cols = days.map((_, d) => {
     const off = dayOff(d);
@@ -139,20 +188,18 @@ function renderSchedule(box, D, i) {
     `<div class="ev ${cls(s)}" style="${side(s)}top:${(s.start - H0) * RH}px;height:${(s.end - s.start) * RH - 4}px">${inner(s)}</div>`).join("") + `</div>`;
   }).join("");
   const devs = sess.filter(s => s.note);
-  const title = w ? `Week ${w} · ${parityOf(w)} week` : esc(e.label);
+  const title = w ? esc(t(w % 2 ? "schedule.weekOdd" : "schedule.weekEven", {n: w})) : esc(e.label);
   box.innerHTML =
-    `<div class="swk"><button id="pw" ${i <= 0 ? "disabled" : ""}>◀</button><b>${title} · ${fmtDate(m)} – ${fmtDate(addDays(m, 4))}</b>` +
-    (i === real && live ? `<span class="chip">this week</span>` : "") +
-    `<button id="nw" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${live ? "This week" : "Nearest week"}</button>` : ""}<button id="ics">Download .ics (all weeks)</button></div>` +
-    `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:${(H1 - H0) * RH}px">${times}</div>${cols}</div>${agenda}` +
-    (live ? "" : `<p class="note">Today is outside the weeks shown (before the term or after it); showing the nearest week.</p>`) +
-    `<p class="note">Orange dashed = differs from the timetable · greyed = not held · hatched = day off or vacation · "?" = unconfirmed report.</p>` +
+    `<div class="swk"><button id="pw" aria-label="${esc(t("schedule.prev"))}" ${i <= 0 ? "disabled" : ""}>◀</button><b>${title} · ${fmtDate(m)} – ${fmtDate(addDays(m, 4))}</b>` +
+    (i === real && live ? `<span class="chip">${esc(t("schedule.thisWeek"))}</span>` : "") +
+    `<button id="nw" aria-label="${esc(t("schedule.next"))}" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${esc(t("schedule.backToCurrent"))}</button>` : ""}<button id="ics">${esc(t("schedule.download"))}</button></div>` + groupsHTML(D) +
+    `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:${(H1 - H0) * RH}px">${times}</div>${cols}</div>${agenda}` + scheduleLegendHTML(D) +
+    (live ? "" : `<p class="note">${esc(t("schedule.outside"))}</p>`) +
     (devs.length ? `<ul>${devs.map(s => `<li><b>${days[s.day]} ${fmtDate(s.date)}</b> ${esc(s.title)}: ${esc(s.note)}</li>`).join("")}</ul>` : "") +
-    `<details><summary>How to add to Google / Outlook</summary><p class="note">Download the .ics. Google Calendar: Settings → Import &amp; export → Import. ` +
-    `Outlook: Add calendar → Upload from file (or File → Open &amp; Export → Import/Export). It is a snapshot: later changes aren't synced, ` +
-    `so re-download and delete the old import if things change. Times are saved as local time.</p></details>`;
+    `<details><summary>${esc(t("schedule.help.title"))}</summary><p class="note">${esc(t("schedule.help.body"))}</p></details>`;
   box.querySelector("#pw").onclick = () => renderSchedule(box, D, i - 1);
   box.querySelector("#nw").onclick = () => renderSchedule(box, D, i + 1);
   if (box.querySelector("#tw")) box.querySelector("#tw").onclick = () => renderSchedule(box, D, real);
   box.querySelector("#ics").onclick = () => downloadIcs(D);
+  wireGroups(box, D, () => renderSchedule(box, D, i));
 }

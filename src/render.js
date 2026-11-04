@@ -6,8 +6,8 @@ function newsItem(it, D) {
   const d = parseDate(it.date), now = new Date(), age = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - d) / 864e5);
   const c = it.course ? courseOf(D, it.course) : null, yr = d.getFullYear() === now.getFullYear() ? "" : ` ${d.getFullYear()}`;
   return `<time class="nd" datetime="${esc(it.date)}">${fmtDate(d)}${yr}</time><div class="nb"><b>${it.title}</b>` +
-    (age >= 0 && age <= 7 ? ' <span class="tag off">new</span>' : "") + (it.text ? `<div class="nt">${it.text}</div>` : "") +
-    (it.source ? ` <span class="tag">${esc(it.source)}</span>` : "") + (it.unconfirmed ? ' <span class="tag unc">? unconfirmed</span>' : "") +
+    (age >= 0 && age <= 7 ? ` <span class="tag off">${esc(t("news.new"))}</span>` : "") + (it.text ? `<div class="nt">${it.text}</div>` : "") +
+    (it.source ? ` <span class="tag">${esc(it.source)}</span>` : "") + (it.unconfirmed ? ` <span class="tag unc">${esc(t("news.unconfirmed"))}</span>` : "") +
     (c ? ` <span class="tag ctag c-${esc(c.color || "grey")}">${esc(c.short || c.title)}</span>` : "") + `</div>`;
 }
 
@@ -26,12 +26,12 @@ function tableHTML(sec) {
 function courseHead(D, sec) {
   const c = courseOf(D, sec.course), bits = [];
   if ((c.teachers || []).length) bits.push(c.teachers.map(t => esc(t.name) + (t.role ? ` (${esc(t.role)})` : "")).join(", "));
-  if (c.ects) bits.push(`${c.ects} ECTS`);
-  if (c.evaluation) bits.push(`evaluation <b>${esc(c.evaluation)}</b>`);
+  if (c.ects) bits.push(esc(t("course.ects", {n: c.ects})));
+  if (c.evaluation) bits.push(tx("course.evaluation", {value: `<b>${esc(c.evaluation)}</b>`}));
   const ppl = [...(c.teachers || []).filter(t => t.email || t.phone || t.note), ...(c.contacts || [])], gs = gradingSummary(c);
   return (bits.length ? `<p class="chead">${bits.join(" · ")}</p>` : "") +
-    (gs ? `<p class="chead">Grading: ${gs}${(c.grading || {}).passRule ? " · " + esc(c.grading.passRule) : ""}</p>` : "") +
-    (ppl.length ? `<p class="chead">Contacts: ${peopleLine(ppl)}</p>` : "");
+    (gs ? `<p class="chead">${tx("course.grading", {value: gs + ((c.grading || {}).passRule ? " · " + esc(c.grading.passRule) : "")})}</p>` : "") +
+    (ppl.length ? `<p class="chead">${tx("course.contacts", {value: peopleLine(ppl)})}</p>` : "");
 }
 
 // store(scope) -> {done, save}: done = Set of ticked item ids, persisted through save()
@@ -49,8 +49,8 @@ function renderSections(app, D, set, store) {
     if (sec.kind === "schedule" || sec.kind === "calendar") {
       s.classList.add("custom", "builtin");
       const box = document.createElement("div"); s.append(box);
-      if (sec.kind === "schedule") renderSchedule(box, D);
-      else renderCalendar(box, D, defaultSemester(D), `data/${set}/`);
+      if (sec.kind === "schedule") { D._sbox = box; renderSchedule(box, D); }
+      else { D._cbox = box; D._cbase = `data/${set}/`; renderCalendar(box, D, D._cbase); }
     } else if (sec.kind === "studyplan" || sec.kind === "directory") {
       s.insertAdjacentHTML("beforeend", sec.kind === "studyplan" ? studyplanHTML(D) : directoryHTML(D));
     } else if (sec.kind === "table") {
@@ -78,11 +78,14 @@ function renderSections(app, D, set, store) {
     }
     app.append(s);
   });
+  // callbacks other modules use: a changed subgroup selection re-renders everything that lists sessions; "Open in Schedule" shows a week
+  D.refresh = () => { if (D._sbox) renderSchedule(D._sbox, D); if (D._cbox) renderCalendar(D._cbox, D, D._cbase); };
+  D.showWeek = w => { if (!D._sbox) return; const i = timeline(D).findIndex(e => e.w === w); if (i >= 0) renderSchedule(D._sbox, D, i); };
 }
 
 // Tabs: a section goes to its `tab` id, else to a default tab by kind. D.tabs ([{id,title}]) overrides the default tab list.
 const AUTO_TAB = {news: "news", schedule: "schedule", calendar: "calendar", course: "courses", studyplan: "plan", directory: "contacts", contacts: "contacts", links: "info", table: "info"};
-const DEFAULT_TABS = [["news", "News"], ["todo", "To-Do"], ["schedule", "Schedule"], ["calendar", "Calendar"], ["courses", "Courses"], ["plan", "Study plan"], ["contacts", "Contacts"], ["info", "Info"]];
+const DEFAULT_TABS = [["news", "tab.news"], ["todo", "tab.todo"], ["schedule", "tab.schedule"], ["calendar", "tab.calendar"], ["courses", "tab.courses"], ["plan", "tab.plan"], ["contacts", "tab.contacts"], ["info", "tab.info"]]; // [id, string key]
 
 // a list with a tickable item or `highlight` is a to-do list, any other list is news
 const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(t => typeof t === "string" && t.startsWith("[ ] "))) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
@@ -90,7 +93,7 @@ const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items ||
 // returns the tab list for D and moves sections with an unknown tab into the first one
 function setupTabs(D) {
   const secs = [...document.querySelectorAll("#app section")];
-  let tabs = D.tabs || DEFAULT_TABS.map(([id, title]) => ({id, title}));
+  let tabs = D.tabs || DEFAULT_TABS.map(([id, key]) => ({id, title: t(key)}));
   if (!tabs.some(t => t.id === "overview")) secs.forEach(s => { if (s.dataset.tab === "overview") s.dataset.tab = "news"; }); // old data sets
   if (!D.tabs) tabs = tabs.filter(t => secs.some(s => s.dataset.tab === t.id)); // drop empty default tabs
   const ids = tabs.map(t => t.id);

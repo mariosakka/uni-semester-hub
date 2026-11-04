@@ -8,7 +8,6 @@ Dates are `"YYYY-MM-DD"` strings. Days are `0`=Mon … `4`=Fri. Hours are number
 window.HUB_DATA = {
   meta: {
     title: "Programme hub",            // page <h1>
-    subtitle: "Source note shown under the title",
     university: "…", programme: "…", academicYear: "2026–2027", semester: "Semester 1",
     me: { groups: { default: "2", "<courseId>": "1" } },   // your subgroup, per course override
     calendarFilename: "my-timetable"    // .ics file name (no extension)
@@ -85,13 +84,13 @@ A data set describes a whole programme. Content that changes per semester lives 
 
 ```js
 window.HUB_DATA = {
-  meta: { title, subtitle, university, programme, me: { groups: {...} }, calendarFilename },   // programme-wide
+  meta: { title, university, programme, me: { groups: {...} }, calendarFilename },   // programme-wide
   common: [ /* sections shown in every semester (e.g. Administrative, contacts); same shape as `sections` */ ],
   years: [ {
     id: "y1", title: "Year 1 · 2026–2027",
     semesters: [ {
       id: "y1s1",                       // unique across the whole data set; used in the URL hash: #y1s1/schedule
-      title: "Semester 1", subtitle: "optional text under the page title for this semester",
+      title: "Semester 1",
       weeks: { segments: [ { start: "2026-09-28", count: 12 }, … ] },   // omit for a semester without a timetable yet
       courses: [ … ], timetable: [ … ], daysOff: {…}, deviations: […], extraSessions: […],   // same shapes as above
       calendar: { periods: [ … ], months: [[2026,8],[2026,9],…], note: "html", image: "calendar.png", pdf: "calendar.pdf" },

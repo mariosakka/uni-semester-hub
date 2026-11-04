@@ -4,6 +4,13 @@
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
+// default UI string keys (src/strings.js is a plain script: evaluate it to read HUB_STRINGS)
+const STRING_KEYS = (() => {
+  const c = { console };
+  vm.runInNewContext(readFileSync(new URL('../src/strings.js', import.meta.url), 'utf8'), c);
+  return new Set(Object.keys(c.HUB_STRINGS));
+})();
+
 const KINDS = ['list', 'news', 'schedule', 'calendar', 'course', 'contacts', 'links', 'table', 'studyplan', 'directory'];
 const TABS = ['news', 'todo', 'overview', 'schedule', 'calendar', 'courses', 'plan', 'contacts', 'info'];
 const TYPES = ['course', 'lab', 'project', 'seminar'];
@@ -149,11 +156,29 @@ function checkSemester(S, pre, errs, strict, warns) {
   checkSections(S.sections, 'sections', e, cid, true, tabs, (p, m) => warns.push(`${pre}${p}: ${m}`));
 }
 
+// meta.strings: object of known key -> string (unknown keys only warn); meta.locale: string
+function checkStrings(meta, e, warns) {
+  if (meta?.locale !== undefined) {
+    let ok = false;
+    try { ok = typeof meta.locale === 'string' && Intl.DateTimeFormat.supportedLocalesOf([meta.locale]).length > 0; } catch { ok = false; }
+    if (typeof meta.locale !== 'string') e('meta.locale', 'must be a string');
+    else if (!ok) warns.push(`meta.locale: ${JSON.stringify(meta.locale)} is not a supported locale (the site falls back to en-GB)`);
+  }
+  const s = meta?.strings;
+  if (s === undefined) return;
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return e('meta.strings', 'must be an object of key -> text');
+  for (const [k, v] of Object.entries(s)) {
+    if (!STRING_KEYS.has(k)) warns.push(`meta.strings.${k}: unknown key (see docs/STRINGS.md); ignored`);
+    else if (typeof v !== 'string') e(`meta.strings.${k}`, 'must be a string (plain text)');
+  }
+}
+
 export function validate(D, warns = []) {
   const errs = [];
   if (!D || typeof D !== 'object') return ['HUB_DATA missing or not an object'];
   const e = (p, m) => errs.push(`${p}: ${m}`);
   if (!D.meta?.title) e('meta.title', 'required');
+  checkStrings(D.meta, e, warns);
   if (!D.years) { checkSemester(D, '', errs, true, warns); return errs; }
 
   checkSections(D.common, 'common', e, null, false, TABS, (p, m) => warns.push(`${p}: ${m}`));
@@ -212,6 +237,11 @@ if (arg === '--selftest') {
   const n2 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', courses: [{ id: 'a', title: 'A' }],
     sections: [{ kind: 'news', items: [{ date: '2026-02-30', title: 'x' }, { date: '2026-11-03' }, { date: '2026-11-03', title: 'x', course: 'zz' }] }, { kind: 'news' }] }] }] });
   if (n1.length || wn.length !== 2 || n2.length !== 4) { console.error('selftest news FAILED', n1, wn, n2); process.exit(1); }
+  const ws = [];
+  const t1 = validate({ ...structuredClone(ok), meta: { title: 't', locale: 'ro-RO', strings: { 'nav.year': 'An', 'no.such': 'x' } } }, ws);
+  const t2 = validate({ ...structuredClone(ok), meta: { title: 't', locale: 5, strings: { 'nav.year': 3 } } });
+  const t3 = validate({ ...structuredClone(ok), meta: { title: 't', strings: ['x'] } });
+  if (t1.length || ws.length !== 1 || t2.length !== 2 || t3.length !== 1) { console.error('selftest strings FAILED', t1, ws, t2, t3); process.exit(1); }
   console.log(`selftest ok (bad samples produced ${b.length} and ${d.length} errors)`);
 } else if (!arg) {
   console.error('usage: node scripts/validate.mjs data/<set>/data.js | --selftest');
