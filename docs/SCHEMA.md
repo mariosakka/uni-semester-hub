@@ -164,4 +164,4 @@ Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study pl
       course: "hc" } ] }             // optional course id: shows the course's colour/short name as a tag
   ```
   Items sort by `date` descending (ties keep file order). Each shows the date as a badge, the title in bold, then `text`, then the tags. Items with a date in the last 7 days get a "new" badge. The filter box searches news items like list items.
-- Typical split: **News** = announcements, teacher updates, admin notices (cards, certificates, schedule changes); **To-Do** = tickable tasks and deadlines (including "Do now" and research-topic deadlines).
+- Typical split: **News** = only the dated announcements feed (`kind: "news"`); **To-Do** = tickable tasks and deadlines (including "Do now" and research-topic deadlines); **Info** = administrative notes (cards, certificates, rooms, faculty pages), contacts and useful links.

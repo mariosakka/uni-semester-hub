@@ -40,7 +40,7 @@ window.HUB_DATA = {
       "id": "admin",
       "kind": "list",
       "title": "Administrative",
-      "tab": "news",
+      "tab": "info",
       "pinned": true,
       "items": [
         "[ ] Announcements for the master are shared by the group representative; ask them to add you.",

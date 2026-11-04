@@ -25,7 +25,7 @@ Add an object to `years`: `{ id: "y2", title: "Year 2 · 2027–2028", semesters
 
 ## News and To-Do
 
-- Put announcements, teacher updates and administrative notices in a `{ kind: "news", items: [ { date, title, text, source, unconfirmed, course } ] }` section: the News tab shows them newest first, and items from the last 7 days get a "new" badge. Add a line each time something is announced instead of editing old text; mark reports not yet confirmed by the teacher or faculty with `unconfirmed: true` and `source`.
+- Put announcements and teacher updates in a `{ kind: "news", items: [ { date, title, text, source, unconfirmed, course } ] }` section: the News tab shows them newest first, and items from the last 7 days get a "new" badge. Add a line each time something is announced instead of editing old text; mark reports not yet confirmed by the teacher or faculty with `unconfirmed: true` and `source`.
 - Put tasks and deadlines in a list with tickable items (`"[ ] …"`) or `highlight: true`; it appears in the To-Do tab. Other lists go to News. Old `tab: "overview"` still works (it means News), but the validator warns.
 
 ## Study plan, grading and contacts

@@ -32,8 +32,8 @@ window.HUB_DATA = {
 
   // ---- common: programme-wide sections, prepended to every semester's sections ----
   common: [
-    // tab: "news" overrides the default (tickable lists go to To-Do); the items stay tickable
-    { kind: "list", id: "admin", title: "Administrative", pinned: true, tab: "news", items: [
+    // tab: "info" overrides the default (tickable lists go to To-Do); the items stay tickable
+    { kind: "list", id: "admin", title: "Administrative", pinned: true, tab: "info", items: [
       "[ ] Collect your student card at the registrar's office (A001)",
       "[ ] Complete enrolment and upload documents at <a href='https://portal.example.org'>portal.example.org</a>",
       "[ ] Activate your university account and email",
