@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="hub-default-set" content="aie"> <!-- data set opened when the URL has no ?set= (data/<name>/data.js) -->
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151c" media="(prefers-color-scheme: dark)">
+<title>Semester hub</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<!-- phones/tablets: top bar + off-canvas drawer; desktop: the same <aside> is a fixed sidebar -->
+<div id="bar"><button id="menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="side">&#9776;</button><b id="bar-sem"></b></div>
+<aside id="side" tabindex="-1" aria-label="Navigation">
+  <div class="brand"><b id="title">Semester hub</b><span id="prog"></span></div>
+  <input id="q" type="search" placeholder="Search…" aria-label="Search all tabs">
+  <nav id="tabs" aria-label="Sections"></nav>
+  <div id="sems" role="group" aria-label="Year and semester"></div>
+</aside>
+<div id="scrim"></div>
+<div id="content">
+  <header class="page"><h1 id="ptitle"></h1><p id="subtitle"></p></header>
+  <main id="app"></main>
+  <footer id="foot"></footer>
+</div>
+<script src="src/util.js"></script>
+<script src="src/semester.js"></script>
+<script src="src/schedule.js"></script>
+<script src="src/calendar.js"></script>
+<script src="src/plan.js"></script>
+<script src="src/render.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
