@@ -14,22 +14,29 @@ document.title = t("doc.title");
 
 function fail(msg) { appEl.innerHTML = ""; const p = document.createElement("p"); p.textContent = msg; appEl.append(p); }
 
-// footer from meta: logos (linked, with optional background badge), programme line, author, disclaimer; nothing for absent keys
-function renderFoot(M) {
-  const foot = document.getElementById("foot"), el = (tag, cls) => Object.assign(document.createElement(tag), cls ? {className: cls} : {});
-  const web = u => /^https?:\/\//.test(u || ""); // only http(s) links from data
+const el = (tag, cls) => Object.assign(document.createElement(tag), cls ? {className: cls} : {});
+const web = u => /^https?:\/\//.test(u || ""); // only http(s) links from data
+
+// meta.logos as a row of linked logos, each with an optional background badge (for logos with white artwork); null if there are none
+function logoRow(M) {
   const logos = (M.logos || []).filter(l => l.src);
-  if (logos.length) {
-    const row = el("div", "logos");
-    logos.forEach(l => {
-      const box = el(web(l.url) ? "a" : "span", "logo"), img = el("img");
-      if (web(l.url)) box.href = l.url;
-      if (l.bg) box.style.background = l.bg;
-      img.src = `data/${SET}/${l.src}`; img.alt = l.alt || ""; img.loading = "lazy";
-      box.append(img); row.append(box);
-    });
-    foot.append(row);
-  }
+  if (!logos.length) return null;
+  const row = el("div", "logos");
+  logos.forEach(l => {
+    const box = el(web(l.url) ? "a" : "span", "logo"), img = el("img");
+    if (web(l.url)) box.href = l.url;
+    if (l.bg) box.style.background = l.bg;
+    img.src = `data/${SET}/${l.src}`; img.alt = l.alt || "";
+    box.append(img); row.append(box);
+  });
+  return row;
+}
+
+// footer from meta: logos, programme line, author, disclaimer; nothing for absent keys
+function renderFoot(M) {
+  const foot = document.getElementById("foot");
+  const logos = logoRow(M);
+  if (logos) foot.append(logos);
   const line = M.programmeLine || M.programme;
   if (line) foot.append(Object.assign(el("p"), {textContent: line}));
   const a = M.author;
@@ -50,6 +57,8 @@ function boot(raw) {
   document.title = M.title || t("doc.title");
   document.getElementById("title").textContent = M.title || t("doc.title");
   renderFoot(M);
+  const top = logoRow(M); // same logos at the top of the sidebar
+  if (top) document.getElementById("side-logos").append(top);
 
   // tick state: legacy sets keep their old single key; v2 stores ticks per semester plus one shared "common" bucket
   const stores = {};
