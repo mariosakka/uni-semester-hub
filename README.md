@@ -75,6 +75,10 @@ scripts/validate.mjs  data validator (--selftest for its own check)
 - `.ics` times are saved as floating local time (no timezone), so calendar apps interpret them in the device's zone.
 - Data strings may contain HTML and are trusted. Only load data sets you wrote yourself.
 
+## Fonts
+
+Text uses [Inter](https://github.com/rsms/inter) (variable, weights 100–900), self-hosted in `fonts/` as the `latin` and `latin-ext` woff2 subsets from `@fontsource-variable/inter` 5.3.0; `latin-ext` loads only when a page contains characters such as ă ș ț. No font requests leave the site; if the files fail to load, the system UI font is used. Typography and spacing live in `src/typography.css` (loaded after `src/style.css`). Inter is licensed under the SIL Open Font License 1.1, see [fonts/OFL.txt](fonts/OFL.txt).
+
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE) (code). The bundled Inter font is under the SIL OFL 1.1, see [fonts/OFL.txt](fonts/OFL.txt).

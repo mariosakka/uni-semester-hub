@@ -131,6 +131,8 @@ function boot(raw) {
     }
     renderSems(sem);
     curTab = tabs.find(t => t.id === showTab(tabs, r.tab, sem.id));
+    const canon = `#${sem.id}/${curTab ? curTab.id : ""}`; // a tab the semester lacks (or an old #overview/#y2s1 link) is rewritten to the tab actually shown
+    if (location.hash && location.hash !== canon) history.replaceState(null, "", canon);
     setHead();
     if (!document.body.classList.contains("searching")) window.scrollTo(0, 0);
   }
