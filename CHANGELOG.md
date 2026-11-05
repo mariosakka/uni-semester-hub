@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.1.0...v1.2.0) (2026-11-05)
+
+
+### Features
+
+* two-column footer with a GitHub button and release notes link ([95e9bdc](https://github.com/mariosakka/uni-semester-hub/commit/95e9bdc5da26b763345a51c1343163b16d4bffd3))
+
 ## [1.1.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.0.0...v1.1.0) (2026-11-05)
 
 
