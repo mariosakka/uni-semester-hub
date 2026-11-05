@@ -289,3 +289,6 @@ body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ev.dense{padding:.15rem .25rem;font-size:.66rem !important;border-left-width:3px}
 .ev.dense small,.ev.dense .badge{display:none}
 .ev.dense>b,.ev.dense .t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} /* full text in the tooltip and the day popup */
+
+/* the study-plan grading chips share the .gchip class with the subgroup summary chip: keep them rectangular so long names wrap cleanly */
+.pg .gchip{border-radius:8px;max-width:100%;line-height:1.25;padding:.15rem .5rem}
