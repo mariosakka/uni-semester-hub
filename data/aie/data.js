@@ -741,8 +741,6 @@ window.HUB_DATA = {
               "highlight": true,
               "items": [
                 "[ ] Pick a Research 1 topic <b>and coordinator by the beginning of December</b>.",
-                "[ ] Data Engineering: recovery lab for the cancelled 27 Oct lab, <b>Wed 4 Nov from 18:00</b> (Cosmin, official).",
-                "[ ] Applied ML: next SAP session <b>Thu 12 Nov</b> (17:00 slot; SAP contact told the course teacher).",
                 "[ ] Data Engineering: check the Azure/Databricks screenshots (how far you got) were sent to the teacher."
               ]
             },

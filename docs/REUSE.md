@@ -27,6 +27,7 @@ Add an object to `years`: `{ id: "y2", title: "Year 2 · 2027–2028", semesters
 
 - The News tab is the dated announcements feed only. Administrative notes (cards, certificates, rooms, faculty pages) go in an ordinary `list` section with `tab: "info"`, next to contacts and useful links.
 - Put announcements and teacher updates in a `{ kind: "news", items: [ { date, title, text, source, unconfirmed, course } ] }` section: the News tab shows them newest first, and items from the last 7 days get a "new" badge. Add a line each time something is announced instead of editing old text; mark reports not yet confirmed by the teacher or faculty with `unconfirmed: true` and `source`.
+- Do not put schedule changes (cancelled, moved or recovery sessions, online switches) in the To-Do list: they belong in News, `deviations` / `extraSessions` (Schedule and Calendar).
 - Keep recurring tasks your learning platform already tracks (weekly homework uploads, Moodle deadlines) out of the To-Do and News lists; list one-off items only.
 - Put tasks and deadlines in a list with tickable items (`"[ ] …"`) or `highlight: true`; it appears in the To-Do tab. Other lists go to News. Old `tab: "overview"` still works (it means News), but the validator warns.
 
