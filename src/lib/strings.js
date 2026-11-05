@@ -29,6 +29,7 @@ export var HUB_STRINGS = {
   "footer.madeBy": "Made by {name}",
   "footer.version": "Version {version}",
   "footer.source": "Source on GitHub",
+  "footer.releaseNotes": "Release notes",
   // default tab titles
   "tab.news": "News",
   "tab.todo": "To-Do",

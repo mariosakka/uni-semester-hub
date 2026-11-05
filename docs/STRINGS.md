@@ -45,6 +45,7 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `footer.madeBy` | `Made by {name}` |
 | `footer.version` | `Version {version}` |
 | `footer.source` | `Source on GitHub` |
+| `footer.releaseNotes` | `Release notes` |
 
 ## tab
 

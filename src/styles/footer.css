@@ -1,0 +1,12 @@
+/* footer: two columns (programme | project), then the disclaimer on its own row; wraps to one column on phones. No flex gap (Safari 14). */
+#foot .fcols{display:flex;flex-wrap:wrap;margin:0 calc(-1*var(--sp-3))}
+#foot .fcol{flex:1 1 15rem;min-width:0;padding:0 var(--sp-3);margin-bottom:var(--sp-4)}
+#foot .fcol h2{margin:0 0 var(--sp-2);font-size:var(--fs-xs);font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+#foot .fcol p{margin:var(--sp-1) 0}
+#foot .fcol .logos{margin-bottom:var(--sp-2)}
+#foot .fbtns{display:flex;flex-wrap:wrap;margin:var(--sp-2) calc(-1*var(--sp-1)) 0}
+#foot .fbtn{display:inline-flex;align-items:center;margin:0 var(--sp-1) var(--sp-2);padding:.45rem .8rem;border:1px solid #8886;border-radius:8px;background:var(--card);color:var(--fg);font-size:var(--fs-sm);font-weight:550;text-decoration:none;line-height:1.2}
+#foot .fbtn:hover{border-color:var(--acc);text-decoration:none}
+#foot .fbtn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#foot .fbtn svg{flex:none;width:20px;height:20px;margin-right:.5rem;fill:currentColor}
+#foot .fdis{margin:0;padding-top:var(--sp-3);border-top:1px solid #8883;max-width:none}
