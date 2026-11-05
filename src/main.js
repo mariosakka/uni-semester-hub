@@ -4,13 +4,15 @@ import "./styles/base.css";
 import App from "./App.vue";
 import {HUB_LOCALE, setStrings, t} from "./lib/strings.js";
 import {normalize, flatten, autoSemester, semesterView, semOfDate} from "./lib/semester.js";
-import {scheduleTarget} from "./lib/shared.js";
+import {useScheduleTarget} from "./composables/useScheduleTarget.js";
 
+const scheduleTarget = useScheduleTarget();
 const metaSet = document.querySelector('meta[name="hub-default-set"]');
 const SET = new URLSearchParams(location.search).get("set") || (metaSet && metaSet.content) || "sample";
 document.title = t("doc.title");
 
-const fail = msg => createApp({render: () => h("div", {id: "content"}, h("main", {id: "app"}, h("p", msg)))}).mount("#root");
+const mountRoot = (root, props) => createApp(root, props).mount("#root");
+const fail = msg => mountRoot({render: () => h("div", {id: "content"}, h("main", {id: "app"}, h("p", msg)))});
 
 function boot(raw) {
   setStrings(raw && raw.meta); // before anything renders: overrides + locale
@@ -24,7 +26,7 @@ function boot(raw) {
     const key = scope === "legacy" ? `hub-done:${SET}` : `hub-done:${SET}:${scope}`;
     let done;
     try { done = new Set(JSON.parse(localStorage.getItem(key) || "[]")); } catch { done = new Set(); }
-    return {done, save: () => { try { localStorage.setItem(key, JSON.stringify([...done])); } catch {} }}; // blocked storage: ticks last until reload
+    return {done, save: () => { try { localStorage.setItem(key, JSON.stringify([...done])); } catch { /* blocked storage */ } }}; // blocked storage: ticks last until reload
   })();
 
   // one view per semester, shared by everything that reads it (the page, the Calendar's day modal and Year view, subgroup choices);
@@ -35,11 +37,11 @@ function boot(raw) {
     const V = views[sem.id] = semesterView(N, sem);
     V.groupKey = N.legacy ? `hub-groups:${SET}` : `hub-groups:${SET}:${sem.id}`;
     V.viewFor = key => { const s = semOfDate(SEMS, key); return s ? viewOf(s) : V; };
-    V.openWeek = w => { Object.assign(scheduleTarget, {sem: sem.id, w}); location.hash = `#${sem.id}/schedule`; };
+    V.openWeek = w => { scheduleTarget.request(sem.id, w); location.hash = `#${sem.id}/schedule`; };
     return V;
   }
 
-  createApp(App, {hub: {set: SET, base: `data/${SET}/`, N, SEMS, auto, store, viewOf}}).mount("#root");
+  mountRoot(App, {hub: {set: SET, base: `data/${SET}/`, N, SEMS, auto, store, viewOf}});
 }
 
 if (!/^\w[\w.-]*$/.test(SET)) fail(t("err.invalidSet"));

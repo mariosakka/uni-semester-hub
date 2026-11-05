@@ -4,9 +4,10 @@ import {t} from "../../lib/strings.js";
 import {fmtLong, fmtTime} from "../../lib/util.js";
 import {EVAL, evalCode} from "../../lib/plan.js";
 import {cap} from "../../lib/daymodal.js";
-import {openDayModal} from "../../lib/shared.js";
+import {useModal} from "../../composables/useModal.js";
 // Session modal content (rows from sessionInfo()); "Open day" swaps to that day's modal, focus still returns to the original opener.
-const props = defineProps({info: Object, D: Object, opener: Object});
+const props = defineProps({info: {type: Object, required: true}, semester: {type: Object, required: true}, opener: {type: Element, default: null}});
+const {openDayModal} = useModal();
 const st = computed(() => ({cancel: ["cxs", "✕ " + t("modal.notHeld")], extra: ["", t("modal.extra")], dev: ["unc", "⚠ " + t("modal.differs")], ok: ["", t("session.ok")]}[props.info.status]));
 const subject = computed(() => {
   const c = props.info.course, ev = EVAL[evalCode(c)], bits = [];
@@ -27,5 +28,5 @@ const subject = computed(() => {
     <template v-if="info.teacher"><dt>{{ t("session.teacher") }}</dt><dd>{{ info.teacher }}</dd></template>
     <template v-if="subject"><dt>{{ t("session.subject") }}</dt><dd>{{ subject }}</dd></template>
   </dl>
-  <p><button type="button" class="dm-open" @click="openDayModal(D, info.key, opener)">{{ t("session.openDay") }}</button></p>
+  <p><button type="button" class="dm-open" @click="openDayModal(semester, info.key, opener)">{{ t("session.openDay") }}</button></p>
 </template>

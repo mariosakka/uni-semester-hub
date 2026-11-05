@@ -1,14 +1,13 @@
-<script>
+<script setup>
+import {computed} from "vue";
 import {t} from "../../lib/strings.js";
-import {groupTick} from "../../lib/shared.js";
 import {legendInfo, typeName, typeLetter} from "../../lib/schedule.js";
+import {useSubgroupSync} from "../../composables/useSubgroupSync.js";
 
 // swatches reuse the CSS of the real blocks; one legend under both the grid and the phone agenda
-export default {
-  props: {D: Object},
-  methods: {t, typeName, typeLetter},
-  computed: { info() { groupTick.value; return legendInfo(this.D); } } // subgroup choice changes what is listed
-};
+const props = defineProps({semester: {type: Object, required: true}});
+const {tick} = useSubgroupSync();
+const info = computed(() => { tick.value; return legendInfo(props.semester); }); // subgroup choice changes what is listed
 </script>
 
 <template>

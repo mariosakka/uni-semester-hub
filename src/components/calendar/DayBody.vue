@@ -4,12 +4,14 @@ import {t} from "../../lib/strings.js";
 import {parseDate, fmtDate, fmtTime} from "../../lib/util.js";
 import {courseOf, typeName, place} from "../../lib/schedule.js";
 import {dayInfo} from "../../lib/calendar.js";
-import {groupTick, scheduleTarget} from "../../lib/shared.js";
+import {useSubgroupSync} from "../../composables/useSubgroupSync.js";
+import {useScheduleTarget} from "../../composables/useScheduleTarget.js";
 // Day modal content: period, day off, deadlines/exams, sessions (with deviations), news dated that day, "Open in Schedule".
-const props = defineProps({D: Object, dayKey: String});
+const props = defineProps({semester: {type: Object, required: true}, dayKey: {type: String, required: true}});
 const emit = defineEmits(["open-week"]);
-const V = computed(() => props.D.viewFor ? props.D.viewFor(props.dayKey) : props.D);
-const info = computed(() => { groupTick.value; return dayInfo(V.value, props.dayKey); });
+const {tick} = useSubgroupSync(), {request} = useScheduleTarget();
+const V = computed(() => props.semester.viewFor ? props.semester.viewFor(props.dayKey) : props.semester);
+const info = computed(() => { tick.value; return dayInfo(V.value, props.dayKey); });
 const rng = d => fmtDate(parseDate(d));
 const tagOf = e => e.kind === "exam" ? ["unc", "calendar.legend.keyExam"] : ["off", "calendar.legend.task"];
 const sess = computed(() => info.value.sessions.map(s => {
@@ -17,7 +19,7 @@ const sess = computed(() => info.value.sessions.map(s => {
   return {s, c, cx, flag: cx ? "✕ " + t("modal.notHeld") : s.extra ? t("modal.extra") : s.status === "dev" ? "⚠ " + t("modal.differs") : ""};
 }));
 function openWeek() { // sets the target, then the hash change closes the modal (ModalHost) and the Schedule tab shows that week
-  scheduleTarget.sem = V.value.id; scheduleTarget.w = info.value.week;
+  request(V.value.id, info.value.week);
   emit("open-week", V.value.id);
 }
 </script>

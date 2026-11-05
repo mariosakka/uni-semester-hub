@@ -165,7 +165,7 @@ function checkSemester(S, pre, errs, strict, warns) {
 // meta.strings: object of known key -> string (unknown keys only warn); meta.locale: string
 function checkStrings(meta, e, warns) {
   if (meta?.locale !== undefined) {
-    let ok = false;
+    let ok;
     try { ok = typeof meta.locale === 'string' && Intl.DateTimeFormat.supportedLocalesOf([meta.locale]).length > 0; } catch { ok = false; }
     if (typeof meta.locale !== 'string') e('meta.locale', 'must be a string');
     else if (!ok) warns.push(`meta.locale: ${JSON.stringify(meta.locale)} is not a supported locale (the site falls back to en-GB)`);

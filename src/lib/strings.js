@@ -1,8 +1,4 @@
 import {esc} from "./util.js";
-import {place} from "./schedule.js";
-import {kd} from "./calendar.js";
-import {cap} from "./daymodal.js";
-import {link} from "./render.js";
 // UI strings: one flat default (English) table, read only through t() / tx(). A data set can reword or translate any key with
 // meta.strings = { "key": "text" } and set meta.locale ("ro-RO") for weekday/month names and date formats. Strings are PLAIN TEXT:
 // t() returns text, tx() escapes the template and fills {placeholders} with HTML the calling code built. docs/STRINGS.md lists every key
@@ -189,8 +185,8 @@ export function setStrings(meta) {
   HUB_OVERRIDES = {};
   HUB_LOCALE = "en-GB";
   if (m.locale !== undefined) {
-    var ok = false;
-    try { ok = typeof m.locale === "string" && Intl.DateTimeFormat.supportedLocalesOf([m.locale]).length > 0; } catch (e) { ok = false; }
+    var ok;
+    try { ok = typeof m.locale === "string" && Intl.DateTimeFormat.supportedLocalesOf([m.locale]).length > 0; } catch { ok = false; }
     if (ok) HUB_LOCALE = m.locale; else console.warn("meta.locale " + JSON.stringify(m.locale) + " is not a supported locale; using en-GB");
   }
   if (s === undefined) return;

@@ -1,6 +1,4 @@
-import {HUB_LOCALE, t} from "./strings.js";
-import {place} from "./schedule.js";
-import {kd} from "./calendar.js";
+import {HUB_LOCALE} from "./strings.js";
 // Small helpers shared by the other scripts (plain globals, no modules, so it works from file://).
 export const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 export const pad = n => String(n).padStart(2, "0");

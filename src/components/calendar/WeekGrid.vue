@@ -4,18 +4,19 @@ import {computed} from "vue";
 import {iso, addDays, fmtDate, dayName, fmtTime} from "../../lib/util.js";
 import {courseOf, place, weekSessions} from "../../lib/schedule.js";
 import {weekNumberOf, dayState} from "../../lib/calendar.js";
-import {groupTick} from "../../lib/shared.js";
+import {useSubgroupSync} from "../../composables/useSubgroupSync.js";
 import {t} from "../../lib/strings.js";
 import DayCell from "./DayCell.vue";
 
-const props = defineProps({D: Object, start: Date, today: String});
+const props = defineProps({semester: {type: Object, required: true}, start: {type: Date, required: true}, today: {type: String, required: true}});
+const {tick} = useSubgroupSync();
 const days = computed(() => {
-  groupTick.value; // subgroup choice changes the sessions
-  const w = weekNumberOf(props.D, props.start), by = {};
-  (w ? weekSessions(props.D, w) : []).forEach(s => (by[s.key] ||= []).push(s));
+  tick.value; // subgroup choice changes the sessions
+  const w = weekNumberOf(props.semester, props.start), by = {};
+  (w ? weekSessions(props.semester, w) : []).forEach(s => (by[s.key] ||= []).push(s));
   return [0, 1, 2, 3, 4, 5, 6].map(i => {
-    const date = addDays(props.start, i), k = iso(date), st = dayState(props.D, k);
-    const lines = (by[k] || []).sort((a, b) => a.start - b.start).map(s => ({s, c: courseOf(props.D, s.course), cx: s.status === "cancel"}));
+    const date = addDays(props.start, i), k = iso(date), st = dayState(props.semester, k);
+    const lines = (by[k] || []).sort((a, b) => a.start - b.start).map(s => ({s, c: courseOf(props.semester, s.course), cx: s.status === "cancel"}));
     return {date, k, st, label: st.off || (st.p && st.p.label) || "", lines};
   });
 });
@@ -23,7 +24,7 @@ const days = computed(() => {
 
 <template>
   <div class="wgrid">
-    <DayCell v-for="x in days" :key="x.k" :D="D" :st="x.st" :k="x.k" :today="today" extra=" wday">
+    <DayCell v-for="x in days" :key="x.k" :semester="semester" :st="x.st" :k="x.k" :today="today" extra=" wday">
       <span class="wn"><b>{{ dayName(x.date, "short") }}</b> {{ fmtDate(x.date) }}</span>
       <span v-if="x.label" class="wl">{{ x.label }}</span>
       <span v-if="x.st.ev.length" class="wk"><span v-for="(e, i) in x.st.ev" :key="i" :class="['km', e.kind]" :title="e.label">●</span></span>

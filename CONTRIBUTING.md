@@ -8,8 +8,9 @@ Never commit real names, phone numbers, email addresses, invite links or meeting
 
 - `node scripts/validate.mjs public/data/sample/data.js` passes
 - `node scripts/validate.mjs --selftest` passes
-- `npm test` passes and `npm run build` succeeds (Node 20+; `npm run dev` for a live preview)
+- `npm run check` passes (ESLint with eslint-plugin-vue, Vitest, data validators, build; Node 20+; `npm run dev` for a live preview)
 - Check light and dark mode, and a phone width
+- Follow the Vue conventions in [AGENTS.md](AGENTS.md) (script setup, composables, typed props, `<RichText>` instead of `v-html`)
 - No runtime dependencies besides Vue, no network requests
 
 ## Proposing a new section kind

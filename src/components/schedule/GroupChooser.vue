@@ -1,31 +1,21 @@
-<script>
+<script setup>
+import {computed} from "vue";
 import {t} from "../../lib/strings.js";
-import {groupTick} from "../../lib/shared.js";
 import {discoverGroups, groupFor, groupSummary, setGroup, setAllGroups, resetGroups} from "../../lib/groups.js";
 import {courseOf} from "../../lib/schedule.js";
+import {useSubgroupSync} from "../../composables/useSubgroupSync.js";
+import {useGroupPanel} from "../../composables/useGroupPanel.js";
 
 // subgroup chooser: a disclosure under the week row (inline on wide screens, a bottom sheet on phones, see CSS)
-export default {
-  props: {D: Object},
-  data() { return {open: !!this.D._gopen}; },
-  methods: {
-    t,
-    set(on) { this.open = on; this.D._gopen = on; },
-    toggle() { this.set(!this.open); if (this.open) this.$nextTick(() => { const s = this.$refs.panel.querySelector("select"); if (s) s.focus(); }); },
-    close(refocus) { if (!this.open) return; this.set(false); if (refocus) this.$refs.btn.focus(); },
-    pick(course, value) { setGroup(this.D, course, value); groupTick.value++; },
-    preset(p) { if (p === "reset") resetGroups(this.D); else setAllGroups(this.D, p); groupTick.value++; },
-    onKey(e) { if (e.key === "Escape") this.close(true); },
-    onClick(e) { if (!e.target.closest(".gwrap")) this.close(false); }
-  },
-  computed: {
-    rows() { groupTick.value; return discoverGroups(this.D).map(g => ({...g, c: courseOf(this.D, g.course), cur: groupFor(this.D, g.course)})); },
-    all() { return [...new Set(this.rows.flatMap(g => g.groups))].sort(); },
-    summary() { groupTick.value; return groupSummary(this.D); }
-  },
-  mounted() { document.addEventListener("keydown", this.onKey); document.addEventListener("click", this.onClick); },
-  beforeUnmount() { document.removeEventListener("keydown", this.onKey); document.removeEventListener("click", this.onClick); }
-};
+const props = defineProps({semester: {type: Object, required: true}});
+const {tick, bump} = useSubgroupSync();
+const {open, btn, panel, close, toggle} = useGroupPanel(() => props.semester);
+
+const rows = computed(() => { tick.value; return discoverGroups(props.semester).map(g => ({...g, c: courseOf(props.semester, g.course), cur: groupFor(props.semester, g.course)})); });
+const all = computed(() => [...new Set(rows.value.flatMap(g => g.groups))].sort());
+const summary = computed(() => { tick.value; return groupSummary(props.semester); });
+function pick(course, value) { setGroup(props.semester, course, value); bump(); }
+function preset(p) { if (p === "reset") resetGroups(props.semester); else setAllGroups(props.semester, p); bump(); }
 </script>
 
 <template>

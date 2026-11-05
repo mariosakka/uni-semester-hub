@@ -53,7 +53,10 @@ See [docs/SCHEMA.md](docs/SCHEMA.md) for the format.
 ```
 npm install
 npm run dev      # live preview, http://localhost:5173/
-npm test         # logic tests + data validators
+npm run lint     # ESLint (eslint-plugin-vue)
+npm test         # Vitest unit and component tests
+npm run test:data  # data validators
+npm run check    # all of the above plus the build
 npm run build    # static site in dist/
 ```
 
@@ -78,17 +81,18 @@ Push to `main`, then in the repository go to Settings, Pages, Source: GitHub Act
 
 ## How the code is organised
 
-One folder per feature, so features can be changed independently: pure logic (no Vue) lives in `src/lib/` and is covered by node tests (`npm test`); each feature's Vue components live in `src/components/<feature>/` and its CSS in `src/styles/<feature>.css`; UI text comes only from `src/lib/strings.js` (see [docs/STRINGS.md](docs/STRINGS.md)). The footer shows the version Release Please maintains and a link to the repository (`repository` in `package.json`).
+The code follows Vue 3 conventions (details for contributors and coding agents in [AGENTS.md](AGENTS.md)): `<script setup>` components with typed props and declared emits, shared logic in composables (`src/composables/use*.js`), provide/inject through a Symbol key, trusted data HTML only through `<RichText>`. One folder per feature: pure logic (no Vue) lives in `src/lib/` next to its Vitest tests; each feature's components live in `src/components/<feature>/` and its CSS in `src/styles/<feature>.css`; UI text comes only from `src/lib/strings.js` (see [docs/STRINGS.md](docs/STRINGS.md)). Quality gates: ESLint (`eslint-plugin-vue`), Vitest unit and component tests, the data validators, and the build (`npm run check`, also run in CI before every deploy). The footer shows the version Release Please maintains and a link to the repository (`repository` in `package.json`).
 
 ## Layout
 
 ```
 index.html            Vite entry page
-package.json          scripts: dev, build, test
-src/lib/              pure logic (dates, semester, schedule, calendar, plan, tabs, strings) with node tests
-src/components/       Vue components by feature: schedule/, calendar/ (incl. modals), plan/, sections/
+package.json          scripts: dev, build, lint, test, test:data, check
+src/lib/              pure logic (dates, semester, schedule, calendar, plan, tabs, strings) + Vitest tests
+src/composables/      use*.js: hub, modal, drawer, hash route, search, ticks, focus trap, ...
+src/components/       Vue components by feature: schedule/, calendar/ (incl. modals), plan/, sections/ (+ shell)
 src/styles/           CSS per feature (base, schedule, calendar, plan, sections)
-src/App.vue, main.js  app shell, routing, data loading
+src/App.vue, main.js  app shell, data loading; src/injection.js: provide/inject keys
 public/data/sample/data.js   sample data set (tracked); public/data/aie/ is the published set of this repo, other sets are gitignored
 public/fonts/         self-hosted Inter (latin + latin-ext) and its license
 public/data/<set>/assets/    optional calendar image/PDF for a set

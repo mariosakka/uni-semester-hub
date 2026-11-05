@@ -1,14 +1,15 @@
 <script setup>
-import {ref, reactive, computed} from "vue";
+import {reactive, computed} from "vue";
 import {t, tx} from "../../lib/strings.js";
 import {esc, iso, addDays, fmtDate, monthName} from "../../lib/util.js";
-import {CAL_MODES, kd, calRange, clampDate, mondayOfDate, nearestMonth} from "../../lib/calendar.js";
+import {CAL_MODES, calRange, clampDate, mondayOfDate, nearestMonth} from "../../lib/calendar.js";
+import RichText from "../RichText.vue";
 import MonthGrid from "./MonthGrid.vue";
 import WeekGrid from "./WeekGrid.vue";
 import YearView from "./YearView.vue";
 // Week / Month / Year over the semester's calendar. base = folder of the data set (optional image / pdf paths).
-const props = defineProps({D: Object, base: {type: String, default: ""}});
-const D = props.D, C = D.calendar || {}, [lo, hi] = calRange(D), now = new Date(), today = iso(now);
+const props = defineProps({semester: {type: Object, required: true}, base: {type: String, default: ""}});
+const D = props.semester, C = D.calendar || {}, [lo, hi] = calRange(D), now = new Date(), today = iso(now);
 const S = reactive({mode: "month", anchor: clampDate(now, lo, hi)});
 
 const v = computed(() => {
@@ -41,11 +42,11 @@ const docLink = tx("calendar.officialDoc", {link: C.pdf ? `<a href="${esc(props.
     </div>
     <div class="legend"><span class="d teach">{{ t("calendar.legend.teaching") }}</span><span class="d exam">{{ t("calendar.legend.exams") }}</span><span class="d off">{{ t("calendar.legend.dayOff") }}</span><span class="d key task">{{ t("calendar.legend.task") }}</span><span class="d key exam">{{ t("calendar.legend.keyExam") }}</span></div>
     <div class="cbody">
-      <WeekGrid v-if="S.mode === 'week'" :D="D" :start="v.st" :today="today"/>
-      <div v-else-if="S.mode === 'month'" class="months one"><MonthGrid :D="D" :src="D" :y="v.y" :m="v.m" :today="today"/></div>
-      <YearView v-else :D="D" :today="today"/>
+      <WeekGrid v-if="S.mode === 'week'" :semester="D" :start="v.st" :today="today" />
+      <div v-else-if="S.mode === 'month'" class="months one"><MonthGrid :semester="D" :src="D" :y="v.y" :m="v.m" :today="today" /></div>
+      <YearView v-else :semester="D" :today="today" />
     </div>
-    <p v-if="C.note" class="note" v-html="C.note"></p>
+    <RichText v-if="C.note" tag="p" class="note" :html="C.note" />
     <a v-if="C.image" :href="base + (C.pdf || C.image)"><img class="calimg" :src="base + C.image" :alt="t('calendar.imageAlt')"></a>
-    <p v-if="C.pdf" class="note" v-html="docLink"></p>
+    <RichText v-if="C.pdf" tag="p" class="note" :html="docLink" />
 </template>

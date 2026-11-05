@@ -1,24 +1,24 @@
-<script>
+<script setup>
+import {computed, ref} from "vue";
 import {t} from "../../lib/strings.js";
 import {EVAL, HOURS, evalCode, hoursSum, barPct} from "../../lib/plan.js";
 
 // One subject = a <tbody class="prow"> (main row + hidden detail row): the search filter treats it as one unit.
-export default {
-  props: {c: Object, i: Number, maxEcts: Number},
-  data: () => ({open: false}),
-  computed: {
-    id() { return `pd-${this.i}`; },
-    ev() { return EVAL[evalCode(this.c)]; },
-    hrs() { return HOURS.filter(([k]) => +(this.c.hours || {})[k] > 0); },
-    tot() { return hoursSum(this.c.hours); },
-    comps() { return (this.c.grading || {}).components || []; },
-    teachers() { return this.c.teachers || []; },
-    g() { return this.c.grading; },
-    total() { return this.comps.reduce((n, x) => n + (+x.weight || 0), 0); },
-    allW() { return this.comps.length && this.comps.every(x => x.weight != null); }
-  },
-  methods: {t, barPct, evalCode}
-};
+const props = defineProps({
+  c: {type: Object, required: true},
+  i: {type: Number, required: true},
+  maxEcts: {type: Number, default: 10}
+});
+const open = ref(false);
+const id = computed(() => `pd-${props.i}`);
+const ev = computed(() => EVAL[evalCode(props.c)]);
+const hrs = computed(() => HOURS.filter(([k]) => +(props.c.hours || {})[k] > 0));
+const tot = computed(() => hoursSum(props.c.hours));
+const comps = computed(() => (props.c.grading || {}).components || []);
+const teachers = computed(() => props.c.teachers || []);
+const g = computed(() => props.c.grading);
+const total = computed(() => comps.value.reduce((n, x) => n + (+x.weight || 0), 0));
+const allW = computed(() => comps.value.length && comps.value.every(x => x.weight != null));
 </script>
 
 <template>

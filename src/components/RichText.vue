@@ -7,5 +7,5 @@ defineProps({
 </script>
 
 <template>
-  <component :is="tag" v-html="html"/>
+  <component :is="tag" v-html="html" />
 </template>

@@ -1,7 +1,7 @@
 <script setup>
 import {t} from "../lib/strings.js";
 // phones/tablets: sticky bar with the menu button and "Year · Semester · tab"
-defineProps({open: Boolean, label: String});
+defineProps({open: {type: Boolean, default: false}, label: {type: String, default: ""}});
 defineEmits(["toggle"]);
 </script>
 

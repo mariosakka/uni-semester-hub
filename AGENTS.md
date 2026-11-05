@@ -7,8 +7,18 @@ Vue 3 + Vite site, one folder per feature (see README "How the code is organised
 - Use the `gh` CLI, not raw API calls, for GitHub operations.
 - Commit author is the GitHub noreply address already configured; never commit the faculty email.
 
+## Code conventions (Vue 3)
+- `<script setup>` (Composition API) only; block order script, template, style; macros first. No Options API, no `this`.
+- Props with runtime types and defaults (`defineProps`), kebab-case in templates; events declared with `defineEmits`; never mutate props.
+- Shared logic lives in composables, one per file, `src/composables/use<Name>.js` (`useHub`, `useModal`, `useSubgroupSync`, `useScheduleTarget`, ...). Provide/inject with Symbol keys (`src/injection.js`), consumed through `useHub()`.
+- Pure domain logic (dates, semester, schedule, calendar, plan, tabs, strings) stays in `src/lib/` without Vue imports. Components are thin; derived state is `computed`; side effects have cleanup.
+- Direct DOM access only where Vue cannot (focus, ResizeObserver, scroll lock), wrapped in a composable. No private fields stuck on data objects.
+- `v-html` only through `<RichText>` (trusted data HTML); `:key` on every `v-for`.
+- Per-feature folders: `src/components/<feature>/`, `src/styles/<feature>.css` (unscoped, imported by the feature's top component).
+- Tests: Vitest, `src/**/*.test.js`, importing real modules; component tests with `@vue/test-utils` (`// @vitest-environment happy-dom`).
+
 ## Checks before every push
-- `npm test` and `npm run build` pass.
+- `npm run check` (lint, unit tests, data validators, build) passes.
 - Scan published files for words that must never appear: chat, whatsapp, classmate, secondhand, telegram, zoom, passcodes, phone numbers, personal/faculty email addresses.
 - UI text only through `t()` (src/lib/strings.js); regenerate `docs/STRINGS.md` with `node scripts/gen-strings-doc.mjs`.
 

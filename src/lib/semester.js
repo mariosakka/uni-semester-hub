@@ -1,14 +1,12 @@
 import {t} from "./strings.js";
 import {iso, parseDate, addDays} from "./util.js";
-import {place} from "./schedule.js";
-import {link} from "./render.js";
 // Programme -> years -> semesters: pure helpers (normalize, flatten, autoSemester, semesterView, parseRoute).
 
 // legacy flat data (no `years`) becomes one year with one semester
 export function normalize(D) {
   const meta = D.meta || {};
   if (D.years) return {meta, common: D.common || [], years: D.years.map(y => ({id: y.id, title: y.title, semesters: y.semesters || []})), legacy: false};
-  const {meta: _m, ...sem} = D;
+  const sem = {...D}; delete sem.meta;
   sem.id = "s1"; sem.title = meta.semester || t("nav.semester");
   return {meta, common: [], years: [{id: "y1", title: meta.academicYear || "", semesters: [sem]}], legacy: true};
 }

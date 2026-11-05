@@ -22,7 +22,7 @@ export default [
       "no-unused-vars": ["error", {argsIgnorePattern: "^_"}]
     }
   },
-  {files: ["src/components/RichText.vue"], rules: {"vue/no-v-html": "off"}},
+  {files: ["src/components/RichText.vue"], rules: {"vue/no-v-html": "off", "vue/no-v-text-v-html-on-component": "off"}},
   {files: ["scripts/**", "*.config.js"], languageOptions: {globals: globals.node}},
   {files: ["**/*.test.js"], languageOptions: {globals: globals.node}}
 ];

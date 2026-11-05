@@ -5,26 +5,27 @@ import {courseOf} from "./schedule.js";
 // D (a semester view) carries: D.groupKey (storage key, set by main.js), D.groupSel (cached explicit choices). With nothing stored every subgroup is shown.
 export const groupMem = {}; // in-memory fallback when localStorage is blocked (Safari private mode): choices last until reload
 
-// courses that have grouped sessions: [{course, groups: ["1", "2"]}]; cached on D (the timetable never changes after load)
+// courses that have grouped sessions: [{course, groups: ["1", "2"]}]; cached per D (the timetable never changes after load)
+const groupMaps = new WeakMap();
 export function groupMap(D) {
-  if (D._gm) return D._gm;
+  if (groupMaps.has(D)) return groupMaps.get(D);
   const by = {};
   (D.timetable || []).forEach(e => { if (e.group) (by[e.course] ||= new Set()).add(String(e.group)); });
-  D._gm = by;
+  groupMaps.set(D, by);
   Object.keys(by).forEach(c => { by[c] = [...by[c]].sort(); });
   return by;
 }
 export const discoverGroups = D => Object.entries(groupMap(D)).map(([course, groups]) => ({course, groups}));
 
 export function loadGroupSel(key) {
-  try { const v = JSON.parse(localStorage.getItem(key) || "null"); if (v && typeof v === "object" && !Array.isArray(v)) return v; } catch (e) { /* blocked or corrupt */ }
+  try { const v = JSON.parse(localStorage.getItem(key) || "null"); if (v && typeof v === "object" && !Array.isArray(v)) return v; } catch { /* blocked or corrupt */ }
   return groupMem[key] || {};
 }
 export const groupSel = D => D.groupSel || (D.groupSel = D.groupKey ? loadGroupSel(D.groupKey) : {});
 export function saveGroupSel(D) {
   if (!D.groupKey) return;
   groupMem[D.groupKey] = D.groupSel;
-  try { localStorage.setItem(D.groupKey, JSON.stringify(D.groupSel)); } catch (e) { /* ticks last until reload */ }
+  try { localStorage.setItem(D.groupKey, JSON.stringify(D.groupSel)); } catch { /* ticks last until reload */ }
 }
 
 // "all" or the subgroup value that applies to a course: the stored choice, else "all";
