@@ -8,12 +8,13 @@ Never commit real names, phone numbers, email addresses, invite links or meeting
 
 - `node scripts/validate.mjs public/data/sample/data.js` passes
 - `node scripts/validate.mjs --selftest` passes
-- Open `index.html` from `file://` and check light and dark mode
-- No build tools, no runtime dependencies, no network requests
+- `npm test` passes and `npm run build` succeeds (Node 20+; `npm run dev` for a live preview)
+- Check light and dark mode, and a phone width
+- No runtime dependencies besides Vue, no network requests
 
 ## Proposing a new section kind
 
-Open an issue first with: the kind name, its fields (follow the style of the existing kinds in [docs/SCHEMA.md](docs/SCHEMA.md)), a small data example, and why existing kinds (`list`, `table`, `links`, ...) do not fit. In the PR, update `docs/SCHEMA.md`, the renderer in `src/`, the `KINDS` list in `scripts/validate.mjs` (it validates both the legacy and the years/semesters shapes), and add an example to the sample data.
+Open an issue first with: the kind name, its fields (follow the style of the existing kinds in [docs/SCHEMA.md](docs/SCHEMA.md)), a small data example, and why existing kinds (`list`, `table`, `links`, ...) do not fit. In the PR, update `docs/SCHEMA.md`, the Vue component in `src/components/` (plus its pure logic in `src/lib/` and a node test), the `KINDS` list in `scripts/validate.mjs` (it validates both the legacy and the years/semesters shapes), and add an example to the sample data.
 
 ## Commit messages
 

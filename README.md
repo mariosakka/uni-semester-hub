@@ -44,7 +44,8 @@ See [docs/SCHEMA.md](docs/SCHEMA.md) for the format.
 - Deviations (cancel / online / in-person / note) and extra sessions highlighted on the grid
 - Academic calendar: teaching, vacation, exam periods, days off, deadline and exam markers
 - Per-course sections, contacts, links, tables, checklists (ticks saved in `localStorage`)
-- Filter box, light and dark mode, `.ics` export
+- Clickable session cards (type, subgroup, room and online labels) that open a details popup; a legend that matches the calendar's
+- Filter box, light and dark mode, `.ics` export, version and repository link in the footer
 - Vue 3 + Vite app that builds to plain static files: no server code, no network requests at runtime
 
 ## Quick start
@@ -74,6 +75,10 @@ New semester, new year or another programme: see [docs/REUSE.md](docs/REUSE.md).
 ## Deploy to GitHub Pages
 
 Push to `main`, then in the repository go to Settings, Pages, Source: GitHub Actions. `.github/workflows/pages.yml` builds the site (`npm ci && npm test && npm run build`) and publishes `dist/`. The root opens the default set from `index.html` (`aie` here); `?set=sample` shows the fictional sample. For a private hub, deploy from a private fork and be aware Pages sites are public unless your plan supports private Pages.
+
+## How the code is organised
+
+One folder per feature, so features can be changed independently: pure logic (no Vue) lives in `src/lib/` and is covered by node tests (`npm test`); each feature's Vue components live in `src/components/<feature>/` and its CSS in `src/styles/<feature>.css`; UI text comes only from `src/lib/strings.js` (see [docs/STRINGS.md](docs/STRINGS.md)). The footer shows the version Release Please maintains and a link to the repository (`repository` in `package.json`).
 
 ## Layout
 
