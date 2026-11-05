@@ -1,4 +1,4 @@
-// Academic calendar: Week / Month / Year views over calendar periods, days off and (week view) the timetable.
+// Academic calendar: Week / Month / Year views over calendar periods, days off, deadline/exam markers (keyDates) and (week view) the timetable.
 // Every day is a <button>; activating one opens the day-details modal (daymodal.js). Pure helpers first (node-tested), DOM below.
 const CAL_MODES = [["week", "calendar.mode.week"], ["month", "calendar.mode.month"], ["year", "calendar.mode.year"]]; // [mode, string key]
 const kd = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
@@ -25,20 +25,20 @@ function weekNumberOf(D, date) {
 // what a calendar source (a semester, or the merged year) says about one day
 function dayState(src, k) {
   const p = ((src.calendar || {}).periods || []).find(x => k >= x.from && k <= x.to) || null;
-  return {p, off: (src.daysOff || {})[k] || ""};
+  return {p, off: (src.daysOff || {})[k] || "", ev: (src.keyDates || []).filter(e => k >= e.from && k <= (e.to || e.from))};
 }
-const dayTip = st => [st.p && st.p.label, st.off].filter(Boolean).join(" · ");
+const dayTip = st => [st.p && st.p.label, st.off, ...st.ev.map(e => e.label)].filter(Boolean).join(" · ");
 function dayClass(st, k, today) {
   const wk = (parseDate(k).getDay() + 6) % 7 >= 5, kind = st.p && (st.p.kind === "break" || st.p.kind === "vac" ? "off" : st.p.kind);
-  return ["d", kind || "", st.off ? "off" : "", wk ? "we" : "", k === today ? "today" : ""].join(" ");
+  return ["d", kind || "", st.off ? "off" : "", wk ? "we" : "", st.ev.length ? "key " + st.ev[0].kind : "", k === today ? "today" : ""].join(" ");
 }
 
-// everything the day modal shows, as data: period, day off, sessions (with deviations), news dated that day
+// everything the day modal shows, as data: period, day off, deadlines/exams, sessions (with deviations), news dated that day
 function dayInfo(D, key) {
   const date = parseDate(key), st = dayState(D, key), w = weekNumberOf(D, date);
   const sessions = w ? weekSessions(D, w).filter(s => s.key === key).sort((a, b) => a.start - b.start) : [];
   const news = (D.sections || []).filter(s => s.kind === "news").flatMap(s => (s.items || []).filter(i => i.date === key));
-  return {key, date, week: w, parity: w ? (w % 2 ? "odd" : "even") : null, period: st.p, off: st.off, sessions, news};
+  return {key, date, week: w, parity: w ? (w % 2 ? "odd" : "even") : null, period: st.p, off: st.off, keys: st.ev, sessions, news};
 }
 
 // ---- rendering ----
@@ -55,7 +55,7 @@ function monthHTML(src, y, m, today) {
   return h + "</div></div>";
 }
 
-// seven large day cells Monday..Sunday: day label, period / day-off label, that day's sessions as compact lines
+// seven large day cells Monday..Sunday: day label, period / day-off label, deadline/exam markers, that day's sessions as compact lines
 function weekHTML(D, start, today) {
   const w = weekNumberOf(D, start), by = {};
   (w ? weekSessions(D, w) : []).forEach(s => (by[s.key] ||= []).push(s));
@@ -66,14 +66,14 @@ function weekHTML(D, start, today) {
       return `<span class="sl c-${esc(c.color || "grey")}${cx ? " cx" : ""}${s.status === "dev" ? " dev" : ""}">${fmtTime(s.start)} ${esc(c.short || c.title)} · ${esc(cx ? t("modal.notHeld") : place(s))}</span>`;
     }).join("");
     return cellHTML(st, k, today, `<span class="wn"><b>${esc(dayName(date, "short"))}</b> ${esc(fmtDate(date))}</span>` +
-      (label ? `<span class="wl">${esc(label)}</span>` : "") + lines, " wday");
+      (label ? `<span class="wl">${esc(label)}</span>` : "") + (st.ev.length ? `<span class="wk">${st.ev.map(e => `<span class="km ${e.kind}" title="${esc(e.label)}">●</span>`).join("")}</span>` : "") + lines, " wday");
   }).join("") + `</div>`;
 }
 
 // the whole academic year: every semester of the year with its months (semester boundaries = the headings and the period colours)
 function yearHTML(D, today) {
-  const Y = D.year || {semesters: [{title: "", months: calMonths(D)}], periods: (D.calendar || {}).periods || [], daysOff: D.daysOff};
-  const src = {calendar: {periods: Y.periods}, daysOff: Y.daysOff};
+  const Y = D.year || {semesters: [{title: "", months: calMonths(D)}], periods: (D.calendar || {}).periods || [], daysOff: D.daysOff, keyDates: D.keyDates};
+  const src = {calendar: {periods: Y.periods}, daysOff: Y.daysOff, keyDates: Y.keyDates};
   return Y.semesters.map(s => `<h3 class="ysem">${esc(s.title)}</h3><div class="months">${s.months.map(([y, m]) => monthHTML(src, y, m, today)).join("")}</div>`).join("");
 }
 
@@ -98,7 +98,7 @@ function renderCalendar(box, D, base = "") {
     (mode === "year" ? `<div class="cnav"><b>${esc(title)}</b></div>` :
       `<div class="cnav">${btn(`data-nav="-1"${atStart ? " disabled" : ""}`, t("calendar.prev"), "◀")}<b>${esc(title)}</b>${btn(`data-nav="1"${atEnd ? " disabled" : ""}`, t("calendar.next"), "▶")}` +
       `<button type="button" data-today>${esc(t("calendar.today"))}</button></div>`) +
-    `<div class="legend"><span class="d teach">${esc(t("calendar.legend.teaching"))}</span><span class="d exam">${esc(t("calendar.legend.exams"))}</span><span class="d off">${esc(t("calendar.legend.dayOff"))}</span></div>` +
+    `<div class="legend"><span class="d teach">${esc(t("calendar.legend.teaching"))}</span><span class="d exam">${esc(t("calendar.legend.exams"))}</span><span class="d off">${esc(t("calendar.legend.dayOff"))}</span><span class="d key task">${esc(t("calendar.legend.task"))}</span><span class="d key exam">${esc(t("calendar.legend.keyExam"))}</span></div>` +
     `<div class="cbody">${body}</div>` +
     (D.calendar && D.calendar.note ? `<p class="note">${D.calendar.note}</p>` : "") +
     (D.calendar && D.calendar.image ? `<a href="${esc(base + (D.calendar.pdf || D.calendar.image))}"><img class="calimg" src="${esc(base + D.calendar.image)}" alt="${esc(t("calendar.imageAlt"))}"></a>` : "") +

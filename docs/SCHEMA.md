@@ -92,6 +92,7 @@ window.HUB_DATA = {
       weeks: { segments: [ { start: "2026-09-28", count: 12 }, … ] },   // omit for a semester without a timetable yet
       courses: [ … ], timetable: [ … ], daysOff: {…}, deviations: […], extraSessions: […],   // same shapes as above
       calendar: { periods: [ … ], months: [[2026,8],[2026,9],…], note: "html", image: "calendar.png", pdf: "calendar.pdf" },
+      keyDates: [ { from: "2026-12-01", to: "2026-12-01", kind: "task", label: "Topic chosen" } ],   // deadlines (task) and exams/presentations (exam), see below
       tabs: [ … ],                      // optional, see Tabs
       sections: [ … ]                   // this semester's sections (kinds as above; course sections refer to this semester's courses)
     } ]
@@ -165,4 +166,22 @@ Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study pl
 
 Sections that describe administrative information (cards, certificates, rooms, faculty pages) are ordinary `list` sections placed on the Info tab with `tab: "info"`; the News tab is meant for the dated `news` feed only.
 
-`keyDates` (an old field) is no longer used; data sets that still contain it are accepted and the field is ignored.
+## Deadlines and exams on the calendar (`keyDates`)
+
+Per semester: `keyDates: [ { from, to?, kind: "task"|"exam", label } ]`. They are drawn as markers on the Calendar tab (orange outline = deadline, red outline = exam / presentation; week, month and year views, the year view merges all semesters of the year), explained in the calendar legend, and listed under "Deadlines" in the day popup. There is no separate text list. Use it for one-off real deadlines (dissertation topic, project submissions, exams, presentations), not for recurring tasks your learning platform already tracks.
+
+## To-Do cards (list items)
+
+Items of a `list` section are a string or an object:
+
+```js
+"[ ] Tickable card without details",          // string: "[ ] title" = tickable, any other text = note card
+"Plain note card",
+{ title: "Upload enrolment documents",         // plain text or html
+  text: "html details shown when the card is expanded (optional)",
+  due: "15 Oct",                               // short text shown as a badge next to the title (optional)
+  check: true,                                 // true = tickable (default false = note card)
+  open: false }                                // true = starts expanded (never for a ticked card)
+```
+
+On the **To-Do tab** every item of every list becomes its own card: `[checkbox] [title + due badge] [chevron]`, details below. Ticking a card collapses it, ticked cards start collapsed on load, a card without `text` has no chevron, the user can open any card by hand (state is not saved). The section heading shows a progress count ("1 / 2 done") when the list has tickable items. Ticks are saved under `${section id (or index)}:${item index}`, the same keys as plain lists, so reordering items still moves ticks. Lists on other tabs keep the plain look; an object item there shows title, badge and details.

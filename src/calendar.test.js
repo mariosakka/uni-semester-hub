@@ -42,8 +42,20 @@ if (set.startsWith("aie")) {
   const exam = info("2027-01-25");
   assert(exam.period && exam.period.kind === "exam", "exam session day");
   const sat = info("2026-11-07");
-  assert(sat.sessions.length === 0 && !sat.off, "an empty weekend");
+  assert(sat.sessions.length === 0 && !sat.off && sat.keys.length === 0, "an empty weekend");
+  // deadlines / exams (keyDates): markers, day info, ranges
+  assert(off.keys.length === 1 && off.keys[0].kind === "task", "1 Dec: the Research 1 topic deadline");
+  assert(/key task/.test(run(`dayClass(dayState(V, '2026-12-01'), '2026-12-01', '')`)), "task marker class");
+  assert(/key exam/.test(run(`dayClass(dayState(V, '2027-01-20'), '2027-01-20', '')`)), "exam marker class on a day inside a range");
+  assert(run(`dayState(V, '2027-01-18').ev.length + dayState(V, '2027-01-22').ev.length`) === 2 && run(`dayState(V, '2027-01-23').ev.length`) === 0, "range markers cover from..to only");
+  assert(run(`dayTip(dayState(V, '2026-12-01'))`).includes("Research 1"), "tooltip carries the label");
+  assert(run(`weekHTML(V, parseDate('2026-11-30'), '')`).includes('class="km task"'), "week view shows the marker");
 }
+// the year view merges the deadlines of every semester of the year; the legend and the day modal name them
+const ydk = run("V.year.keyDates");
+assert(Array.isArray(ydk), "year keyDates merged");
+if (set.startsWith("aie")) assert(ydk.some(k => k.from === "2027-01-18" && k.kind === "exam"), "year view includes the January presentation");
+assert(run("tx('calendar.legend.task') + t('calendar.legend.keyExam') + t('modal.deadlines')") === "DeadlineExam / presentationDeadlines", "legend + modal strings");
 
 // year data merges the semesters of the year
 const yd = run("V.year");

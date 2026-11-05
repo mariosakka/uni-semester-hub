@@ -740,8 +740,17 @@ window.HUB_DATA = {
               "tab": "todo",
               "highlight": true,
               "items": [
-                "[ ] Pick a Research 1 topic <b>and coordinator by the beginning of December</b>.",
-                "[ ] Data Engineering: check the Azure/Databricks screenshots (how far you got) were sent to the teacher."
+                {
+                  "title": "Pick a Research 1 topic and a coordinator",
+                  "due": "by the beginning of December",
+                  "check": true,
+                  "text": "Topic proposals (more were announced for the following week): <a href='https://docs.google.com/spreadsheets/d/1pXD1p3bzzxDnJImbCp37k5w3q9AKQRV46xQ5eJV6Zpo/edit?usp=sharing'>Google Sheet</a>. You may also propose your own topic to a specific professor; the list is not mandatory."
+                },
+                {
+                  "title": "Data Engineering: check that your Azure/Databricks screenshots reached the teacher",
+                  "check": true,
+                  "text": "In the 24 Oct lab 4 the Azure/Databricks resources failed on student accounts, so the teacher asked for screenshots of how far each student got."
+                }
               ]
             },
             {
@@ -901,11 +910,12 @@ window.HUB_DATA = {
               "tab": "todo",
               "highlight": true,
               "items": [
-                "[ ] Pick a research topic <b>and a coordinator by the beginning of December</b>.",
-                "Topic proposals (more coming next week): <a href='https://docs.google.com/spreadsheets/d/1pXD1p3bzzxDnJImbCp37k5w3q9AKQRV46xQ5eJV6Zpo/edit?usp=sharing'>Google Sheet</a>. You may also propose your own topic to a specific professor – the list is not mandatory.",
-                "<b>18–22 Jan 2027</b> (week 14): present Research 1 to a committee. Research I is worth <b>10 ECTS</b>, evaluation V (official study plan). Posted by Dascălu on 18 Oct.",
-                "Upload on Moodle: a written report of ≥15 pages with ≥20 relevant references, plus a PowerPoint (objectives, methodology, progress, main results).",
-                "Source: Dascălu, 18 Oct (official)."
+                {
+                  "title": "Present Research 1 to the committee",
+                  "due": "18–22 Jan 2027 (week 14)",
+                  "check": true,
+                  "text": "Research I is worth <b>10 ECTS</b>, evaluation V (official study plan). Upload on Moodle a written report of ≥15 pages with ≥20 relevant references, plus a PowerPoint (objectives, methodology, progress, main results). Source: Dascălu, 18 Oct (official)."
+                }
               ]
             },
             {
@@ -941,6 +951,20 @@ window.HUB_DATA = {
                   "url": "https://upb.ro/wp-content/uploads/2017/11/HARTI-CAMPUS-UPB.pdf"
                 }
               ]
+            }
+          ],
+          "keyDates": [
+            {
+              "from": "2026-12-01",
+              "to": "2026-12-01",
+              "kind": "task",
+              "label": "Research 1: choose a topic and a coordinator (by the beginning of December)"
+            },
+            {
+              "from": "2027-01-18",
+              "to": "2027-01-22",
+              "kind": "exam",
+              "label": "Research 1: committee presentation, report (≥15 pages, ≥20 references) and PowerPoint on Moodle"
             }
           ]
         },

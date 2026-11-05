@@ -11,8 +11,14 @@ function newsItem(it, D) {
     (c ? ` <span class="tag ctag c-${esc(c.color || "grey")}">${esc(c.short || c.title)}</span>` : "") + `</div>`;
 }
 
+// list items: a string ("[ ] title" = tickable, other text = plain) or { title, text?, due?, check?, open? }
+const itemCheck = it => typeof it === "string" ? it.startsWith("[ ] ") : !!(it && it.check === true);
+const itemTitle = it => typeof it === "string" ? (it.startsWith("[ ] ") ? it.slice(4) : it) : String((it && it.title) || "");
+const dueTag = due => due ? ` <span class="tc-due">${esc(due)}</span>` : "";
+const listItemHTML = it => typeof it === "string" ? itemTitle(it) : itemTitle(it) + dueTag(it.due) + (it.text ? `<div class="nt">${it.text}</div>` : ""); // plain lists (outside To-Do)
+
 const ITEMS = { // kind -> how one item becomes <li> content
-  list: t => t,
+  list: listItemHTML,
   news: newsItem,
   links: i => link(i.url, i.label) + (i.note ? ` – ${i.note}` : ""),
   contacts: i => [`<b>${i.name}</b>`, i.role, i.email && link("mailto:" + i.email, esc(i.email)), i.phone && link("tel:" + i.phone.replace(/[^\d+]/g, ""), esc(i.phone)), i.note].filter(Boolean).join(" · ")
@@ -32,6 +38,43 @@ function courseHead(D, sec) {
   return (bits.length ? `<p class="chead">${bits.join(" · ")}</p>` : "") +
     (gs ? `<p class="chead">${tx("course.grading", {value: gs + ((c.grading || {}).passRule ? " · " + esc(c.grading.passRule) : "")})}</p>` : "") +
     (ppl.length ? `<p class="chead">${tx("course.contacts", {value: peopleLine(ppl)})}</p>` : "");
+}
+
+// To-Do tab: every list item is a card = [checkbox] [title + due badge] [chevron] with optional details below.
+// Ticking a card closes it, done cards start closed, `open: true` starts a card open; closed cards keep their text in the DOM (hidden), so the filter
+// still matches it. Tick ids stay `${section id}:${item index}` as in plain lists.
+function todoCards(s, sec, id, items, done, save) {
+  const ul = document.createElement("ul"), total = items.filter(itemCheck).length, base = `tc${sec._scope || ""}-${id}`.replace(/[^\w-]/g, "_");
+  ul.className = "tcards";
+  const prog = () => { const el = s.querySelector(".tprog"); if (el) el.textContent = t("todo.progress", {done: items.filter((it, i) => itemCheck(it) && done.has(`${id}:${i}`)).length, total}); };
+  if (total) s.querySelector("h2").insertAdjacentHTML("beforeend", ` <span class="tprog"></span>`);
+  items.forEach((it, ii) => {
+    const key = `${id}:${ii}`, check = itemCheck(it), obj = typeof it === "object" && it !== null, text = obj && it.text ? it.text : "", uid = `${base}-${ii}`, isDone = check && done.has(key);
+    const li = document.createElement("li");
+    li.className = `tcard ${check ? "task" : "info"}${text ? " hasbody" : ""}${isDone ? " done" : ""}`;
+    li.innerHTML = `<div class="tc-head">` +
+      (check ? `<label class="tc-hit"><input type="checkbox" aria-labelledby="${uid}-t"${isDone ? " checked" : ""}></label>` : `<span class="tc-ico" aria-hidden="true"></span>`) +
+      `<span class="tc-title" id="${uid}-t">${itemTitle(it)}${obj ? dueTag(it.due) : ""}</span>` +
+      (text ? `<button type="button" class="tc-chev" aria-expanded="false" aria-controls="${uid}-b"></button>` : "") + `</div>` +
+      (text ? `<div class="tc-body" id="${uid}-b" hidden>${text}</div>` : "");
+    const btn = li.querySelector(".tc-chev"), body = li.querySelector(".tc-body");
+    const setOpen = on => { if (!btn) return; li.classList.toggle("open", on); btn.setAttribute("aria-expanded", String(on)); body.hidden = !on; };
+    if (btn) {
+      btn.setAttribute("aria-label", t("todo.details", {title: li.querySelector(".tc-title").textContent.trim()}));
+      btn.onclick = () => setOpen(body.hidden);
+      li.querySelector(".tc-title").onclick = e => { if (!e.target.closest("a")) setOpen(body.hidden); };
+      setOpen(obj && it.open === true && !isDone);
+    }
+    if (check) li.querySelector("input").onchange = e => {
+      e.target.checked ? done.add(key) : done.delete(key);
+      li.classList.toggle("done", e.target.checked);
+      if (e.target.checked) setOpen(false);
+      prog(); save();
+    };
+    ul.append(li);
+  });
+  prog();
+  s.append(ul);
 }
 
 // store(scope) -> {done, save}: done = Set of ticked item ids, persisted through save()
@@ -56,6 +99,8 @@ function renderSections(app, D, set, store) {
       if (sec.kind === "studyplan") s.addEventListener("click", planToggle);
     } else if (sec.kind === "table") {
       s.insertAdjacentHTML("beforeend", tableHTML(sec));
+    } else if (sec.kind === "list" && (sec.tab || defaultTab(sec)) === "todo") {
+      todoCards(s, sec, id, sec.items || [], done, save);
     } else {
       if (sec.kind === "course") s.insertAdjacentHTML("beforeend", courseHead(D, sec));
       const ul = document.createElement("ul"), fmt = ITEMS[sec.kind] || ITEMS.list;
@@ -64,9 +109,9 @@ function renderSections(app, D, set, store) {
       items.forEach((it, ii) => {
         const li = document.createElement("li"), key = `${id}:${ii}`;
         const text = fmt(it, D);
-        if (typeof it === "string" && it.startsWith("[ ] ")) {
+        if (sec.kind === "list" && itemCheck(it)) {
           li.className = "check" + (done.has(key) ? " done" : "");
-          li.innerHTML = `<label><input type="checkbox" ${done.has(key) ? "checked" : ""}> ${text.slice(4)}</label>`;
+          li.innerHTML = `<label><input type="checkbox" ${done.has(key) ? "checked" : ""}> ${typeof it === "string" ? text.slice(4) : text}</label>`;
           li.querySelector("input").onchange = e => {
             e.target.checked ? done.add(key) : done.delete(key);
             li.classList.toggle("done", e.target.checked);
@@ -89,7 +134,7 @@ const AUTO_TAB = {news: "news", schedule: "schedule", calendar: "calendar", cour
 const DEFAULT_TABS = [["news", "tab.news"], ["todo", "tab.todo"], ["schedule", "tab.schedule"], ["calendar", "tab.calendar"], ["courses", "tab.courses"], ["plan", "tab.plan"], ["contacts", "tab.contacts"], ["info", "tab.info"]]; // [id, string key]
 
 // a list with a tickable item or `highlight` is a to-do list, any other list is news
-const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(t => typeof t === "string" && t.startsWith("[ ] "))) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
+const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(itemCheck)) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
 
 // returns the tab list for D and moves sections with an unknown tab into the first one
 function setupTabs(D) {

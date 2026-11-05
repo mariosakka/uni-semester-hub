@@ -106,6 +106,9 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `schedule.legend.dayOff` | `Day off or vacation` |
 | `schedule.legend.unconfirmed` | `Unconfirmed report` |
 | `schedule.legend.extra` | `Extra session` |
+| `schedule.legend.subgroup` | `subgroup` |
+| `schedule.legend.room` | `room` |
+| `schedule.legend.online` | `Online session` |
 | `schedule.groups.button` | `Subgroups` |
 | `schedule.groups.title` | `Your subgroup per subject` |
 | `schedule.groups.all` | `All subgroups` |
@@ -133,6 +136,8 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `calendar.legend.teaching` | `Teaching` |
 | `calendar.legend.exams` | `Exams` |
 | `calendar.legend.dayOff` | `Vacation / day off` |
+| `calendar.legend.task` | `Deadline` |
+| `calendar.legend.keyExam` | `Exam / presentation` |
 | `calendar.modes` | `Calendar view` |
 | `calendar.mode.week` | `Week` |
 | `calendar.mode.month` | `Month` |
@@ -154,11 +159,36 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `modal.period` | `{label} ({from} – {to})` |
 | `modal.dayOff` | `Day off: {label}` |
 | `modal.sessions` | `Timetable` |
+| `modal.deadlines` | `Deadlines` |
 | `modal.news` | `News` |
 | `modal.notHeld` | `Not held` |
 | `modal.differs` | `Differs from the timetable` |
 | `modal.extra` | `Extra session` |
 | `modal.openSchedule` | `Open in Schedule` |
+
+## todo
+
+| Key | Default |
+|---|---|
+| `todo.progress` | `{done} / {total} done` |
+| `todo.details` | `Details: {title}` |
+
+## session
+
+| Key | Default |
+|---|---|
+| `session.type` | `Type` |
+| `session.when` | `When` |
+| `session.week` | `Week` |
+| `session.place` | `Place` |
+| `session.status` | `Status` |
+| `session.note` | `Note` |
+| `session.teacher` | `Teacher` |
+| `session.subject` | `Subject` |
+| `session.ok` | `As in the timetable` |
+| `session.modeDiffers` | `{now} (timetable: {base})` |
+| `session.credits` | `{n} ECTS` |
+| `session.openDay` | `Open day` |
 
 ## plan
 

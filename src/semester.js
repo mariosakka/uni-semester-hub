@@ -36,13 +36,13 @@ function semRange(s) {
 // the semester (of a flattened list) whose range contains the day, else null
 const semOfDate = (list, key) => list.find(s => { const r = semRange(s); return r && key >= r[0] && key <= r[1]; }) || null;
 
-// the academic year of a semester for the Calendar's Year view: its semesters' months plus merged periods / days off
+// the academic year of a semester for the Calendar's Year view: its semesters' months plus merged periods / days off / deadline markers
 function yearData(N, sem) {
-  const y = N.years.find(x => x.id === sem.yearId) || {title: "", semesters: [sem]}, out = {title: y.title || "", semesters: [], periods: [], daysOff: {}};
+  const y = N.years.find(x => x.id === sem.yearId) || {title: "", semesters: [sem]}, out = {title: y.title || "", semesters: [], periods: [], daysOff: {}, keyDates: []};
   y.semesters.forEach(s => {
     const C = s.calendar || {}, months = C.semesters ? C.semesters.flatMap(x => x.months) : (C.months || []);
     if (months.length) out.semesters.push({id: s.id, title: s.title, months});
-    out.periods.push(...(C.periods || []));
+    out.periods.push(...(C.periods || [])); out.keyDates.push(...(s.keyDates || []));
     Object.assign(out.daysOff, s.daysOff || {});
   });
   return out;

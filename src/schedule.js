@@ -38,6 +38,9 @@ const isNow = (e, today = new Date()) => today >= e.m && today < addDays(e.m, 7)
 const courseOf = (D, id) => (D.courses || []).find(c => c.id === id) || {id, title: id, color: "grey"};
 const TYPE_KEYS = {course: "type.course", lab: "type.lab", project: "type.project", seminar: "type.seminar"};
 const typeName = type => TYPE_KEYS[type] ? t(TYPE_KEYS[type]) : type;
+const LETTER_KEYS = {course: "plan.abbr.course", lab: "plan.abbr.lab", project: "plan.abbr.project", seminar: "plan.abbr.seminar"};
+const typeLetter = type => LETTER_KEYS[type] ? t(LETTER_KEYS[type]) : String(type || "").charAt(0).toUpperCase();
+const shortName = (D, id) => { const c = courseOf(D, id); return c.short || c.title; };
 const sessionTitle = (D, e) => { const c = courseOf(D, e.course); return `${c.short || c.title} (${typeName(e.type)}${e.group ? " " + t("schedule.subgroup", {n: e.group}) : ""})`; };
 
 // every session of week w, with status ok | dev (differs from the timetable) | cancel
@@ -56,19 +59,36 @@ function weekSessions(D, w) {
       note = dev.note || ""; u = !!dev.unconfirmed; status = dev.change === "cancel" ? "cancel" : "dev";
       if (dev.change === "online" || dev.change === "in-person") mode = dev.change;
     }
-    out.push({course: e.course, title: sessionTitle(D, e), day: e.day, start: e.start, end: e.end, teacher: e.teacher || "",
-      room: rule.room ?? e.room ?? "", mode, status, note, u, key, date: addDays(m, e.day), extra: false, type: e.type, group: e.group ? String(e.group) : ""});
+    const room = rule.room ?? e.room ?? "";
+    out.push({course: e.course, title: sessionTitle(D, e), name: shortName(D, e.course), day: e.day, start: e.start, end: e.end, teacher: e.teacher || "",
+      room, baseMode: rule.mode, baseRoom: room, mode, status, note, u, key, date: addDays(m, e.day), extra: false, type: e.type, group: e.group ? String(e.group) : ""});
   }
   for (const x of D.extraSessions || []) {
     const day = keys.indexOf(x.date);
     if (day < 0) continue;
-    out.push({course: x.course, title: sessionTitle(D, x), day, start: x.start, end: x.end, teacher: x.teacher || "", room: x.room || "",
-      mode: x.mode, status: "dev", note: x.note || "", u: false, key: x.date, date: addDays(m, day), extra: true, type: x.type, group: x.group ? String(x.group) : ""});
+    out.push({course: x.course, title: sessionTitle(D, x), name: shortName(D, x.course), day, start: x.start, end: x.end, teacher: x.teacher || "", room: x.room || "",
+      baseMode: "", baseRoom: "", mode: x.mode, status: "dev", note: x.note || "", u: false, key: x.date, date: addDays(m, day), extra: true, type: x.type, group: x.group ? String(x.group) : ""});
   }
   return out;
 }
 
-const place = s => s.mode === "online" ? t("schedule.online") : (s.room || t("schedule.inPerson"));
+const placeFor = (mode, room) => mode === "online" ? t("schedule.online") : (room || t("schedule.inPerson"));
+const place = s => placeFor(s.mode, s.room);
+
+// stable id of a session (card <-> modal, focus return after a re-render)
+const sessionKey = s => [s.course, s.type, s.group || 0, s.key, s.start].join("-");
+const cardAria = (D, s) => [courseOf(D, s.course).title, typeName(s.type) + (s.group ? " " + t("schedule.subgroup", {n: s.group}) : ""),
+  fmtTime(s.start) + "–" + fmtTime(s.end), s.status === "cancel" ? t("modal.notHeld") : place(s)].join(", ");
+
+// everything the session modal shows, as data
+function sessionInfo(D, s) {
+  const c = courseOf(D, s.course), w = weekNumberOf(D, s.date);
+  return {course: c, type: s.type, typeName: typeName(s.type), group: s.group, date: s.date, key: s.key, start: s.start, end: s.end,
+    week: w, parity: w ? (w % 2 ? "odd" : "even") : null, place: place(s), basePlace: placeFor(s.baseMode, s.baseRoom),
+    modeDiffers: !s.extra && !!s.baseMode && s.baseMode !== s.mode,
+    status: s.status === "cancel" ? "cancel" : s.extra ? "extra" : s.status === "dev" ? "dev" : "ok", note: s.note, u: s.u, teacher: s.teacher,
+    ects: c.ects, evaluation: c.evaluation};
+}
 
 // hour range of the grid, stable across weeks
 function hourRange(D) {
@@ -110,10 +130,16 @@ function downloadIcs(D) {
 // swatches reuse the CSS of the real blocks; one legend under both the grid and the phone agenda
 function scheduleLegendHTML(D) {
   const lg = (cls, label, mark = "") => `<span class="d ${cls}">${mark}${esc(label)}</span>`; // same chips as the calendar legend
-  const used = new Set([...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])].map(e => e.course));
+  const rows = [...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])], used = new Set(rows.map(e => e.course));
+  const types = ["course", "lab", "project", "seminar"].filter(ty => rows.some(e => e.type === ty));
+  const hasGroups = rows.some(e => e.group), room = (rows.find(e => e.room) || (D.timetable || []).flatMap(e => e.rules || []).find(r => r.room) || {}).room || "";
   return `<div class="legend" role="group" aria-label="${esc(t("schedule.legend.label"))}">` +
     lg("sdev", t("schedule.legend.differs")) + lg("scx", t("schedule.legend.notHeld")) + lg("off", t("schedule.legend.dayOff")) +
     lg("sunc", t("schedule.legend.unconfirmed"), "? ") + lg("sextra", t("schedule.legend.extra")) +
+    types.map(ty => lg("slb", typeName(ty), `<b class="lb lt">${esc(typeLetter(ty))}</b> `)).join("") +
+    (hasGroups ? lg("slb", t("schedule.legend.subgroup"), `<b class="lb">${esc(t("schedule.subgroup", {n: 2}))}</b> `) : "") +
+    (room ? lg("slb", t("schedule.legend.room"), `<b class="lb">${esc(room)}</b> `) : "") +
+    lg("slb", t("schedule.legend.online"), `<b class="lb lo">${esc(t("schedule.online"))}</b> `) +
     (D.courses || []).filter(c => used.has(c.id)).map(c => lg(`cs c-${esc(c.color || "grey")}`, c.short || c.title)).join("") + `</div>`;
 }
 
@@ -201,25 +227,29 @@ function renderSchedule(box, D, i) {
     if (cluster.length) flush();
   }
   const side = x => { const [l, n] = lanes.get(x) || [0, 1]; return n > 1 ? `left:${100 * l / n}%;right:${100 * (n - l - 1) / n}%;font-size:.72rem;` : ""; };
-  const inner = (s, narrow = false) => `<b>${fmtTime(s.start)}–${fmtTime(s.end)}</b> <span class="t">${esc(s.title)}</span>` +
-    (s.status === "cancel" && s.note ? "" : `<small>${esc(s.teacher)}<br>${s.status === "cancel" ? esc(t("schedule.notHeld")) : esc(place(s))}</small>`) + // a cancelled session with a note: the note says why, no extra lines
-    (s.note ? (narrow ? `<span class="badge" title="${esc(s.note)}">${s.status === "cancel" ? "✕" : "⚠"}${s.u ? " ?" : ""}</span>` // narrow lane: the full note is in the list under the grid
+  // card: time + short course name, label chips (type letter, subgroup, room or Online), teacher, deviation badge
+  const chips = s => `<span class="lbs"><span class="lb lt" title="${esc(typeName(s.type))}">${esc(typeLetter(s.type))}</span>` +
+    (s.group ? `<span class="lb">${esc(t("schedule.subgroup", {n: s.group}))}</span>` : "") +
+    (s.status === "cancel" ? "" : s.mode === "online" ? `<span class="lb lo lx">${esc(t("schedule.online"))}</span>` : s.room ? `<span class="lb lx">${esc(s.room)}</span>` : "") + `</span>`;
+  const inner = (s, narrow = false) => `<b>${fmtTime(s.start)}–${fmtTime(s.end)}</b> <span class="t">${esc(s.name)}</span>` + chips(s) +
+    (s.status === "cancel" && s.note ? "" : (s.teacher || s.status === "cancel") ? `<small>${esc([s.teacher, s.status === "cancel" ? t("schedule.notHeld") : ""].filter(Boolean).join(" · "))}</small>` : "") + // a cancelled session with a note: the note says why
+    (s.note ? (narrow ? `<span class="badge" title="${esc(s.note)}">${s.status === "cancel" ? "✕" : "⚠"}${s.u ? " ?" : ""}</span>` // narrow lane: the full note is in the modal
       : `<span class="badge">${s.status === "cancel" ? "✕" : "⚠"} ${esc(s.note)}${s.u ? " ?" : ""}</span>`) : "");
+  const ctl = s => `role="button" tabindex="0" aria-haspopup="dialog" aria-label="${esc(cardAria(D, s))}" data-si="${sess.indexOf(s)}" data-sk="${esc(sessionKey(s))}"`; // cards open the session modal
   const cls = s => `c-${courseOf(D, s.course).color || "grey"} ${s.status === "cancel" ? "cx" : ""} ${s.status === "dev" ? "dev" : ""}`;
   const dayOff = k => !w ? e.label : offs[iso(addDays(m, k))]; // vacation week: every day shows the label
   // phone layout: the same sessions as a day-by-day list (CSS shows the grid or the agenda, never both)
   const agenda = `<div class="agenda">` + days.map((d, k) => {
     const off = dayOff(k), list = sess.filter(s => s.day === k).sort((x, y) => x.start - y.start);
     return `<div class="ag ${off ? "off" : ""}"><h3>${d} ${fmtDate(addDays(m, k))}${off ? ` <span class="agoff">${esc(off)}</span>` : ""}</h3>` +
-      (list.map(s => `<div class="acard ${cls(s)}">${inner(s)}</div>`).join("") || (off ? "" : `<p class="note">${esc(t("schedule.noClasses"))}</p>`)) + `</div>`;
+      (list.map(s => `<div class="acard ${cls(s)}" ${ctl(s)}>${inner(s)}</div>`).join("") || (off ? "" : `<p class="note">${esc(t("schedule.noClasses"))}</p>`)) + `</div>`;
   }).join("") + `</div>`;
   const cols = days.map((_, d) => {
     const off = dayOff(d);
     return `<div class="sc ${off ? "off" : ""}" style="height:calc(var(--rh) * ${H1 - H0})">` + (off ? `<div class="dayoff">${esc(off)}</div>` : "") +
       sess.filter(s => s.day === d).map(s =>
-    `<div class="ev ${cls(s)}${(lanes.get(s) || [0, 1])[1] > 2 ? " dense" : ""}" title="${esc(fmtTime(s.start) + "–" + fmtTime(s.end) + " " + s.title + (s.note ? " – " + s.note : ""))}" data-dur="${s.end - s.start}" style="${side(s)}top:calc(var(--rh) * ${s.start - H0});height:calc(var(--rh) * ${s.end - s.start} - 4px)">${inner(s, (lanes.get(s) || [0, 1])[1] > 1)}</div>`).join("") + `</div>`;
+    `<div class="ev ${cls(s)}${(lanes.get(s) || [0, 1])[1] > 2 ? " dense" : ""}" ${ctl(s)} title="${esc(fmtTime(s.start) + "–" + fmtTime(s.end) + " " + s.title + (s.note ? " – " + s.note : ""))}" data-dur="${s.end - s.start}" style="${side(s)}top:calc(var(--rh) * ${s.start - H0});height:calc(var(--rh) * ${s.end - s.start} - 4px)">${inner(s, (lanes.get(s) || [0, 1])[1] > 1)}</div>`).join("") + `</div>`;
   }).join("");
-  const devs = sess.filter(s => s.note);
   const title = w ? esc(t(w % 2 ? "schedule.weekOdd" : "schedule.weekEven", {n: w})) : esc(e.label);
   box.innerHTML =
     `<div class="swk"><button id="pw" aria-label="${esc(t("schedule.prev"))}" ${i <= 0 ? "disabled" : ""}>◀</button><b>${title} · ${fmtDate(m)} – ${fmtDate(addDays(m, 4))}</b>` +
@@ -227,12 +257,15 @@ function renderSchedule(box, D, i) {
     `<button id="nw" aria-label="${esc(t("schedule.next"))}" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${esc(t("schedule.backToCurrent"))}</button>` : ""}<button id="ics">${esc(t("schedule.download"))}</button></div>` + groupsHTML(D) + scheduleLegendHTML(D) + // order: week row, subgroups row, legend, grid
     `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:calc(var(--rh) * ${H1 - H0})">${times}</div>${cols}</div>${agenda}` +
     (live ? "" : `<p class="note">${esc(t("schedule.outside"))}</p>`) +
-    (devs.length ? `<ul>${devs.map(s => `<li><b>${days[s.day]} ${fmtDate(s.date)}</b> ${esc(s.title)}: ${esc(s.note)}</li>`).join("")}</ul>` : "") +
     `<details><summary>${esc(t("schedule.help.title"))}</summary><p class="note">${esc(t("schedule.help.body"))}</p></details>`;
   fitSchedule(box);
   box.querySelector("#pw").onclick = () => renderSchedule(box, D, i - 1);
   box.querySelector("#nw").onclick = () => renderSchedule(box, D, i + 1);
   if (box.querySelector("#tw")) box.querySelector("#tw").onclick = () => renderSchedule(box, D, real);
   box.querySelector("#ics").onclick = () => downloadIcs(D);
+  // session cards are controls: click, Enter or Space opens the session modal (src/daymodal.js)
+  const openCard = c => { const x = sess[+c.dataset.si]; if (x) openSessionModal(D, x, c, box); };
+  box.onclick = e => { const c = e.target.closest("[data-si]"); if (c) openCard(c); };
+  box.onkeydown = e => { const c = e.target.closest("[data-si]"); if ((e.key === "Enter" || e.key === " ") && c && e.target === c) { e.preventDefault(); openCard(c); } };
   wireGroups(box, D, () => renderSchedule(box, D, i));
 }

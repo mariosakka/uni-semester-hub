@@ -16,8 +16,10 @@
   --lh-prose:1.6;--lh-ui:1.4;--measure:70ch;
   --mut:#565d6d;  /* was #667: 6.6:1 on card, 6.2:1 on bg */
   --on-acc:#fff;  /* text on --acc fills */
+  --km:#b45309;   /* deadline marker text (border stays #e67e22) */
+  --km-exam:#c0152f;
 }
-@media(prefers-color-scheme:dark){:root{--mut:#9aa3b5;--on-acc:#0d1220}} /* white on #7aa2ff was 2.5:1 */
+@media(prefers-color-scheme:dark){:root{--mut:#9aa3b5;--on-acc:#0d1220;--km:#e67e22;--km-exam:#ff7a8a}} /* white on #7aa2ff was 2.5:1 */
 @media(min-width:900px){:root{--fs-body:1.125rem}}
 
 body{font-family:var(--font);font-size:var(--fs-body);line-height:var(--lh-prose);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
@@ -128,3 +130,4 @@ button,select,#q{line-height:var(--lh-ui)}
 summary,button,select,#side,#bar,#sems label,.tag,.chip,.pev,.hc,.gchip,.pstats,.legend,.swk,.cnav,.cmodes,.gpanel,.dm-head,.mg i,.wl,.sh,.times{-webkit-user-select:none;user-select:none}
 button,summary,#side{-webkit-touch-callout:none}
 #q,input{-webkit-user-select:text;user-select:text} /* Safari needs this explicit inside a user-select:none ancestor */
+.km{color:var(--km)}.km.exam{color:var(--km-exam)}

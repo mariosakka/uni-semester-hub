@@ -1,5 +1,6 @@
-// Day-details modal for the Calendar. A div with role="dialog" (not <dialog>, for Safari 14): backdrop, close button, Esc, focus moved in and
-// returned, Tab kept inside, iOS-safe body scroll lock, previous/next day. One instance for the page, content built from dayInfo() (calendar.js).
+// Details modal: a day (Calendar) or one session (Schedule card). A div with role="dialog" (not <dialog>, for Safari 14): backdrop, close button,
+// Esc, focus moved in and returned, Tab kept inside, iOS-safe body scroll lock, previous/next day (day mode). One instance for the page, content
+// built from dayInfo() (calendar.js) or sessionInfo() (schedule.js).
 let DM = null;
 
 function dmBuild() {
@@ -9,12 +10,16 @@ function dmBuild() {
     `<div class="dm-head"><button type="button" class="dm-prev"></button><h3 id="dm-title"></h3><button type="button" class="dm-next"></button><button type="button" class="dm-close"></button></div>` +
     `<div class="dm-body"></div></div>`;
   document.body.append(root);
-  const m = DM = {root, card: root.querySelector(".dm-card"), body: root.querySelector(".dm-body"), title: root.querySelector("#dm-title"), D: null, key: "", opener: null, box: null, openKey: "", y: 0, locked: false};
+  const m = DM = {root, card: root.querySelector(".dm-card"), body: root.querySelector(".dm-body"), title: root.querySelector("#dm-title"), D: null, key: "", opener: null, box: null, refind: "", mode: "day", s: null, y: 0, locked: false};
   root.querySelector(".dm-back").onclick = () => dmClose();
   root.querySelector(".dm-close").onclick = () => dmClose();
   root.querySelector(".dm-prev").onclick = () => dmGo(-1);
   root.querySelector(".dm-next").onclick = () => dmGo(1);
-  m.body.onclick = e => { const b = e.target.closest("[data-open-week]"); if (b) { const V = m.D.viewFor ? m.D.viewFor(m.key) : m.D; dmClose(true); if (V.openWeek) V.openWeek(+b.dataset.openWeek); } };
+  m.body.onclick = e => {
+    const d = e.target.closest("[data-open-day]");
+    if (d) { const {D, opener, box, refind} = m; dmClose(true); openDayModal(D, d.dataset.openDay, opener, box, refind); return; } // from a session: its day, focus still returns to the card
+    const b = e.target.closest("[data-open-week]"); if (b) { const V = m.D.viewFor ? m.D.viewFor(m.key) : m.D; dmClose(true); if (V.openWeek) V.openWeek(+b.dataset.openWeek); }
+  };
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !root.hidden) { e.stopPropagation(); dmClose(); } }, true); // capture: wins over other Esc handlers
   addEventListener("hashchange", () => dmClose(true)); // navigating elsewhere (e.g. "Open in Schedule") closes it
   root.addEventListener("keydown", e => {
@@ -36,6 +41,7 @@ function dayHTML(V, info) {
   if (info.week) out.push(`<p class="dm-week">${esc(t(info.parity === "odd" ? "schedule.weekOdd" : "schedule.weekEven", {n: info.week}))}</p>`);
   if (info.period) out.push(`<p>${esc(t("modal.period", {label: info.period.label, from: rng(info.period.from), to: rng(info.period.to)}))}</p>`);
   if (info.off) out.push(`<p class="dm-off">${esc(t("modal.dayOff", {label: info.off}))}</p>`);
+  if (info.keys.length) out.push(`<h4>${esc(t("modal.deadlines"))}</h4><ul>${info.keys.map(e => `<li>${tag(e.kind === "exam" ? "unc" : "off", t(e.kind === "exam" ? "calendar.legend.keyExam" : "calendar.legend.task"))} ${esc(e.label)}</li>`).join("")}</ul>`);
   if (info.sessions.length) out.push(`<h4>${esc(t("modal.sessions"))}</h4>` + info.sessions.map(s => {
     const c = courseOf(V, s.course), cx = s.status === "cancel";
     const flag = cx ? "✕ " + t("modal.notHeld") : s.extra ? t("modal.extra") : s.status === "dev" ? "⚠ " + t("modal.differs") : "";
@@ -44,15 +50,36 @@ function dayHTML(V, info) {
       (flag || s.note ? `<span class="badge">${esc(flag)}${s.note ? " " + esc(s.note) : ""}${s.u ? " " + esc(t("news.unconfirmed")) : ""}</span>` : "") + `</div>`;
   }).join(""));
   if (info.news.length) out.push(`<h4>${esc(t("modal.news"))}</h4><ul>${info.news.map(n => `<li><b>${esc(n.title)}</b>${n.source ? ` ${tag("", n.source)}` : ""}${n.unconfirmed ? ` ${tag("unc", t("news.unconfirmed"))}` : ""}</li>`).join("")}</ul>`);
-  if (!info.sessions.length && !info.news.length && !info.off) out.push(`<p class="note">${esc(t("modal.empty"))}</p>`);
+  if (!info.sessions.length && !info.keys.length && !info.news.length && !info.off) out.push(`<p class="note">${esc(t("modal.empty"))}</p>`);
   if (info.week && V.openWeek) out.push(`<p><button type="button" class="dm-open" data-open-week="${info.week}">${esc(t("modal.openSchedule"))}</button></p>`);
   return out.join("");
 }
 
+const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
+function sessionHTML(info) {
+  const tag = (cls, text) => `<span class="tag ${cls}">${esc(text)}</span>`, row = (k, v) => `<dt>${esc(t(k))}</dt><dd>${v}</dd>`, out = [];
+  out.push(row("session.type", esc(cap(info.typeName)) + (info.group ? ` · ${esc(t("schedule.subgroup", {n: info.group}))}` : "")));
+  out.push(row("session.when", `${esc(fmtLong(info.date))}, ${fmtTime(info.start)}–${fmtTime(info.end)}`));
+  if (info.week) out.push(row("session.week", esc(t(info.parity === "odd" ? "schedule.weekOdd" : "schedule.weekEven", {n: info.week}))));
+  if (info.status !== "cancel") out.push(row("session.place", info.modeDiffers ? esc(t("session.modeDiffers", {now: info.place, base: info.basePlace})) : esc(info.place)));
+  const st = {cancel: ["cxs", "✕ " + t("modal.notHeld")], extra: ["", t("modal.extra")], dev: ["unc", "⚠ " + t("modal.differs")], ok: ["", t("session.ok")]}[info.status];
+  out.push(row("session.status", tag(st[0], st[1])));
+  if (info.note) out.push(row("session.note", esc(info.note) + (info.u ? " " + tag("unc", t("news.unconfirmed")) : "")));
+  if (info.teacher) out.push(row("session.teacher", esc(info.teacher)));
+  const c = info.course, ev = EVAL[evalCode(c)], bits = [];
+  if (c.ects) bits.push(esc(t("session.credits", {n: c.ects})));
+  if (c.evaluation) bits.push(esc(t("course.evaluation", {value: ev ? t(ev[1]) + " (" + evalCode(c) + ")" : c.evaluation})));
+  if (bits.length) out.push(row("session.subject", bits.join(" · ")));
+  return `<dl class="sm-dl">${out.join("")}</dl><p><button type="button" class="dm-open" data-open-day="${esc(info.key)}">${esc(t("session.openDay"))}</button></p>`;
+}
+
 function dmRender(m, focusSel) {
-  const V = m.D.viewFor ? m.D.viewFor(m.key) : m.D;
-  m.title.textContent = fmtLong(parseDate(m.key));
-  m.body.innerHTML = dayHTML(V, dayInfo(V, m.key));
+  const V = m.D.viewFor ? m.D.viewFor(m.key) : m.D, sess = m.mode === "session";
+  const info = sess ? sessionInfo(m.D, m.s) : null;
+  m.card.className = "dm-card" + (sess ? ` csess c-${info.course.color || "grey"}` : ""); // course colour bar on top of a session card
+  m.title.textContent = sess ? info.course.title : fmtLong(parseDate(m.key));
+  m.body.innerHTML = sess ? sessionHTML(info) : dayHTML(V, dayInfo(V, m.key));
+  m.root.querySelector(".dm-prev").hidden = m.root.querySelector(".dm-next").hidden = sess;
   m.root.querySelector(".dm-prev").setAttribute("aria-label", t("modal.prevDay"));
   m.root.querySelector(".dm-next").setAttribute("aria-label", t("modal.nextDay"));
   m.root.querySelector(".dm-close").setAttribute("aria-label", t("modal.close"));
@@ -68,13 +95,21 @@ function dmClose(noFocus) {
   if (!m || m.root.hidden) return;
   m.root.hidden = true; dmUnlock(m);
   if (noFocus) return;
-  const back = m.opener && m.opener.isConnected ? m.opener : m.box && m.box.querySelector(`[data-k="${m.openKey}"]`); // the day cell that opened it (re-found if the view re-rendered)
+  const back = m.opener && m.opener.isConnected ? m.opener : m.box && m.refind && m.box.querySelector(m.refind); // the cell/card that opened it (re-found if the view re-rendered)
   if (back) back.focus();
 }
 
-function openDayModal(D, key, opener, box) {
+function openDayModal(D, key, opener, box, refind) {
   const m = DM || dmBuild();
-  Object.assign(m, {D, key, opener, box, openKey: key});
+  Object.assign(m, {D, key, opener, box, refind: refind || `[data-k="${key}"]`, mode: "day", s: null});
+  dmRender(m);
+  m.root.hidden = false; dmLock(m);
+  m.root.querySelector(".dm-close").focus();
+}
+
+function openSessionModal(D, sess, opener, box) {
+  const m = DM || dmBuild();
+  Object.assign(m, {D, key: sess.key, opener, box, refind: `[data-sk="${sessionKey(sess)}"]`, mode: "session", s: sess});
   dmRender(m);
   m.root.hidden = false; dmLock(m);
   m.root.querySelector(".dm-close").focus();

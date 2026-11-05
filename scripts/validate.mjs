@@ -16,6 +16,7 @@ const TABS = ['news', 'todo', 'overview', 'schedule', 'calendar', 'courses', 'pl
 const TYPES = ['course', 'lab', 'project', 'seminar'];
 const CHANGES = ['cancel', 'online', 'in-person', 'note'];
 const PKINDS = ['teach', 'vac', 'exam', 'break'];
+const KDKINDS = ['task', 'exam'];
 
 const isDate = s => {
   if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
@@ -39,6 +40,14 @@ function checkSections(list, name, e, cid, allowCourse, tabs = TABS, w = () => {
         if (it?.course !== undefined) { if (allowCourse) cid(q + '.course', it.course); else w(q + '.course', 'courses are per semester; the tag is not resolved in common'); }
       });
     }
+    if (s.kind === 'list' && Array.isArray(s.items)) s.items.forEach((it, j) => { // a string, or { title, text?, due?, check?, open? }
+      const q = `${p}.items[${j}]`;
+      if (typeof it === 'string') return;
+      if (!it || typeof it !== 'object' || Array.isArray(it)) return e(q, 'must be a string or an object { title, text?, due?, check?, open? }');
+      if (typeof it.title !== 'string' || !it.title) e(q + '.title', 'required');
+      for (const k of ['text', 'due']) if (it[k] !== undefined && typeof it[k] !== 'string') e(`${q}.${k}`, 'must be a string');
+      for (const k of ['check', 'open']) if (it[k] !== undefined && typeof it[k] !== 'boolean') e(`${q}.${k}`, 'must be true or false');
+    });
     if (s.kind === 'table' && !(Array.isArray(s.columns) && Array.isArray(s.rows))) e(p, 'table needs columns and rows');
   });
 }
@@ -145,6 +154,11 @@ function checkSemester(S, pre, errs, strict, warns) {
     period(`calendar.periods[${i}]`, x.from, x.to);
     if (!PKINDS.includes(x.kind)) e(`calendar.periods[${i}].kind`, `must be one of ${PKINDS}`);
   });
+  (S.keyDates || []).forEach((x, i) => {
+    period(`keyDates[${i}]`, x.from, x.to || x.from);
+    if (!KDKINDS.includes(x.kind)) e(`keyDates[${i}].kind`, `must be one of ${KDKINDS}`);
+    if (typeof x.label !== 'string' || !x.label) e(`keyDates[${i}].label`, 'required');
+  });
   const m = S.calendar?.months;
   if (!strict && m !== undefined && (!Array.isArray(m) || m.some(x => !Array.isArray(x) || x.length !== 2 || !Number.isInteger(x[0]) || !Number.isInteger(x[1]) || x[1] < 0 || x[1] > 11)))
     e('calendar.months', 'must be [[year, month0 (0-11)], ...]');
@@ -238,6 +252,10 @@ if (arg === '--selftest') {
   const t2 = validate({ ...structuredClone(ok), meta: { title: 't', locale: 5, strings: { 'nav.year': 3 } } });
   const t3 = validate({ ...structuredClone(ok), meta: { title: 't', strings: ['x'] } });
   if (t1.length || ws.length !== 1 || t2.length !== 2 || t3.length !== 1) { console.error('selftest strings FAILED', t1, ws, t2, t3); process.exit(1); }
+  // list items: strings and { title, text?, due?, check?, open? } objects
+  const li1 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: ['a', '[ ] b', { title: 'c', text: '<i>x</i>', due: '1 Dec', check: true, open: false }] }] }] }] });
+  const li2 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: [{ text: 'no title' }, { title: 'c', check: 'yes' }, 5, { title: 'd', due: 3 }] }] }] }] });
+  if (li1.length || li2.length !== 4) { console.error('selftest list items FAILED', li1, li2); process.exit(1); }
   console.log(`selftest ok (bad samples produced ${b.length} and ${d.length} errors)`);
 } else if (!arg) {
   console.error('usage: node scripts/validate.mjs data/<set>/data.js | --selftest');

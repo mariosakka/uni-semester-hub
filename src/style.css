@@ -292,3 +292,53 @@ body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 
 /* the study-plan grading chips share the .gchip class with the subgroup summary chip: keep them rectangular so long names wrap cleanly */
 .pg .gchip{border-radius:8px;max-width:100%;line-height:1.25;padding:.15rem .5rem}
+
+/* schedule cards are controls (they open the session modal) */
+.ev[role=button],.acard[role=button]{cursor:pointer;-webkit-user-select:none;user-select:none}
+.ev[role=button]:hover,.acard[role=button]:hover{box-shadow:0 1px 5px #0004}
+.ev[role=button]:focus-visible,.acard[role=button]:focus-visible{outline:3px solid var(--acc);outline-offset:2px;z-index:2}
+/* label chips on cards and in the legend: type letter, subgroup, room, online */
+.lbs{display:block;margin-top:.15rem}
+.lb{display:inline-block;margin:.1rem .25rem .1rem 0;padding:0 .35rem;border-radius:4px;border:1px solid #0006;background:#ffffffb3;color:#222;font-size:.7rem;font-weight:700;line-height:1.5;font-style:normal}
+.lb.lt{background:#222;border-color:#222;color:#fff}
+.lb.lo{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.legend .d .lb{margin:0 .3rem 0 0;vertical-align:baseline}
+.ev.dense .lx{display:none}
+.ev.dense .lb{font-size:.6rem;padding:0 .2rem;margin-right:.15rem}
+/* session modal */
+.dm-card.csess{border-top:6px solid var(--bd-c)}
+.sm-dl{display:grid;grid-template-columns:max-content 1fr;margin:.4rem 0}
+.sm-dl dt{margin:0 .9rem .5rem 0;color:var(--mut);font-size:.85em}
+.sm-dl dd{margin:0 0 .5rem}
+.legend .d.slb{background:#f3f4f6;color:#111827}
+.tag.cxs{background:#7f1d1d;color:#fff}
+
+/* deadline / exam markers on calendar days (keyDates): orange outline = deadline, red = exam / presentation */
+.d.key{border-color:#e67e22;font-weight:700}
+.d.key.exam{border-color:#c0152f;box-shadow:0 0 0 1px #c0152f}
+.wday .wk{display:block}
+.km{font-size:.8rem}
+
+/* To-Do cards: [checkbox] [title + due badge] [chevron], details below; one column on phones, two when there is room */
+.tprog{margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:#8882;color:var(--mut);font-size:.75rem;font-weight:600;vertical-align:middle;white-space:nowrap}
+.tcards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));grid-gap:var(--sp-3,12px);align-items:start}
+.tcards>li{margin:0}
+.tcard{border:1px solid #8885;border-radius:12px;background:var(--bg)}
+.tcard:hover{border-color:#8888}
+.tcard.done .tc-title{color:var(--mut);text-decoration:line-through}
+.tc-head{display:flex;align-items:center}
+.tc-hit{flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;cursor:pointer}
+.tc-hit input{width:22px;height:22px;margin:0;cursor:pointer}
+.tc-hit input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tc-ico{flex:none;display:flex;align-items:center;justify-content:center;width:44px;color:var(--mut)}
+.tc-ico::before{content:"i";display:flex;align-items:center;justify-content:center;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;font:italic 700 .75rem/1 Georgia,serif}
+.tc-title{flex:1;min-width:0;padding:.55rem .4rem;overflow-wrap:anywhere}
+.tc-due{display:inline-block;margin-left:.3rem;padding:0 .45rem;border-radius:999px;background:#fde68a;color:#5b3a00;font-size:.75rem;font-weight:700;line-height:1.6;white-space:nowrap}
+.tc-chev{flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.tc-chev::after{content:"";width:.5em;height:.5em;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);transition:transform .15s}
+.tc-chev[aria-expanded="true"]::after{transform:rotate(-135deg)}
+.tc-chev:focus-visible{outline:3px solid var(--acc);outline-offset:-3px;border-radius:10px}
+.tcard.hasbody .tc-title{cursor:pointer}
+.tc-body{padding:0 .9rem .8rem 44px;font-size:.92em;line-height:1.5}
+.tc-body[hidden]{display:none}
+.tc-hit,.tc-chev,.tc-ico,.tprog{-webkit-user-select:none;user-select:none}

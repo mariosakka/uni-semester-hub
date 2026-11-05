@@ -17,7 +17,7 @@ for (const [file, text] of files) {
   for (const m of text.matchAll(/\btx?\(\s*["']([\w.]+)["']/g)) note(file, m[1]);          // t("key") / tx("key")
   for (const m of text.matchAll(/\bdata-t="([\w.]+)"/g)) note(file, m[1]);                   // data-t="key"
   for (const m of text.matchAll(/\bdata-ta="([^"]+)"/g)) m[1].split(";").forEach(p => note(file, p.split("=")[1])); // data-ta="attr=key;..."
-  for (const m of text.matchAll(/["']((?:tab|type|plan\.abbr|schedule|calendar|nav|news|course|plan|ics|footer|err|doc|day|cal|sub)\.[\w.]+)["']/g)) // keys listed in lookup tables
+  for (const m of text.matchAll(/["']((?:tab|type|plan\.abbr|schedule|calendar|nav|news|course|plan|ics|footer|err|doc|day|cal|sub|session)\.[\w.]+)["']/g)) // keys listed in lookup tables
     if (keys.has(m[1])) used.add(m[1]);
 }
 assert.deepStrictEqual(missing, [], "keys used but not defined: " + missing.join(", "));

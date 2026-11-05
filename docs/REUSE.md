@@ -8,7 +8,7 @@ One data set (`data/<set>/data.js`) holds the whole programme: `years[]` contain
 2. `weeks.segments`: new first Monday and week counts. A gap between segments is vacation; week numbers continue across segments.
 3. `courses`: update titles, teachers, ECTS, evaluation (ids only need to be unique inside the semester).
 4. `timetable`: adjust each slot (day 0-4, start/end, room, parity, group) and every `rules[].weeks` range; weeks not covered by a rule are "not held".
-5. `daysOff`, `calendar.periods`, `calendar.months` (`[year, month0]`): replace with the new official calendar.
+5. `daysOff`, `calendar.periods`, `calendar.months` (`[year, month0]`), `keyDates`: replace with the new official calendar and your real deadlines.
 6. Clear `deviations` and `extraSessions` (`[]`); they are dated and only valid for the old term. Drop old per-course items and checklist items from `sections`.
 7. Run `node scripts/validate.mjs data/<set>/data.js`, open the page and click through every week once.
 
@@ -29,6 +29,7 @@ Add an object to `years`: `{ id: "y2", title: "Year 2 · 2027–2028", semesters
 - Put announcements and teacher updates in a `{ kind: "news", items: [ { date, title, text, source, unconfirmed, course } ] }` section: the News tab shows them newest first, and items from the last 7 days get a "new" badge. Add a line each time something is announced instead of editing old text; mark reports not yet confirmed by the teacher or faculty with `unconfirmed: true` and `source`.
 - Do not put schedule changes (cancelled, moved or recovery sessions, online switches) in the To-Do list: they belong in News, `deviations` / `extraSessions` (Schedule and Calendar).
 - Keep recurring tasks your learning platform already tracks (weekly homework uploads, Moodle deadlines) out of the To-Do and News lists; list one-off items only.
+- To-Do items can be cards with details: `{ title, text, due, check: true }` (see SCHEMA.md, "To-Do cards"). Ticking a card collapses it.
 - Put tasks and deadlines in a list with tickable items (`"[ ] …"`) or `highlight: true`; it appears in the To-Do tab. Other lists go to News. Old `tab: "overview"` still works (it means News), but the validator warns.
 
 ## Study plan, grading and contacts
@@ -50,7 +51,7 @@ Timetable image or xlsx
 - An AI assistant can draft the first pass from an image. Verify every room, hour and day yourself; the validator checks structure, not truth.
 
 Official calendar PDF
-- Copy the teaching, exam and vacation date ranges into the semester's `calendar.periods` and holidays into `daysOff`.
+- Copy the teaching, exam and vacation date ranges into the semester's `calendar.periods` and holidays into `daysOff`, exam and deadline dates into `keyDates`.
 - Count teaching weeks to fill `weeks.segments`; the number must match the official week count.
 - Put the PDF or a picture in `data/<set>/` and reference it via `calendar.pdf` / `calendar.image` (paths are relative to the data set folder; do not commit it if it is not public).
 

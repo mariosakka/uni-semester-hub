@@ -39,6 +39,22 @@ for (let i = 0; i < count; i++) {
     assert(w6.some(s => s.extra && s.course === "de" && s.start === 18), "extra recovery lab");
     assert(!w6.some(s => s.course === "ml" && s.group === "1") && w6.some(s => s.course === "ml" && s.group === "2"), "SG1 ML lab hidden, SG2 shown");
     run("resetGroups(VV)");
+    // session modal data + card labels
+    const find = (w, fn) => `weekSessions(VV, ${w}).find(${fn})`;
+    const hcInfo = run(`sessionInfo(VV, ${find(6, "s => s.key === '2026-11-04' && s.course === 'hc' && s.type === 'course'")})`);
+    assert.strictEqual(hcInfo.status, "cancel", "cancelled session status");
+    assert.strictEqual(hcInfo.week, 6); assert.strictEqual(hcInfo.parity, "even");
+    const mlInfo = run(`sessionInfo(VV, ${find(6, "s => s.key === '2026-11-05' && s.course === 'ml' && s.type === 'lab'")})`);
+    assert(mlInfo.status === "dev" && mlInfo.u === true, "deviation, unconfirmed");
+    assert(mlInfo.modeDiffers && mlInfo.place === "Online" && mlInfo.basePlace === "CB205", "base vs actual place");
+    assert.strictEqual(mlInfo.ects, 5);
+    const extraInfo = run(`sessionInfo(VV, ${find(6, "s => s.extra")})`);
+    assert(extraInfo.status === "extra" && !extraInfo.modeDiffers, "extra session");
+    assert.strictEqual(run("typeLetter('lab') + typeLetter('course') + typeLetter('project') + typeLetter('seminar')"), "LCPS", "type letters");
+    assert.strictEqual(run("typeLetter('workshop')"), "W", "unknown type: first letter");
+    assert.strictEqual(run(`cardAria(VV, ${find(6, "s => s.course === 'hc' && s.key === '2026-11-04' && s.type === 'course'")})`), "Human-Centric AI for Energy Management, course, 17:00–18:00, Not held", "card aria text");
+    assert(run(`weekSessions(VV, 6).every(s => s.name && typeof s.baseMode === "string")`), "short name + base mode on every session");
+    assert(new Set(run("weekSessions(VV, 6).map(sessionKey)")).size === run("weekSessions(VV, 6).length"), "unique session keys");
     assert(w10.filter(s => s.status === "cancel").length === 3, "30 Nov + 1 Dec cancel 3 sessions");
     assert(w10.find(s => s.course === "fai" && s.type === "lab" && s.key === "2026-12-04").mode === "online", "4 Dec lab online");
     console.log("aie spot checks ok");
