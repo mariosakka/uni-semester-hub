@@ -42,7 +42,7 @@ if (set.startsWith("aie")) {
   const exam = info("2027-01-25");
   assert(exam.period && exam.period.kind === "exam", "exam session day");
   const sat = info("2026-11-07");
-  assert(sat.sessions.length === 0 && !sat.off && sat.keys.length === 0, "an empty weekend");
+  assert(sat.sessions.length === 0 && !sat.off, "an empty weekend");
 }
 
 // year data merges the semesters of the year
@@ -60,12 +60,13 @@ if (gs.length) {
   const ics = () => (run("buildIcs(V, new Date('2026-01-01T00:00:00Z'))").match(/BEGIN:VEVENT/g) || []).length;
   run("resetGroups(V)");
   const dflt = run(`groupFor(V, '${c}')`);
-  assert(dflt === "all" || g0.includes(dflt), "default is a known subgroup or all");
+  assert.strictEqual(dflt, "all", "default is all subgroups");
   const base = count(), baseIcs = ics();
   run("setAllGroups(V, 'all')");
-  assert(count() > base, "'all' shows more sessions than the defaults");
-  assert(ics() > baseIcs, ".ics exports more with 'all'");
+  assert.strictEqual(count(), base, "'all' equals the default");
   run(`setGroup(V, '${c}', '${g0[0]}')`);
+  assert(count() < base, "choosing one subgroup shows fewer sessions");
+  assert(ics() < baseIcs, ".ics exports fewer with one subgroup");
   assert.strictEqual(run(`groupFor(V, '${c}')`), g0[0], "per-course choice");
   assert(!run("weekSessions(V, 2)").some(s => s.course === c && s.group && s.group !== g0[0]), "other subgroups hidden for that course");
   run(`setGroup(V, '${c}', '99')`);
@@ -80,7 +81,7 @@ if (gs.length) {
   console.log(`${set}: subgroups ${gs.map(g => g.course + ":" + g.groups).join(" ")} - ok`);
 } else console.log(`${set}: no grouped sessions (no subgroup control) - ok`);
 // a view without any group data never filters and shows no control
-run("var L = {courses: [{id: 'x', title: 'X'}], timetable: [{course: 'x', type: 'course', day: 0, start: 8, end: 9, rules: [{weeks: [[1, 1]], mode: 'online'}]}], meta: {me: {groups: {default: '2'}}}}");
+run("var L = {courses: [{id: 'x', title: 'X'}], timetable: [{course: 'x', type: 'course', day: 0, start: 8, end: 9, rules: [{weeks: [[1, 1]], mode: 'online'}]}]}");
 assert.strictEqual(run("discoverGroups(L).length"), 0, "no grouped sessions: no control");
 assert.strictEqual(run("visible(L, L.timetable[0])"), true);
 assert.strictEqual(run("groupFor(L, 'x')"), "all");

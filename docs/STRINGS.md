@@ -133,8 +133,6 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `calendar.legend.teaching` | `Teaching` |
 | `calendar.legend.exams` | `Exams` |
 | `calendar.legend.dayOff` | `Vacation / day off` |
-| `calendar.legend.task` | `Task / deadline` |
-| `calendar.legend.keyExam` | `Key exam / presentation` |
 | `calendar.modes` | `Calendar view` |
 | `calendar.mode.week` | `Week` |
 | `calendar.mode.month` | `Month` |
@@ -142,7 +140,6 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `calendar.today` | `Today` |
 | `calendar.prev` | `Previous` |
 | `calendar.next` | `Next` |
-| `calendar.keyDates` | `Key dates` |
 | `calendar.imageAlt` | `Official academic calendar` |
 | `calendar.officialDoc` | `Official document: {link}` |
 
@@ -156,7 +153,6 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `modal.empty` | `Nothing scheduled on this day.` |
 | `modal.period` | `{label} ({from} – {to})` |
 | `modal.dayOff` | `Day off: {label}` |
-| `modal.keyDates` | `Key dates` |
 | `modal.sessions` | `Timetable` |
 | `modal.news` | `News` |
 | `modal.notHeld` | `Not held` |
@@ -175,17 +171,29 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `plan.ects` | `{n} ECTS` |
 | `plan.ectsAtLeast` | `≥{n} ECTS` |
 | `plan.unknown` | `–` |
-| `plan.unknownEcts` | `?` |
+| `plan.atLeast` | `≥{n}` |
+| `plan.stat.ects` | `Total credits` |
+| `plan.stat.subjects` | `Subjects` |
+| `plan.stat.exams` | `Exams` |
+| `plan.stat.cont` | `Continuous` |
+| `plan.stat.other` | `Other` |
+| `plan.stat.hours` | `Hours per week` |
+| `plan.eval.exam` | `Exam` |
+| `plan.eval.cont` | `Continuous` |
+| `plan.eval.proj` | `Project` |
+| `plan.hours.course` | `Course` |
+| `plan.hours.seminar` | `Seminar` |
+| `plan.hours.lab` | `Lab` |
+| `plan.hours.project` | `Project` |
+| `plan.hoursChip` | `{kind}: {n} h/week` |
+| `plan.hoursTotalShort` | `= {n} h` |
 | `plan.component` | `Component` |
 | `plan.weight` | `Weight` |
 | `plan.note` | `Note` |
 | `plan.total` | `Total` |
 | `plan.notHundred` | ` ⚠ not 100%` |
 | `plan.passRule` | `Pass rule:` |
-| `plan.evaluation` | `evaluation {value}` |
-| `plan.hoursWeek` | `hours/week {value}` |
 | `plan.noGrading` | `No grading details recorded yet.` |
-| `plan.noSubjectsListed` | `no subjects listed yet` |
 | `plan.col.subject` | `Subject` |
 | `plan.col.ects` | `ECTS` |
 | `plan.col.eval` | `Eval.` |
@@ -193,9 +201,7 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "Înapoi la săpt�
 | `plan.col.grading` | `Grading` |
 | `plan.col.teachers` | `Teachers` |
 | `plan.noSubjects` | `No subjects listed for this semester yet.` |
-| `plan.wholeProgramme` | `Whole programme` |
 | `plan.thisSemester` | `This semester` |
-| `plan.perSubject` | `Per subject` |
 | `plan.programme` | `Programme` |
 | `plan.bySubject` | `By subject` |
 | `plan.noContacts` | `No contacts listed.` |

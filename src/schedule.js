@@ -57,13 +57,13 @@ function weekSessions(D, w) {
       if (dev.change === "online" || dev.change === "in-person") mode = dev.change;
     }
     out.push({course: e.course, title: sessionTitle(D, e), day: e.day, start: e.start, end: e.end, teacher: e.teacher || "",
-      room: rule.room ?? e.room ?? "", mode, status, note, u, key, date: addDays(m, e.day), extra: false, type: e.type});
+      room: rule.room ?? e.room ?? "", mode, status, note, u, key, date: addDays(m, e.day), extra: false, type: e.type, group: e.group ? String(e.group) : ""});
   }
   for (const x of D.extraSessions || []) {
     const day = keys.indexOf(x.date);
     if (day < 0) continue;
     out.push({course: x.course, title: sessionTitle(D, x), day, start: x.start, end: x.end, teacher: x.teacher || "", room: x.room || "",
-      mode: x.mode, status: "dev", note: x.note || "", u: false, key: x.date, date: addDays(m, day), extra: true, type: x.type});
+      mode: x.mode, status: "dev", note: x.note || "", u: false, key: x.date, date: addDays(m, day), extra: true, type: x.type, group: x.group ? String(x.group) : ""});
   }
   return out;
 }
@@ -87,7 +87,7 @@ function buildIcs(D, now = new Date()) {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//uni-hub//EN", "CALSCALE:GREGORIAN", fold("X-WR-CALNAME:" + icsEsc(name))];
   for (let w = 1; w <= weekCount(D); w++) for (const s of weekSessions(D, w)) {
     if (s.status === "cancel") continue;
-    out.push("BEGIN:VEVENT", `UID:${s.course}-${s.type}-${s.start}-${s.key}@uni-hub`, `DTSTAMP:${ts}`,
+    out.push("BEGIN:VEVENT", `UID:${s.course}-${s.type}-g${s.group || 0}-${s.start}-${s.key}@uni-hub`, `DTSTAMP:${ts}`,
       `DTSTART:${stamp(s.date, s.start)}`, `DTEND:${stamp(s.date, s.end)}`,
       fold("SUMMARY:" + icsEsc(s.title + (s.mode === "online" ? t("schedule.onlineTag") : ""))), fold("LOCATION:" + icsEsc(place(s))),
       fold("DESCRIPTION:" + icsEsc(s.teacher + (s.note ? "\n" + s.note + (s.u ? t("ics.unconfirmed") : "") : ""))), "END:VEVENT");
@@ -109,11 +109,11 @@ function downloadIcs(D) {
 
 // swatches reuse the CSS of the real blocks; one legend under both the grid and the phone agenda
 function scheduleLegendHTML(D) {
-  const lg = (cls, label, mark = "") => `<span class="lg"><i class="sw ${cls}" aria-hidden="true">${mark}</i>${esc(label)}</span>`;
+  const lg = (cls, label, mark = "") => `<span class="d ${cls}">${mark}${esc(label)}</span>`; // same chips as the calendar legend
   const used = new Set([...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])].map(e => e.course));
-  return `<div class="slegend" role="group" aria-label="${esc(t("schedule.legend.label"))}">` +
-    lg("dev", t("schedule.legend.differs")) + lg("cx", t("schedule.legend.notHeld")) + lg("off", t("schedule.legend.dayOff")) +
-    lg("unc", t("schedule.legend.unconfirmed"), "?") + lg("extra", t("schedule.legend.extra")) +
+  return `<div class="legend" role="group" aria-label="${esc(t("schedule.legend.label"))}">` +
+    lg("sdev", t("schedule.legend.differs")) + lg("scx", t("schedule.legend.notHeld")) + lg("off", t("schedule.legend.dayOff")) +
+    lg("sunc", t("schedule.legend.unconfirmed"), "? ") + lg("sextra", t("schedule.legend.extra")) +
     (D.courses || []).filter(c => used.has(c.id)).map(c => lg(`cs c-${esc(c.color || "grey")}`, c.short || c.title)).join("") + `</div>`;
 }
 
@@ -159,20 +159,52 @@ function wireGroups(box, D, rerender) {
   if (D._gfocus) { const f = panel.querySelector(D._gfocus); D._gfocus = null; if (f && !panel.hidden) f.focus(); }
 }
 
+// Cards wrap their text; the hour rows grow (CSS variable --rh) until every card fits, so nothing is cut off.
+// Measuring needs the grid to be visible (it is hidden on other tabs and on phones, where the agenda shows), so a
+// ResizeObserver re-fits when the grid is shown or its width changes; fonts loading changes line breaks too.
+const BASE_RH = 64, MAX_RH = 240;
+function fitSchedule(box) {
+  const grid = box.querySelector(".sched");
+  if (!grid) return;
+  if (!grid.dataset.watched) {
+    grid.dataset.watched = "1";
+    let lastW = -1;
+    if (window.ResizeObserver) new ResizeObserver(() => { const w = grid.clientWidth; if (w !== lastW) { lastW = w; fitSchedule(box); } }).observe(grid);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitSchedule(box));
+  }
+  if (!grid.clientWidth) return; // not visible now
+  grid.style.setProperty("--rh", BASE_RH + "px");
+  let rh = BASE_RH;
+  grid.querySelectorAll(".ev").forEach(ev => { rh = Math.max(rh, Math.ceil((ev.scrollHeight + 5) / (+ev.dataset.dur || 1))); });
+  grid.style.setProperty("--rh", Math.min(rh, MAX_RH) + "px");
+}
+
 function renderSchedule(box, D, i) {
   const T = timeline(D), real = currentIndex(T);
   if (i === undefined) i = D._wi === undefined ? real : D._wi;
   D._wi = i; // the shown week, kept for refresh() after a subgroup change
   const e = T[i], w = e.w, m = e.m, live = isNow(T[real]);
   const days = [0, 1, 2, 3, 4].map(k => dayName(addDays(m, k), "short")), sess = w ? weekSessions(D, w) : [];
-  const [H0, H1] = hourRange(D), RH = 64, offs = D.daysOff || {};
+  const [H0, H1] = hourRange(D), offs = D.daysOff || {};
   const head = days.map((d, k) => `<div class="sh">${d} ${fmtDate(addDays(m, k))}</div>`).join("");
   const times = Array.from({length: H1 - H0}, (_, k) => `<div>${H0 + k}:00</div>`).join("");
-  // an extra session beside a cancelled one: cancelled takes the left half, extra the right half
-  const side = s => s.extra ? "left:50%;" : s.status === "cancel" && sess.some(x => x.extra && x.day === s.day && x.start < s.end && x.end > s.start) ? "right:50%;" : "";
-  const inner = s => `<b>${fmtTime(s.start)}–${fmtTime(s.end)}</b> <span class="t">${esc(s.title)}</span>` +
-    `<small>${esc(s.teacher)}<br>${s.status === "cancel" ? esc(t("schedule.notHeld")) : esc(place(s))}</small>` +
-    (s.note ? `<span class="badge">${s.status === "cancel" ? "✕" : "⚠"} ${esc(s.note)}${s.u ? " ?" : ""}</span>` : "");
+  // sessions that overlap in time (other subgroups, an extra session next to a cancelled one) share the column side by side
+  const lanes = new Map(); // session -> [lane, lane count of its overlap cluster]
+  for (let d = 0; d < 5; d++) {
+    let cluster = [], end = -1;
+    const flush = () => {
+      const free = []; // end time of the last session placed in each lane
+      cluster.forEach(x => { let l = free.findIndex(e => e <= x.start); if (l < 0) l = free.length; free[l] = x.end; lanes.set(x, [l]); });
+      cluster.forEach(x => lanes.get(x).push(free.length)); cluster = []; end = -1;
+    };
+    sess.filter(x => x.day === d).sort((x, y) => x.start - y.start || x.end - y.end).forEach(x => { if (cluster.length && x.start >= end) flush(); cluster.push(x); end = Math.max(end, x.end); });
+    if (cluster.length) flush();
+  }
+  const side = x => { const [l, n] = lanes.get(x) || [0, 1]; return n > 1 ? `left:${100 * l / n}%;right:${100 * (n - l - 1) / n}%;font-size:.72rem;` : ""; };
+  const inner = (s, narrow = false) => `<b>${fmtTime(s.start)}–${fmtTime(s.end)}</b> <span class="t">${esc(s.title)}</span>` +
+    (s.status === "cancel" && s.note ? "" : `<small>${esc(s.teacher)}<br>${s.status === "cancel" ? esc(t("schedule.notHeld")) : esc(place(s))}</small>`) + // a cancelled session with a note: the note says why, no extra lines
+    (s.note ? (narrow ? `<span class="badge" title="${esc(s.note)}">${s.status === "cancel" ? "✕" : "⚠"}${s.u ? " ?" : ""}</span>` // narrow lane: the full note is in the list under the grid
+      : `<span class="badge">${s.status === "cancel" ? "✕" : "⚠"} ${esc(s.note)}${s.u ? " ?" : ""}</span>`) : "");
   const cls = s => `c-${courseOf(D, s.course).color || "grey"} ${s.status === "cancel" ? "cx" : ""} ${s.status === "dev" ? "dev" : ""}`;
   const dayOff = k => !w ? e.label : offs[iso(addDays(m, k))]; // vacation week: every day shows the label
   // phone layout: the same sessions as a day-by-day list (CSS shows the grid or the agenda, never both)
@@ -183,20 +215,21 @@ function renderSchedule(box, D, i) {
   }).join("") + `</div>`;
   const cols = days.map((_, d) => {
     const off = dayOff(d);
-    return `<div class="sc ${off ? "off" : ""}" style="height:${(H1 - H0) * RH}px">` + (off ? `<div class="dayoff">${esc(off)}</div>` : "") +
+    return `<div class="sc ${off ? "off" : ""}" style="height:calc(var(--rh) * ${H1 - H0})">` + (off ? `<div class="dayoff">${esc(off)}</div>` : "") +
       sess.filter(s => s.day === d).map(s =>
-    `<div class="ev ${cls(s)}" style="${side(s)}top:${(s.start - H0) * RH}px;height:${(s.end - s.start) * RH - 4}px">${inner(s)}</div>`).join("") + `</div>`;
+    `<div class="ev ${cls(s)}${(lanes.get(s) || [0, 1])[1] > 2 ? " dense" : ""}" title="${esc(fmtTime(s.start) + "–" + fmtTime(s.end) + " " + s.title + (s.note ? " – " + s.note : ""))}" data-dur="${s.end - s.start}" style="${side(s)}top:calc(var(--rh) * ${s.start - H0});height:calc(var(--rh) * ${s.end - s.start} - 4px)">${inner(s, (lanes.get(s) || [0, 1])[1] > 1)}</div>`).join("") + `</div>`;
   }).join("");
   const devs = sess.filter(s => s.note);
   const title = w ? esc(t(w % 2 ? "schedule.weekOdd" : "schedule.weekEven", {n: w})) : esc(e.label);
-  box.innerHTML =
+  box.innerHTML = scheduleLegendHTML(D) +
     `<div class="swk"><button id="pw" aria-label="${esc(t("schedule.prev"))}" ${i <= 0 ? "disabled" : ""}>◀</button><b>${title} · ${fmtDate(m)} – ${fmtDate(addDays(m, 4))}</b>` +
     (i === real && live ? `<span class="chip">${esc(t("schedule.thisWeek"))}</span>` : "") +
     `<button id="nw" aria-label="${esc(t("schedule.next"))}" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${esc(t("schedule.backToCurrent"))}</button>` : ""}<button id="ics">${esc(t("schedule.download"))}</button></div>` + groupsHTML(D) +
-    `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:${(H1 - H0) * RH}px">${times}</div>${cols}</div>${agenda}` + scheduleLegendHTML(D) +
+    `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:calc(var(--rh) * ${H1 - H0})">${times}</div>${cols}</div>${agenda}` +
     (live ? "" : `<p class="note">${esc(t("schedule.outside"))}</p>`) +
     (devs.length ? `<ul>${devs.map(s => `<li><b>${days[s.day]} ${fmtDate(s.date)}</b> ${esc(s.title)}: ${esc(s.note)}</li>`).join("")}</ul>` : "") +
     `<details><summary>${esc(t("schedule.help.title"))}</summary><p class="note">${esc(t("schedule.help.body"))}</p></details>`;
+  fitSchedule(box);
   box.querySelector("#pw").onclick = () => renderSchedule(box, D, i - 1);
   box.querySelector("#nw").onclick = () => renderSchedule(box, D, i + 1);
   if (box.querySelector("#tw")) box.querySelector("#tw").onclick = () => renderSchedule(box, D, real);

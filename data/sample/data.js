@@ -10,7 +10,7 @@
  *   meta    - programme-wide (title, who am I, .ics name)
  *   common  - sections shown in EVERY semester (written once)
  *   years[] - just groups of semesters; each semester holds its own weeks, courses,
- *             timetable, daysOff, deviations, extraSessions, calendar, keyDates, tabs, sections
+ *             timetable, daysOff, deviations, extraSessions, calendar, tabs, sections
  * Semester ids must be unique (they appear in the URL hash: #y1s2/schedule).
  * Courses carry hours, teachers (with email), contacts, grading and links; the built-in
  * "studyplan" and "directory" sections are built from them (a placeholder semester may hold only courses).
@@ -26,7 +26,6 @@ window.HUB_DATA = {
     university: "Example University",
     programme: "MSc Data Science",
     // default subgroup for everyone, optionally overridden per course id (ids of any semester)
-    me: { groups: { default: "2", ml: "1" } },
     calendarFilename: "example-timetable" // .ics export name
   },
 
@@ -73,35 +72,35 @@ window.HUB_DATA = {
         // courses: id is referenced by this semester's timetable/deviations/sections;
         // color = red|violet|amber|green|blue|teal|pink|grey
         courses: [
-          { id: "ml", title: "Applied Machine Learning", short: "AML", color: "green", ects: 6, evaluation: "E (exam)",
+          { id: "ml", title: "Applied Machine Learning", short: "AML", color: "green", description: "Supervised and unsupervised learning, model evaluation and deployment basics, with hands-on labs.", ects: 6, evaluation: "E (exam)",
             hours: { course: 2, lab: 2 },
             teachers: [ { name: "Prof. Ada Example", role: "course", email: "ada.example@example.org" }, { name: "Dr. Ben Sample", role: "lab", email: "ben.sample@example.org" } ],
             contacts: [ { name: "Zoe Assistant", role: "Lab assistant", email: "zoe.assistant@example.org", note: "Office hours Tue 12:00" } ],
             grading: { components: [ { name: "Final exam", weight: 70 }, { name: "Lab reports", weight: 30 } ],
               passRule: "At least 50% in each component" },
             links: [ { label: "Course page", url: "https://learn.example.org/aml" } ] },
-          { id: "db", title: "Data Engineering", short: "DE", color: "blue", ects: 5, evaluation: "V (continuous)",
+          { id: "db", title: "Data Engineering", short: "DE", color: "blue", description: "Building reliable data pipelines: ingestion, storage, transformation and orchestration.", ects: 5, evaluation: "V (continuous)",
             hours: { course: 1, lab: 2 },
             teachers: [ { name: "Prof. Cara Placeholder", role: "course", email: "cara.placeholder@example.org" }, { name: "Dr. Dan Demo", role: "lab", email: "dan.demo@example.org" } ],
             grading: { components: [ { name: "Lab tasks (3)", weight: 60 }, { name: "Quiz", weight: 20 }, { name: "Final lab test", weight: 20 } ] },
             links: [ { label: "Course page", url: "https://learn.example.org/de" }, { label: "Lab repository", url: "https://git.example.org/de-labs" } ] },
-          { id: "st", title: "Statistical Methods", short: "STAT", color: "amber", ects: 5, evaluation: "E (exam)",
+          { id: "st", title: "Statistical Methods", short: "STAT", color: "amber", description: "Probability, estimation, hypothesis testing and regression for data science.", ects: 5, evaluation: "E (exam)",
             hours: { course: 2, seminar: 1 },
             teachers: [ { name: "Prof. Eli Mock", role: "course", email: "eli.mock@example.org" } ],
             grading: { components: [ { name: "Written exam", weight: 80 }, { name: "Oral", weight: 20, note: "short, after the written part" } ] } },
-          { id: "vz", title: "Data Visualisation", short: "VIZ", color: "violet", ects: 4, evaluation: "P (project)",
+          { id: "vz", title: "Data Visualisation", short: "VIZ", color: "violet", description: "Designing clear, honest charts and dashboards; project-based.", ects: 4, evaluation: "P (project)",
             hours: { project: 3 },
             teachers: [ { name: "Dr. Fay Template", role: "course + project", email: "fay.template@example.org" } ],
             // notes only: no verified weights
             grading: { notes: "Team project graded on the pitch and the final submission; weights not published yet (unconfirmed)." } },
-          { id: "et", title: "Ethics in Data Science", short: "ETH", color: "pink", ects: 3, evaluation: "V (essay)",
+          { id: "et", title: "Ethics in Data Science", short: "ETH", color: "pink", description: "Privacy, fairness and responsible use of data; short essay assignments.", ects: 3, evaluation: "V (essay)",
             hours: { course: 2 },
             // no grading object at all: the plan simply shows no grading info
             teachers: [ { name: "Dr. Gus Fictional", role: "course", email: "gus.fictional@example.org" } ] }
         ],
 
         // timetable: weekly base schedule
-        // group: null = all, "1"/"2" = shown only to that subgroup (meta.me.groups)
+        // group: null = all, "1"/"2" = shown only to that subgroup (each student picks theirs with the Subgroups button in the Schedule tab)
         // parity: null | "even" | "odd" (by week number)
         // rules: weeks as [from,to] ranges; weeks not covered by any rule = not held. A rule may set room.
         timetable: [
@@ -173,15 +172,6 @@ window.HUB_DATA = {
           // image: "assets/calendar.png", pdf: "assets/calendar.pdf"  // optional official calendar
         },
 
-        // keyDates: deadlines (task) and exams (exam); shown on the calendar
-        keyDates: [
-          { from: "2027-10-15", to: "2027-10-15", kind: "task", label: "Enrolment documents due" },
-          { from: "2027-11-26", to: "2027-11-26", kind: "task", label: "Essay draft due (Ethics)" },
-          { from: "2027-12-17", to: "2027-12-17", kind: "task", label: "Visualisation project submission" },
-          { from: "2028-01-18", to: "2028-01-18", kind: "exam", label: "Exam: Applied Machine Learning" },
-          { from: "2028-01-25", to: "2028-01-26", kind: "exam", label: "Exam: Statistical Methods (written + oral)" }
-        ],
-
         // tabs: left out = automatic (Overview, Schedule, Calendar, Courses, Info)
 
         // sections: this semester's sections (after the `common` ones), rendered top to bottom
@@ -204,7 +194,7 @@ window.HUB_DATA = {
           // explicit tab: "todo" (it would land there anyway: highlight + tickable items)
           { kind: "list", id: "now", title: "Do now", highlight: true, tab: "todo", items: [
             "[ ] Upload enrolment documents before 15 Oct",
-            "[ ] Pick your lab subgroup (set <code>meta.me.groups</code>)",
+            "[ ] Pick your lab subgroup (Schedule tab, Subgroups button)",
             "Install Python 3.12 and Jupyter for the first lab"
           ] },
           { kind: "schedule", title: "Weekly schedule" },
@@ -243,21 +233,21 @@ window.HUB_DATA = {
           ]
         },
         courses: [
-          { id: "nl", title: "Natural Language Processing", short: "NLP", color: "teal", ects: 6, evaluation: "E (exam)",
+          { id: "nl", title: "Natural Language Processing", short: "NLP", color: "teal", description: "Text processing, language models and evaluation of NLP systems.", ects: 6, evaluation: "E (exam)",
             hours: { course: 2, lab: 2 },
             teachers: [ { name: "Prof. Hana Sample", role: "course", email: "hana.sample@example.org" }, { name: "Dr. Ivo Demo", role: "lab", email: "ivo.demo@example.org" } ],
             grading: { components: [ { name: "Exam", weight: 60 }, { name: "Lab project", weight: 40 } ], passRule: "Exam of at least 5/10" },
             links: [ { label: "Course page", url: "https://learn.example.org/nlp" } ] },
-          { id: "bd", title: "Big Data Systems", short: "BDS", color: "red", ects: 5, evaluation: "V (continuous)",
+          { id: "bd", title: "Big Data Systems", short: "BDS", color: "red", description: "Distributed storage and processing systems for large datasets.", ects: 5, evaluation: "V (continuous)",
             hours: { course: 2, lab: 1 },
             teachers: [ { name: "Prof. Jon Placeholder", role: "course + lab", email: "jon.placeholder@example.org" } ],
             contacts: [ { name: "Cluster admin", role: "Platform", email: "cluster@example.org" } ],
             grading: { components: [ { name: "Lab portfolio", weight: 70 }, { name: "Quiz", weight: 30 } ] } },
-          { id: "op", title: "Optimisation Methods", short: "OPT", color: "amber", ects: 5, evaluation: "E (exam)",
+          { id: "op", title: "Optimisation Methods", short: "OPT", color: "amber", description: "Convex and non-convex optimisation as used in learning algorithms.", ects: 5, evaluation: "E (exam)",
             hours: { course: 2 },
             teachers: [ { name: "Prof. Kim Mock", role: "course", email: "kim.mock@example.org" } ],
             grading: { components: [ { name: "Written exam", weight: 100 } ] } },
-          { id: "cp", title: "Capstone Seminar", short: "CAP", color: "blue", ects: 4, evaluation: "P (project)",
+          { id: "cp", title: "Capstone Seminar", short: "CAP", color: "blue", description: "Capstone seminar: a team project presented to an industry panel.", ects: 4, evaluation: "P (project)",
             hours: { seminar: 2 },
             teachers: [ { name: "Dr. Lee Template", role: "seminar", email: "lee.template@example.org" } ],
             grading: { notes: "Graded by the supervisor; weights not published (unconfirmed)." } }
@@ -298,12 +288,6 @@ window.HUB_DATA = {
           months: [[2028, 1], [2028, 2], [2028, 3], [2028, 4], [2028, 5]],
           note: "Dates are indicative and may change."
         },
-        keyDates: [
-          { from: "2028-03-31", to: "2028-03-31", kind: "task", label: "Capstone topic registration" },
-          { from: "2028-05-26", to: "2028-05-26", kind: "task", label: "Big Data lab portfolio due" },
-          { from: "2028-06-01", to: "2028-06-01", kind: "exam", label: "Exam: Natural Language Processing" },
-          { from: "2028-06-08", to: "2028-06-08", kind: "exam", label: "Exam: Optimisation Methods" }
-        ],
         sections: [
           { kind: "news", title: "Announcements", items: [
             { date: "2028-03-06", title: "Capstone supervisors assigned", source: "official", course: "cp",
@@ -343,10 +327,10 @@ window.HUB_DATA = {
       // Placeholder: no weeks/calendar yet, so it is never auto-selected and only shows these sections
       { id: "y2s1", title: "Semester 1", subtitle: "Not planned yet - timetable to be published",
         courses: [
-          { id: "dl", title: "Deep Learning", short: "DL", color: "green", ects: 6, evaluation: "E (exam)" },
-          { id: "ci", title: "Causal Inference", short: "CI", color: "violet", ects: 5, evaluation: "E (exam)" },
-          { id: "rm", title: "Research Methods", short: "RM", color: "teal", ects: 4, evaluation: "V (continuous)" },
-          { id: "el", title: "Elective", short: "ELE", color: "grey", ects: 5, evaluation: "V (continuous)" }
+          { id: "dl", title: "Deep Learning", short: "DL", color: "green", description: "Neural network architectures, training and regularisation.", ects: 6, evaluation: "E (exam)" },
+          { id: "ci", title: "Causal Inference", short: "CI", color: "violet", description: "Causal graphs, interventions and estimating effects from observational data.", ects: 5, evaluation: "E (exam)" },
+          { id: "rm", title: "Research Methods", short: "RM", color: "teal", description: "How to read, plan and write research: literature review and experiment design.", ects: 4, evaluation: "V (continuous)" },
+          { id: "el", title: "Elective", short: "ELE", color: "grey", description: "A free elective chosen from the faculty catalogue.", ects: 5, evaluation: "V (continuous)" }
         ],
         sections: [
           { kind: "studyplan", title: "Study plan" }

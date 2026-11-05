@@ -16,7 +16,6 @@ const TABS = ['news', 'todo', 'overview', 'schedule', 'calendar', 'courses', 'pl
 const TYPES = ['course', 'lab', 'project', 'seminar'];
 const CHANGES = ['cancel', 'online', 'in-person', 'note'];
 const PKINDS = ['teach', 'vac', 'exam', 'break'];
-const KDKINDS = ['task', 'exam'];
 
 const isDate = s => {
   if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
@@ -51,6 +50,7 @@ function checkCourse(c, p, e, warns, pre) {
     list.forEach((x, i) => { if (!x || !x.name) e(`${p}.${k}[${i}].name`, 'required'); });
   };
   people('teachers', c.teachers); people('contacts', c.contacts);
+  if (c.description !== undefined && typeof c.description !== 'string') e(p + '.description', 'must be a string');
   if (c.hours !== undefined) {
     if (!c.hours || typeof c.hours !== 'object') e(p + '.hours', 'must be an object');
     else for (const [k, v] of Object.entries(c.hours)) if (!(typeof v === 'number' && v >= 0)) e(`${p}.hours.${k}`, 'must be a number >= 0');
@@ -148,10 +148,6 @@ function checkSemester(S, pre, errs, strict, warns) {
   const m = S.calendar?.months;
   if (!strict && m !== undefined && (!Array.isArray(m) || m.some(x => !Array.isArray(x) || x.length !== 2 || !Number.isInteger(x[0]) || !Number.isInteger(x[1]) || x[1] < 0 || x[1] > 11)))
     e('calendar.months', 'must be [[year, month0 (0-11)], ...]');
-  (S.keyDates || []).forEach((x, i) => {
-    period(`keyDates[${i}]`, x.from, x.to);
-    if (!KDKINDS.includes(x.kind)) e(`keyDates[${i}].kind`, `must be one of ${KDKINDS}`);
-  });
   const tabs = Array.isArray(S.tabs) ? S.tabs.map(t => t.id) : TABS;
   checkSections(S.sections, 'sections', e, cid, true, tabs, (p, m) => warns.push(`${pre}${p}: ${m}`));
 }

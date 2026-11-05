@@ -53,6 +53,7 @@ function renderSections(app, D, set, store) {
       else { D._cbox = box; D._cbase = `data/${set}/`; renderCalendar(box, D, D._cbase); }
     } else if (sec.kind === "studyplan" || sec.kind === "directory") {
       s.insertAdjacentHTML("beforeend", sec.kind === "studyplan" ? studyplanHTML(D) : directoryHTML(D));
+      if (sec.kind === "studyplan") s.addEventListener("click", planToggle);
     } else if (sec.kind === "table") {
       s.insertAdjacentHTML("beforeend", tableHTML(sec));
     } else {
@@ -125,7 +126,7 @@ function applyFilter(q) {
   document.body.classList.toggle("searching", !!q); // searching shows matches from every tab
   document.querySelectorAll("#app section").forEach(s => {
     let any = false;
-    s.querySelectorAll("li, tbody tr").forEach(el => {
+    s.querySelectorAll("li, tbody:not(.prow) tr, tbody.prow").forEach(el => { // a study-plan subject is one tbody (main + detail row)
       const m = el.textContent.toLowerCase().includes(q);
       el.classList.toggle("hide", !m);
       any ||= m;

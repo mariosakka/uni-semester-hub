@@ -14,7 +14,7 @@ let timetabled = 0;
 for (let i = 0; i < count; i++) {
   const V = "semesterView(N, SEMS[" + i + "])";
   const html = run(`studyplanHTML(${V}) + directoryHTML(${V})`);
-  assert(typeof html === "string" && html.includes("Whole programme"), `semester ${i} study plan renders`);
+  assert(typeof html === "string" && html.length > 0 && !html.includes("Whole programme"), `semester ${i} study plan renders`);
   if (!run(`!!(${V}.weeks && ${V}.weeks.segments)`)) continue; // placeholder semester: no timetable
   timetabled++;
   const n = run(`weekCount(${V})`);
@@ -32,11 +32,13 @@ for (let i = 0; i < count; i++) {
   assert.strictEqual(new Set(ics.match(/UID:.*/g)).size, begins, "unique UIDs");
   console.log(`${set}: semester ${run("SEMS[" + i + "].id")}: ${n} weeks, ${begins} ics events - ok`);
   if (set.startsWith("aie") && timetabled === 1) { // spot checks on known deviations (first timetabled semester)
-    const wk = w => run(`weekSessions(${V}, ${w})`);
+    run(`var VV = ${V}; setGroup(VV, 'ml', '2')`); // default is all subgroups; pick SG2 for ML to check the filter (one persistent view)
+    const wk = w => run(`weekSessions(VV, ${w})`);
     const w6 = wk(6), w10 = wk(10);
     assert(w6.some(s => s.key === "2026-11-04" && s.course === "hc" && s.status === "cancel"), "4 Nov hc cancelled");
     assert(w6.some(s => s.extra && s.course === "de" && s.start === 18), "extra recovery lab");
-    assert(!w6.some(s => s.course === "ml" && s.group === "1"), "SG1 ML lab hidden");
+    assert(!w6.some(s => s.course === "ml" && s.group === "1") && w6.some(s => s.course === "ml" && s.group === "2"), "SG1 ML lab hidden, SG2 shown");
+    run("resetGroups(VV)");
     assert(w10.filter(s => s.status === "cancel").length === 3, "30 Nov + 1 Dec cancel 3 sessions");
     assert(w10.find(s => s.course === "fai" && s.type === "lab" && s.key === "2026-12-04").mode === "online", "4 Dec lab online");
     console.log("aie spot checks ok");

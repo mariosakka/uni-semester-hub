@@ -30,7 +30,7 @@ A data set describes a whole programme: years contain semesters. A sidebar (a dr
 - **Links:** the choice lives in the URL hash, e.g. `#y1s2/schedule` (semester id, then tab), so links and reloads keep it.
 - **Tabs:** News, To-Do, Schedule, Calendar, Courses, Study plan, Contacts, Info, chosen automatically from the section kinds; override with `tabs` and a per-section `tab`. Empty tabs are hidden.
 - **News vs To-Do:** announcements and notices go in `news` sections (a dated feed, newest first, with source, "unconfirmed" and course tags, and a "new" badge for the last 7 days). A list with tickable items (`"[ ] …"`) or `highlight: true` lands in To-Do; any other list lands in News. Set `tab` to override. The old `overview` tab name is treated as News.
-- **Study plan tab** (`studyplan` section): the whole programme by year and semester with ECTS totals, this semester's subjects with hours, evaluation, grading and teachers, and an expandable block per subject.
+- **Study plan tab** (`studyplan` section): the selected semester only, as a stat strip (credits, subjects, exams, hours) and a colour-coded table of subjects with an optional `description`, ECTS, evaluation, weekly hours, grading and teachers; rows expand to the grading details. No links or emails here.
 - **Contacts tab** (`directory` section): programme contacts first, then every subject's teachers and contacts. Fill `courses[].grading`, `hours`, `teachers`, `contacts` and `links`; never invent numbers, put unverified claims in `grading.notes`.
 - **Placeholders:** a future semester can hold just a title and a subject list until its timetable exists.
 - **Sample set:** `data/sample/` is a fictional multi-year programme showing all of this.
@@ -41,7 +41,7 @@ See [docs/SCHEMA.md](docs/SCHEMA.md) for the format.
 
 - Weekly grid with week picker, parity (odd/even weeks), subgroups, in-person/online modes per week range
 - Deviations (cancel / online / in-person / note) and extra sessions highlighted on the grid
-- Academic calendar: teaching, vacation, exam periods, days off, key dates
+- Academic calendar: teaching, vacation, exam periods, days off
 - Per-course sections, contacts, links, tables, checklists (ticks saved in `localStorage`)
 - Filter box, light and dark mode, `.ics` export
 - Works from `file://`

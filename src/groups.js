@@ -1,6 +1,6 @@
 // Subgroup selection. The user's subgroup per course is discovered from the timetable, chosen in the Schedule toolbar, stored per
 // data set + semester, and read by visible() (schedule.js) so every list of sessions (grid, agenda, calendar, modal, .ics) agrees.
-// D (a semester view) carries: D.groupKey (storage key, set by main.js), D.groupSel (cached explicit choices), D.meta.me.groups (defaults).
+// D (a semester view) carries: D.groupKey (storage key, set by main.js), D.groupSel (cached explicit choices). With nothing stored every subgroup is shown.
 const groupMem = {}; // in-memory fallback when localStorage is blocked (Safari private mode): choices last until reload
 
 // courses that have grouped sessions: [{course, groups: ["1", "2"]}]; cached on D (the timetable never changes after load)
@@ -25,16 +25,14 @@ function saveGroupSel(D) {
   try { localStorage.setItem(D.groupKey, JSON.stringify(D.groupSel)); } catch (e) { /* ticks last until reload */ }
 }
 
-// "all" or the subgroup value that applies to a course: stored choice, else meta.me.groups (per course, then "default"), else "all";
+// "all" or the subgroup value that applies to a course: the stored choice, else "all";
 // unknown values (a subgroup the timetable does not have) are ignored, courses without grouped sessions are never filtered
 function groupFor(D, course) {
   const known = groupMap(D)[course];
   if (!known) return "all";
-  const me = ((D.meta || {}).me || {}).groups || {}, sel = groupSel(D);
+  const sel = groupSel(D);
   const ok = v => v === "all" || (v !== undefined && v !== null && known.includes(String(v)));
-  if (ok(sel[course])) return String(sel[course]);
-  const d = me[course] ?? me.default;
-  return ok(d) ? String(d) : "all";
+  return ok(sel[course]) ? String(sel[course]) : "all";
 }
 
 // the single filtering rule: ungrouped sessions always show; grouped ones only for the selected subgroup (or when "all")

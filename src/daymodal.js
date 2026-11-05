@@ -36,7 +36,6 @@ function dayHTML(V, info) {
   if (info.week) out.push(`<p class="dm-week">${esc(t(info.parity === "odd" ? "schedule.weekOdd" : "schedule.weekEven", {n: info.week}))}</p>`);
   if (info.period) out.push(`<p>${esc(t("modal.period", {label: info.period.label, from: rng(info.period.from), to: rng(info.period.to)}))}</p>`);
   if (info.off) out.push(`<p class="dm-off">${esc(t("modal.dayOff", {label: info.off}))}</p>`);
-  if (info.keys.length) out.push(`<h4>${esc(t("modal.keyDates"))}</h4><ul>${info.keys.map(e => `<li>${tag(e.kind === "exam" ? "unc" : "off", t(e.kind === "exam" ? "calendar.legend.keyExam" : "calendar.legend.task"))} ${esc(e.label)}</li>`).join("")}</ul>`);
   if (info.sessions.length) out.push(`<h4>${esc(t("modal.sessions"))}</h4>` + info.sessions.map(s => {
     const c = courseOf(V, s.course), cx = s.status === "cancel";
     const flag = cx ? "✕ " + t("modal.notHeld") : s.extra ? t("modal.extra") : s.status === "dev" ? "⚠ " + t("modal.differs") : "";
@@ -45,7 +44,7 @@ function dayHTML(V, info) {
       (flag || s.note ? `<span class="badge">${esc(flag)}${s.note ? " " + esc(s.note) : ""}${s.u ? " " + esc(t("news.unconfirmed")) : ""}</span>` : "") + `</div>`;
   }).join(""));
   if (info.news.length) out.push(`<h4>${esc(t("modal.news"))}</h4><ul>${info.news.map(n => `<li><b>${esc(n.title)}</b>${n.source ? ` ${tag("", n.source)}` : ""}${n.unconfirmed ? ` ${tag("unc", t("news.unconfirmed"))}` : ""}</li>`).join("")}</ul>`);
-  if (!info.sessions.length && !info.keys.length && !info.news.length && !info.off) out.push(`<p class="note">${esc(t("modal.empty"))}</p>`);
+  if (!info.sessions.length && !info.news.length && !info.off) out.push(`<p class="note">${esc(t("modal.empty"))}</p>`);
   if (info.week && V.openWeek) out.push(`<p><button type="button" class="dm-open" data-open-week="${info.week}">${esc(t("modal.openSchedule"))}</button></p>`);
   return out.join("");
 }

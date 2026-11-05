@@ -7,12 +7,6 @@ window.HUB_DATA = {
     "subtitle": "Information as of 3 Nov 2026. Items from the faculty or the teachers are marked \"official\"; the rest is unverified.",
     "university": "UPB – FILS",
     "programme": "Artificial Intelligence for Engineering (AIE)",
-    "me": {
-      "groups": {
-        "default": "2",
-        "fai": "1"
-      }
-    },
     "calendarFilename": "fils-master-ai",
     "author": {
       "name": "Mohamad-Mario Sakka",
@@ -738,38 +732,6 @@ window.HUB_DATA = {
             "image": "calendar.png",
             "pdf": "calendar.pdf"
           },
-          "keyDates": [
-            {
-              "from": "2026-11-10",
-              "to": "2026-11-10",
-              "kind": "task",
-              "label": "Human-Centric AI: upload last Wednesday's class work (23:00)"
-            },
-            {
-              "from": "2026-11-12",
-              "to": "2026-11-12",
-              "kind": "task",
-              "label": "Applied ML: next SAP session (told to the course teacher by SAP)"
-            },
-            {
-              "from": "2026-12-01",
-              "to": "2026-12-01",
-              "kind": "task",
-              "label": "Research 1: topic + coordinator chosen (\"beginning of December\"; 1 Dec is a day off)"
-            },
-            {
-              "from": "2027-01-18",
-              "to": "2027-01-22",
-              "kind": "exam",
-              "label": "Research 1: present to committee + upload report (≥15 pages, ≥20 refs) and PowerPoint on Moodle"
-            },
-            {
-              "from": "2027-01-23",
-              "to": "2027-02-12",
-              "kind": "exam",
-              "label": "Exam session (per-course dates not announced yet)"
-            }
-          ],
           "sections": [
             {
               "id": "todo",
@@ -778,7 +740,6 @@ window.HUB_DATA = {
               "tab": "todo",
               "highlight": true,
               "items": [
-                "[ ] Human-Centric AI: upload last Wednesday's class work to the platform by <b>Tue 10 Nov, 23:00</b> (platform not named).",
                 "[ ] Pick a Research 1 topic <b>and coordinator by the beginning of December</b>.",
                 "[ ] Data Engineering: recovery lab for the cancelled 27 Oct lab, <b>Wed 4 Nov from 18:00</b> (Cosmin, official).",
                 "[ ] Applied ML: next SAP session <b>Thu 12 Nov</b> (17:00 slot; SAP contact told the course teacher).",
@@ -787,7 +748,7 @@ window.HUB_DATA = {
             },
             {
               "kind": "schedule",
-              "title": "Weekly schedule (base) – SG2, Friday SG1"
+              "title": "Weekly schedule (base)"
             },
             {
               "kind": "calendar",
@@ -801,7 +762,7 @@ window.HUB_DATA = {
                 {
                   "date": "2026-11-03",
                   "title": "Human-Centric AI: no class on 4 Nov",
-                  "text": "Wednesday meetings are online-only from the following week until year-end. Upload what you did in class last Wednesday to the platform by <b>Tue 10 Nov, 23:00</b>.",
+                  "text": "Wednesday meetings are online-only from the following week until year-end.",
                   "source": "teacher",
                   "course": "hc"
                 },
@@ -892,8 +853,7 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "hc",
               "items": [
-                "Wed 17–18 course, Wed 18–20 lab SG2. Evaluation: <b>V</b> (continuous verification, no final exam), 5 ECTS (official study plan). Wed 4 Nov: no class; from the following week Wednesday meetings are <b>online only</b> to year-end (teacher reminder, 3 Nov).",
-                "Homework: what you did in class last Wednesday must be uploaded to the platform by <b>Tue 10 Nov, 23:00</b>."
+                "Wed 17–18 course, Wed 18–20 lab SG2. Evaluation: <b>V</b> (continuous verification, no final exam), 5 ECTS (official study plan). Wed 4 Nov: no class; from the following week Wednesday meetings are <b>online only</b> to year-end (teacher reminder, 3 Nov)."
               ]
             },
             {
@@ -1110,14 +1070,6 @@ window.HUB_DATA = {
             ],
             "note": "Resit / rescheduling session: 25 Aug – 7 Sep 2027. Days off: 30 Apr, 3–4 May, 1 Jun and 21 Jun 2027."
           },
-          "keyDates": [
-            {
-              "from": "2027-06-05",
-              "to": "2027-06-25",
-              "kind": "exam",
-              "label": "Semester 2 exam session"
-            }
-          ],
           "sections": [
             {
               "kind": "calendar",

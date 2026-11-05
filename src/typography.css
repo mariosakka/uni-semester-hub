@@ -16,10 +16,8 @@
   --lh-prose:1.6;--lh-ui:1.4;--measure:70ch;
   --mut:#565d6d;  /* was #667: 6.6:1 on card, 6.2:1 on bg */
   --on-acc:#fff;  /* text on --acc fills */
-  --km:#b45309;   /* key-date text (border stays #e67e22) */
-  --km-exam:#c0152f;
 }
-@media(prefers-color-scheme:dark){:root{--mut:#9aa3b5;--on-acc:#0d1220;--km:#e67e22;--km-exam:#ff7a8a}} /* white on #7aa2ff was 2.5:1 */
+@media(prefers-color-scheme:dark){:root{--mut:#9aa3b5;--on-acc:#0d1220}} /* white on #7aa2ff was 2.5:1 */
 @media(min-width:900px){:root{--fs-body:1.125rem}}
 
 body{font-family:var(--font);font-size:var(--fs-body);line-height:var(--lh-prose);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
@@ -36,7 +34,7 @@ h2+h3{margin-top:var(--sp-3)}
 
 /* prose */
 p,li,.nt{text-wrap:pretty}
-section>p,section>ul>li,section>ol>li,.nb,details.subj>*:not(summary):not(.tw){max-width:var(--measure)}
+section>p,section>ul>li,section>ol>li,.nb{max-width:var(--measure)}
 section{padding:var(--sp-5);margin:var(--sp-5) 0;border-radius:14px}
 li{margin:var(--sp-2) 0}
 ul{padding-left:1.3rem}
@@ -67,8 +65,6 @@ button,select,#q{line-height:var(--lh-ui)}
 #q{margin:var(--sp-4) 0 var(--sp-2);font-size:max(16px,1rem)}
 .swk,.cnav{margin-bottom:var(--sp-2)}
 .swk>*,.cnav>*,.gwrap>*{margin:0 var(--sp-2) var(--sp-2) 0}
-.slegend{margin:var(--sp-3) 0 var(--sp-2);font-size:var(--fs-sm);line-height:var(--lh-ui)}
-.lg{margin:0 var(--sp-4) var(--sp-2) 0}
 .legend{font-size:var(--fs-xs);line-height:var(--lh-ui)}
 
 /* sidebar */
@@ -88,7 +84,7 @@ button,select,#q{line-height:var(--lh-ui)}
 .ag h3{margin:var(--sp-2) 0}
 .acard{margin:var(--sp-2) 0;padding:var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);font-size:var(--fs-body);line-height:var(--lh-ui)}
 .acard small{font-size:var(--fs-sm);margin-top:var(--sp-1)}
-.ev.cx,.acard.cx,.sl.cx,.sw.cx{opacity:.7} /* was .5 (about 3:1); .7 keeps the faded look at >=4.5:1 on every tint, light and dark */
+.ev.cx,.acard.cx,.sl.cx{opacity:.7} /* was .5 (about 3:1); .7 keeps the faded look at >=4.5:1 on every tint, light and dark */
 .ev.cx small,.acard.cx small{opacity:1}   /* no stacked fading */
 .ev.cx .badge,.acard.cx .badge{color:#3a1c00} /* #9a4a00 faded to 2.8:1 */
 .dayoff,.agoff{color:var(--fg)} /* muted text on the dark hatching was 3.2:1 */
@@ -99,16 +95,9 @@ button,select,#q{line-height:var(--lh-ui)}
 .mg{gap:3px}
 .mg i{font-weight:600}
 .d.we:not(.off){opacity:.7}
-.km{color:var(--km)}.km.exam{color:var(--km-exam)}
 .ysem{margin:var(--sp-5) 0 var(--sp-2)}
 .wday .wl{letter-spacing:.02em}
 .cmodes{margin-bottom:var(--sp-3)}
-
-/* study plan */
-.plansems{gap:var(--sp-3);margin-bottom:var(--sp-4)}
-.plansem{padding:var(--sp-3);font-size:var(--fs-sm);line-height:var(--lh-ui)}
-details.subj{margin:var(--sp-2) 0;padding:0 var(--sp-4)}
-details.subj summary{padding:var(--sp-3) 0;line-height:var(--lh-ui)}
 
 /* day modal, subgroup panel, footer */
 .dm-card{padding-left:var(--sp-5);padding-right:var(--sp-5)}
@@ -134,3 +123,8 @@ details.subj summary{padding:var(--sp-3) 0;line-height:var(--lh-ui)}
   #bar b{font-weight:600}
 }
 @media(max-width:560px){header.page{padding-top:var(--sp-4)}}
+
+/* interface chrome is not selectable (a double-click on a label no longer starts a selection); content text stays selectable */
+summary,button,select,#side,#bar,#sems label,.tag,.chip,.pev,.hc,.gchip,.pstats,.legend,.swk,.cnav,.cmodes,.gpanel,.dm-head,.mg i,.wl,.sh,.times{-webkit-user-select:none;user-select:none}
+button,summary,#side{-webkit-touch-callout:none}
+#q,input{-webkit-user-select:text;user-select:text} /* Safari needs this explicit inside a user-select:none ancestor */

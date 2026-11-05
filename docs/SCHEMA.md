@@ -9,7 +9,6 @@ window.HUB_DATA = {
   meta: {
     title: "Programme hub",            // page <h1>
     university: "…", programme: "…", academicYear: "2026–2027", semester: "Semester 1",
-    me: { groups: { default: "2", "<courseId>": "1" } },   // your subgroup, per course override
     calendarFilename: "my-timetable"    // .ics file name (no extension)
   },
 
@@ -26,7 +25,7 @@ window.HUB_DATA = {
     course: "ml", type: "course",        // course | lab | project | seminar
     day: 3, start: 17, end: 19,
     teacher: "…", room: "CB205",
-    group: null,                          // null = everyone, else "1"/"2": shown only if it equals meta.me.groups[course] (or default)
+    group: null,                          // null = everyone, else "1"/"2": shown only for the subgroup the user selected for that course in the Schedule tab's Subgroups panel (all subgroups by default)
     parity: null,                         // null | "even" | "odd" (by week number)
     rules: [ { weeks: [[1,4],[13,14]], mode: "in-person" },
              { weeks: [[5,12]],        mode: "online" } ]   // weeks not covered by any rule: not held. A rule may add room.
@@ -50,12 +49,11 @@ window.HUB_DATA = {
     image: "calendar.png", pdf: "calendar.pdf"            // optional official calendar picture/PDF, paths relative to data/<set>/ (e.g. "assets/calendar.png")
   },
 
-  keyDates: [ { from: "2026-11-10", to: "2026-11-10", kind: "task", label: "…" } ],  // kind: task|exam
 
   sections: [                              // rendered top to bottom, in this order
     { kind: "list",     title: "Administrative", pinned: true, items: [ "[ ] tickable item", "plain item" ] },
     { kind: "schedule", title: "Weekly schedule" },                  // built-in: weekly grid + week picker + .ics export
-    { kind: "calendar", title: "Academic calendar" },                // built-in: per-semester month grids + key dates
+    { kind: "calendar", title: "Academic calendar" },                // built-in: week / month / year views with day popups
     { kind: "course",   course: "ml", items: [ "…" ] },              // header (teachers, ECTS, evaluation) + items
     { kind: "contacts", title: "Contacts", items: [ { name: "…", role: "…", email: "…", phone: "…", note: "…" } ] },
     { kind: "links",    title: "Useful links", items: [ { label: "…", url: "https://…", note: "…" } ] },
@@ -84,7 +82,7 @@ A data set describes a whole programme. Content that changes per semester lives 
 
 ```js
 window.HUB_DATA = {
-  meta: { title, university, programme, me: { groups: {...} }, calendarFilename },   // programme-wide
+  meta: { title, university, programme, calendarFilename },   // programme-wide
   common: [ /* sections shown in every semester (e.g. Administrative, contacts); same shape as `sections` */ ],
   years: [ {
     id: "y1", title: "Year 1 · 2026–2027",
@@ -94,7 +92,6 @@ window.HUB_DATA = {
       weeks: { segments: [ { start: "2026-09-28", count: 12 }, … ] },   // omit for a semester without a timetable yet
       courses: [ … ], timetable: [ … ], daysOff: {…}, deviations: […], extraSessions: […],   // same shapes as above
       calendar: { periods: [ … ], months: [[2026,8],[2026,9],…], note: "html", image: "calendar.png", pdf: "calendar.pdf" },
-      keyDates: [ … ],
       tabs: [ … ],                      // optional, see Tabs
       sections: [ … ]                   // this semester's sections (kinds as above; course sections refer to this semester's courses)
     } ]
@@ -115,6 +112,7 @@ window.HUB_DATA = {
 **Course objects** (each semester's `courses`; placeholder semesters may contain *only* `courses` to describe the study plan):
 ```js
 { id, title, short, color, ects: 5, evaluation: "E",          // E exam, V continuous/verification, P project, … free text
+  description: "One or two plain-text sentences about the subject",   // optional; shown under the subject title in the Study plan
   hours: { course: 1, seminar: 0, lab: 2, project: 0 },        // hours per week, optional
   teachers: [ { name, role, email, phone, note } ],            // also the subject's main contacts
   contacts: [ { name, role, email, phone, note } ],            // extra subject contacts (assistants, guests, platform admins), optional
@@ -126,10 +124,7 @@ window.HUB_DATA = {
 ```
 
 **New built-in section kinds** (no items needed, they read the data):
-- `{ kind: "studyplan", title: "Study plan" }` → default tab `plan` ("Study plan"). Three levels, all from the courses data:
-  1. **Whole programme**: for every year, a block per semester with total ECTS and its subjects (each semester links to `#<semesterId>/plan`); the selected semester is highlighted.
-  2. **This semester**: a table of subject · ECTS · evaluation · weekly hours · grading summary · teachers.
-  3. **Per subject**: one expandable block per course with ECTS, hours, evaluation, the grading components (table with weights and a total check), pass rule, notes, links and contacts.
+- `{ kind: "studyplan", title: "Study plan" }` → default tab `plan` ("Study plan"). Shows **only the selected semester** (switch semester with the Semester select): a stat strip (total ECTS, subjects, exams, continuous evaluation, other, hours per week; partial totals show "≥N", unknown "–") and a colour-coded table, one row per subject in its course colour: title with the optional `description`, ECTS (pill and bar), evaluation badge (E exam / V continuous / P project / other), weekly hours chips, grading chips and teachers (names and roles only – no emails, phones or links). Each row expands to the grading components (weights with a total check), pass rule and notes. Below 1100px wide the table becomes stacked cards. Course `links` and `contacts` are not shown here (see the Courses and Contacts tabs).
 - `{ kind: "directory", title: "Contacts" }` → default tab `contacts` ("Contacts"). Builds one directory: first the programme contacts (`common` sections of kind `contacts`, plus this semester's `contacts` sections), then "by subject" – each course's teachers and `contacts`, grouped under the course title. Emails/phones are links.
 - The existing `contacts` section kind still works for hand-written lists; `course` sections additionally show the course's contacts and grading summary under the header line.
 
@@ -169,3 +164,5 @@ Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study pl
 - Typical split: **News** = only the dated announcements feed (`kind: "news"`); **To-Do** = tickable tasks and deadlines (including "Do now" and research-topic deadlines); **Info** = administrative notes (cards, certificates, rooms, faculty pages), contacts and useful links.
 
 Sections that describe administrative information (cards, certificates, rooms, faculty pages) are ordinary `list` sections placed on the Info tab with `tab: "info"`; the News tab is meant for the dated `news` feed only.
+
+`keyDates` (an old field) is no longer used; data sets that still contain it are accepted and the field is ignored.
