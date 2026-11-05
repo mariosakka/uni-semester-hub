@@ -27,6 +27,8 @@ export var HUB_STRINGS = {
   "err.setNotFound": "Data set \"{set}\" not found (expected data/{set}/data.js).",
   // footer
   "footer.madeBy": "Made by {name}",
+  "footer.version": "Version {version}",
+  "footer.source": "Source on GitHub",
   // default tab titles
   "tab.news": "News",
   "tab.todo": "To-Do",
