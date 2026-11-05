@@ -221,10 +221,10 @@ function renderSchedule(box, D, i) {
   }).join("");
   const devs = sess.filter(s => s.note);
   const title = w ? esc(t(w % 2 ? "schedule.weekOdd" : "schedule.weekEven", {n: w})) : esc(e.label);
-  box.innerHTML = scheduleLegendHTML(D) +
+  box.innerHTML =
     `<div class="swk"><button id="pw" aria-label="${esc(t("schedule.prev"))}" ${i <= 0 ? "disabled" : ""}>◀</button><b>${title} · ${fmtDate(m)} – ${fmtDate(addDays(m, 4))}</b>` +
     (i === real && live ? `<span class="chip">${esc(t("schedule.thisWeek"))}</span>` : "") +
-    `<button id="nw" aria-label="${esc(t("schedule.next"))}" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${esc(t("schedule.backToCurrent"))}</button>` : ""}<button id="ics">${esc(t("schedule.download"))}</button></div>` + groupsHTML(D) +
+    `<button id="nw" aria-label="${esc(t("schedule.next"))}" ${i >= T.length - 1 ? "disabled" : ""}>▶</button>${i !== real ? `<button id="tw">${esc(t("schedule.backToCurrent"))}</button>` : ""}<button id="ics">${esc(t("schedule.download"))}</button></div>` + groupsHTML(D) + scheduleLegendHTML(D) + // order: week row, subgroups row, legend, grid
     `<div class="sched"><div class="sh"></div>${head}<div class="sc times" style="height:calc(var(--rh) * ${H1 - H0})">${times}</div>${cols}</div>${agenda}` +
     (live ? "" : `<p class="note">${esc(t("schedule.outside"))}</p>`) +
     (devs.length ? `<ul>${devs.map(s => `<li><b>${days[s.day]} ${fmtDate(s.date)}</b> ${esc(s.title)}: ${esc(s.note)}</li>`).join("")}</ul>` : "") +
