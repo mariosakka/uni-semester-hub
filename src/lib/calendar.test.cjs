@@ -49,7 +49,6 @@ if (set.startsWith("aie")) {
   assert(/key exam/.test(run(`dayClass(dayState(V, '2027-01-20'), '2027-01-20', '')`)), "exam marker class on a day inside a range");
   assert(run(`dayState(V, '2027-01-18').ev.length + dayState(V, '2027-01-22').ev.length`) === 2 && run(`dayState(V, '2027-01-23').ev.length`) === 0, "range markers cover from..to only");
   assert(run(`dayTip(dayState(V, '2026-12-01'))`).includes("Research 1"), "tooltip carries the label");
-  assert(run(`weekHTML(V, parseDate('2026-11-30'), '')`).includes('class="km task"'), "week view shows the marker");
 }
 // the year view merges the deadlines of every semester of the year; the legend and the day modal name them
 const ydk = run("V.year.keyDates");

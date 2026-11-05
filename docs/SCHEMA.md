@@ -1,6 +1,6 @@
-# Data schema (contract for `data/<set>/data.js`)
+# Data schema (contract for `public/data/<set>/data.js`)
 
-A *data set* is one file, `data/<set>/data.js`, that assigns `window.HUB_DATA = { ... }`. The site (static, no build, works from `file://`) loads the set named by `?set=<name>` (default `sample`) by injecting a `<script src="data/<name>/data.js">`. Everything about a programme/semester lives in that file; the engine in `src/` knows nothing about any specific university.
+A *data set* is one file, `public/data/<set>/data.js`, that assigns `window.HUB_DATA = { ... }`. The site (static site, built with Vite) loads the set named by `?set=<name>` (default `sample`) by injecting a `<script src="public/data/<name>/data.js">`. Everything about a programme/semester lives in that file; the engine in `src/` knows nothing about any specific university.
 
 Dates are `"YYYY-MM-DD"` strings. Days are `0`=Mon … `4`=Fri. Hours are numbers (`17`, `18.5`). Item strings may contain trusted HTML (the data author is trusted; never load data sets you didn't write).
 
@@ -46,7 +46,7 @@ window.HUB_DATA = {
     periods: [ { from: "2026-09-28", to: "2026-12-18", kind: "teach", label: "Teaching" } ],  // kind: teach|vac|exam|break
     daysOff: "use top-level daysOff",
     semesters: [ { id: 1, name: "Semester 1", months: [[2026,8],[2026,9]], note: "html" } ],  // months: [year, month0]
-    image: "calendar.png", pdf: "calendar.pdf"            // optional official calendar picture/PDF, paths relative to data/<set>/ (e.g. "assets/calendar.png")
+    image: "calendar.png", pdf: "calendar.pdf"            // optional official calendar picture/PDF, paths relative to public/data/<set>/ (e.g. "assets/calendar.png")
   },
 
 
@@ -68,7 +68,7 @@ Rules the engine must follow:
 - A set may omit any optional key; missing pieces just don't render.
 - The filter box hides non-matching list items; `schedule`, `calendar` and sections with `pinned: true` stay visible.
 - Colours come from CSS classes `c-<color>`; light and dark mode both supported.
-- No network requests, no external fonts/CDNs. Only `data/<set>/data.js` is loaded dynamically.
+- No network requests, no external fonts/CDNs. Only `public/data/<set>/data.js` is loaded dynamically.
 
 ## Tabs
 
@@ -100,7 +100,7 @@ window.HUB_DATA = {
 };
 ```
 
-- **Per-semester calendar:** one `calendar` object per semester (a single month list, no inner `semesters` array). `image`/`pdf` are relative to `data/<set>/`.
+- **Per-semester calendar:** one `calendar` object per semester (a single month list, no inner `semesters` array). `image`/`pdf` are relative to `public/data/<set>/`.
 - **Automatic semester:** semesters are ordered by the start of `weeks.segments[0]` (or, with no weeks, by `calendar.periods[0].from`). The active one is the last semester whose start is ≤ today; before the first it is the first, after the last it is the last. A semester with neither weeks nor periods is never auto-selected. The user can pick any semester; the choice lives in the URL hash (`#<semesterId>/<tab>`), so links and reloads keep it. With no hash, the automatic one opens.
 - **Navigation:** a sidebar (an off-canvas drawer on phones): logos and title at the top, search, the tabs of the selected semester, and at the bottom a **Year** select (hidden when there is only one year) and a **Semester** select for that year (the automatic one reads "… · now"). Changing either goes through the URL hash.
 - **Common sections:** `common` sections are prepended to every semester's sections (so Administrative info is written once). Tick state is stored per semester for semester sections and shared for `common` ones.
@@ -137,7 +137,7 @@ Section → default tab (the full default tab list is in "News and To-Do tabs" b
 meta: {
   author: { name: "Your Name", url: "https://github.com/you" },        // url optional
   programmeLine: "AI for Engineering (AIE) Master · FILS – UPB, 2026–2028",   // optional; falls back to meta.programme
-  logos: [ { src: "logos/upb.png", alt: "UNSTPB Politehnica București", url: "https://upb.ro", bg: "#14233c" } ],  // src relative to data/<set>/; bg optional (for logos with white artwork)
+  logos: [ { src: "logos/upb.png", alt: "UNSTPB Politehnica București", url: "https://upb.ro", bg: "#14233c" } ],  // src relative to public/data/<set>/; bg optional (for logos with white artwork)
   disclaimer: "Unofficial student-made page; the faculty's website and secretariat are authoritative."   // optional
 }
 ```

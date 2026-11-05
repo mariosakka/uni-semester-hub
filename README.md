@@ -18,7 +18,7 @@
 | All UI strings (translate / reword) | [docs/STRINGS.md](docs/STRINGS.md) |
 | Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-A reusable, static "university programme hub": years and semesters of a whole programme, each with a weekly timetable (with dated deviations such as cancelled or online sessions), an academic calendar, per-course sections and tickable checklists. All content comes from one data file, `data/<set>/data.js`; the engine knows nothing about any specific university. No build step, no dependencies, no network requests.
+A reusable, static "university programme hub": years and semesters of a whole programme, each with a weekly timetable (with dated deviations such as cancelled or online sessions), an academic calendar, per-course sections and tickable checklists. All content comes from one data file, `public/data/<set>/data.js`; the engine knows nothing about any specific university. No build step, no dependencies, no network requests.
 
 > Screenshot: _placeholder, add `docs/screenshot.png` and link it here._
 
@@ -34,7 +34,7 @@ A data set describes a whole programme: years contain semesters. A sidebar (a dr
 - **Study plan tab** (`studyplan` section): the selected semester only, as a stat strip (credits, subjects, exams, hours) and a colour-coded table of subjects with an optional `description`, ECTS, evaluation, weekly hours, grading and teachers; rows expand to the grading details. No links or emails here.
 - **Contacts tab** (`directory` section): programme contacts first, then every subject's teachers and contacts. Fill `courses[].grading`, `hours`, `teachers`, `contacts` and `links`; never invent numbers, put unverified claims in `grading.notes`.
 - **Placeholders:** a future semester can hold just a title and a subject list until its timetable exists.
-- **Sample set:** `data/sample/` is a fictional multi-year programme showing all of this.
+- **Sample set:** `public/data/sample/` is a fictional multi-year programme showing all of this.
 
 See [docs/SCHEMA.md](docs/SCHEMA.md) for the format.
 
@@ -45,43 +45,48 @@ See [docs/SCHEMA.md](docs/SCHEMA.md) for the format.
 - Academic calendar: teaching, vacation, exam periods, days off, deadline and exam markers
 - Per-course sections, contacts, links, tables, checklists (ticks saved in `localStorage`)
 - Filter box, light and dark mode, `.ics` export
-- Works from `file://`
+- Vue 3 + Vite app that builds to plain static files: no server code, no network requests at runtime
 
 ## Quick start
 
-Open `index.html` in a browser, or serve the folder:
-
 ```
-python -m http.server 8000
+npm install
+npm run dev      # live preview, http://localhost:5173/
+npm test         # logic tests + data validators
+npm run build    # static site in dist/
 ```
 
-Then visit `http://localhost:8000/`. Pick a data set with the `set` parameter: `index.html?set=sample`. Without it, the set named in `<meta name="hub-default-set">` of `index.html` opens (here `aie`; a fresh fork should point it at `sample` or its own set). Jump to a semester and tab with the hash: `index.html?set=sample#y1s2/schedule`.
+Then visit the printed address. Pick a data set with the `set` parameter: `?set=sample`. Without it, the set named in `<meta name="hub-default-set">` of `index.html` opens (here `aie`; a fresh fork should point it at `sample` or its own set). Jump to a semester and tab with the hash: `index.html?set=sample#y1s2/schedule`.
 
 ## Make your own data set
 
-1. Copy `data/sample/` to `data/<yourset>/`.
-2. Edit `data/<yourset>/data.js` (format: [docs/SCHEMA.md](docs/SCHEMA.md)).
-3. Validate: `node scripts/validate.mjs data/<yourset>/data.js` (Node 18+, no install needed).
+1. Copy `public/data/sample/` to `public/data/<yourset>/`.
+2. Edit `public/data/<yourset>/data.js` (format: [docs/SCHEMA.md](docs/SCHEMA.md)).
+3. Validate: `node scripts/validate.mjs public/data/<yourset>/data.js` (Node 18+, no install needed).
 4. Open `index.html?set=<yourset>`.
 
 New semester, new year or another programme: see [docs/REUSE.md](docs/REUSE.md).
 
 ## Keep your real data private
 
-`.gitignore` ignores everything in `data/` except `data/sample/` and the published `data/aie/` set of this repo, so other sets never get committed by accident. In a fork, remove `!data/aie/` from `.gitignore` (and `data/aie/`) before adding your own data. Alternatives: keep a private fork with your set committed, or keep the data folder outside the repo and copy it in locally. Never put invite or meeting links, phone numbers or personal names in a published set.
+`.gitignore` ignores everything in `public/data/` except `public/data/sample/` and the published `public/data/aie/` set of this repo, so other sets never get committed by accident. In a fork, remove `!public/data/aie/` from `.gitignore` (and `public/data/aie/`) before adding your own data. Alternatives: keep a private fork with your set committed, or keep the data folder outside the repo and copy it in locally. Never put invite or meeting links, phone numbers or personal names in a published set.
 
 ## Deploy to GitHub Pages
 
-Push to `main`, then in the repository go to Settings, Pages, Source: GitHub Actions. `.github/workflows/pages.yml` publishes the repo root. The root opens the default set from `index.html` (`aie` here); `?set=sample` shows the fictional sample. For a private hub, deploy from a private fork and be aware Pages sites are public unless your plan supports private Pages.
+Push to `main`, then in the repository go to Settings, Pages, Source: GitHub Actions. `.github/workflows/pages.yml` builds the site (`npm ci && npm test && npm run build`) and publishes `dist/`. The root opens the default set from `index.html` (`aie` here); `?set=sample` shows the fictional sample. For a private hub, deploy from a private fork and be aware Pages sites are public unless your plan supports private Pages.
 
 ## Layout
 
 ```
-index.html            entry page
-src/                  engine (rendering, styles, ics export)
-data/sample/data.js   sample data set (tracked); data/aie/ is the published set of this repo, other sets are gitignored
-fonts/                self-hosted Inter (latin + latin-ext) and its license
-data/<set>/assets/    optional calendar image/PDF for a set
+index.html            Vite entry page
+package.json          scripts: dev, build, test
+src/lib/              pure logic (dates, semester, schedule, calendar, plan, tabs, strings) with node tests
+src/components/       Vue components by feature: schedule/, calendar/ (incl. modals), plan/, sections/
+src/styles/           CSS per feature (base, schedule, calendar, plan, sections)
+src/App.vue, main.js  app shell, routing, data loading
+public/data/sample/data.js   sample data set (tracked); public/data/aie/ is the published set of this repo, other sets are gitignored
+public/fonts/         self-hosted Inter (latin + latin-ext) and its license
+public/data/<set>/assets/    optional calendar image/PDF for a set
 docs/SCHEMA.md        data format contract
 docs/REUSE.md         guide: new semester/year, other programmes
 scripts/validate.mjs  data validator (--selftest for its own check)

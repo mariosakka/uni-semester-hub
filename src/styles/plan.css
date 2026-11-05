@@ -1,0 +1,46 @@
+/* study plan: stat strip + colourful subject table (stacked cards below 1100px) */
+.pstats{list-style:none;margin:.2rem 0 1rem;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));grid-gap:.6rem}
+.pstats li{margin:0;padding:.6rem .8rem;border:1px solid #8884;border-radius:10px;background:#8881}
+.pstats b{display:block;font-size:1.45rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.pstats span{color:var(--mut);font-size:.8rem}
+.ptbl{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.ptbl thead th{overflow-wrap:normal;position:-webkit-sticky;position:sticky;top:0;z-index:2;padding:.55rem .75rem;text-align:left;background:var(--card);color:var(--mut);font-size:.8rem;font-weight:650;letter-spacing:.04em;text-transform:uppercase;border-bottom:2px solid #8886}
+.ptbl th:nth-child(1){width:26%}.ptbl th:nth-child(2){width:10%}.ptbl th:nth-child(3){width:15%}.ptbl th:nth-child(4){width:13%}.ptbl th:nth-child(5){width:12%}.ptbl th:nth-child(6){width:24%}
+.ptbl td{padding:.7rem .75rem;vertical-align:top;border-bottom:1px solid #8883;font-size:.92rem}
+.prow:nth-of-type(even) .pm td:not(.psub){background:#88888810}
+.prow:hover .pm td:not(.psub){background:#8882}
+.psub{background:var(--bg-c);border-left:5px solid var(--bd-c);color:#1c2230}
+.ptog{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;margin:-.4rem 0;padding:0;border:0;background:none;color:inherit;font:inherit;font-weight:650;text-align:left;cursor:pointer}
+.ptog::after{content:"";flex:none;width:.5em;height:.5em;margin-left:.6em;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);transition:transform .15s}
+.ptog[aria-expanded="true"]::after{transform:rotate(-135deg)}
+.pdesc{margin:.15rem 0 0;font-size:.85rem;line-height:1.4;color:#3a4150}
+.ppill{display:inline-block;min-width:2.2rem;padding:.1rem .5rem;border:2px solid var(--bd-c);border-radius:999px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.pbar,.gbar{display:block;height:6px;border-radius:3px;background:#8883;overflow:hidden}
+.pbar{margin-top:.5rem}
+.pbar i,.gbar i{display:block;height:100%;background:var(--bd-c)}
+.gbar{display:inline-block;width:5rem;margin-right:.6rem;vertical-align:middle}
+.pev{display:inline-block;max-width:100%;padding:.1rem .5rem;border-radius:999px;font-size:.78rem;font-weight:600;line-height:1.3;text-align:center}
+.pev.exam{background:#ffd9d9;color:#5b0a1a}.pev.cont{background:#d6f3e4;color:#0b3d2a}.pev.proj{background:#e2e0ff;color:#2a1f6b}.pev.oth{background:#e5e7eb;color:#1f2937}
+.hc,.gchip{display:inline-block;margin:0 .3rem .3rem 0;padding:.05rem .5rem;border:1px solid #8886;border-radius:6px;font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums}
+.gchip{border-radius:999px}
+.htot,.prole{color:var(--mut);font-size:.8rem}
+.pd td{padding:.8rem 1rem;background:#8881}
+.pd[hidden]{display:none!important}
+@media(max-width:1099px){
+  .ptbl,.ptbl tbody,.ptbl td{display:block}
+  .ptbl thead{display:none}
+  .prow{margin:0 0 .9rem;border:1px solid #8886;border-radius:12px;overflow:hidden;background:var(--card)}
+  .pm{display:grid;grid-template-columns:1fr 1fr}
+  .pd{display:block}
+  .ptbl td{padding:.55rem .85rem;border:0;font-size:.95rem}
+  .psub{grid-column:1/-1;border-left:0;border-bottom:3px solid var(--bd-c)}
+  .ph,.pg,.pt{grid-column:1/-1}
+  .pm td[data-label]:not(.psub)::before{content:attr(data-label);display:block;margin-bottom:.2rem;color:var(--mut);font-size:.72rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase}
+  .pd td{padding:.7rem .85rem}
+}
+.tbl tfoot td{font-weight:600}
+
+
+/* the study-plan grading chips share the .gchip class with the subgroup summary chip: keep them rectangular so long names wrap cleanly */
+.pg .gchip{border-radius:8px;max-width:100%;line-height:1.25;padding:.15rem .5rem}
+.pstats li,.pev,.hc,.gchip{-webkit-user-select:none;user-select:none}

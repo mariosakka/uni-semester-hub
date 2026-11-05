@@ -1,0 +1,82 @@
+/* generic sections: cards, lists, news, tables, to-do cards (style.css rule, then its typography.css override) */
+section{background:var(--card);border-radius:12px;padding:1rem 1.2rem;margin:1rem 0;box-shadow:0 1px 3px #0002}
+section>p,section>ul>li,section>ol>li,.nb{max-width:var(--measure)}
+section{padding:var(--sp-5);margin:var(--sp-5) 0;border-radius:14px}
+section.todo{border-left:5px solid var(--warn)}
+section.course{border-left:5px solid var(--bd-c)}
+section.custom{overflow-x:auto;-webkit-overflow-scrolling:touch}
+h2{margin:.1rem 0 .6rem;font-size:1.15rem}
+h2{margin:0 0 var(--sp-3);font-size:var(--fs-h2);font-weight:650;line-height:1.3}
+.chead{margin:-.3rem 0 .6rem;color:var(--mut);font-size:.85rem}
+.chead{margin:calc(-1*var(--sp-2)) 0 var(--sp-3);font-size:var(--fs-sm);line-height:var(--lh-ui)}
+ul{margin:0;padding-left:1.2rem}
+ul{padding-left:1.3rem}
+li{margin:.3rem 0}
+li{margin:var(--sp-2) 0}
+p,li,.nt{text-wrap:pretty}
+li.hide,tr.hide,section.hide{display:none}
+li.check{list-style:none;margin-left:-1.2rem}
+li.check{margin-left:-1.3rem}
+li.check label{display:block;padding:.15rem 0}
+li.check label{padding:var(--sp-1) 0;line-height:var(--lh-ui)}
+li.check input{width:1.25rem;height:1.25rem;vertical-align:-.2rem;margin:0 .3rem 0 0}
+li.done label{text-decoration:line-through;opacity:.55}
+.tag{font-size:.75rem;padding:.05rem .4rem;border-radius:5px;background:var(--mut);color:var(--bg);margin-left:.3rem}
+.tag,.chip{font-size:var(--fs-xs);font-weight:550;line-height:1.5;padding:.05rem .45rem;white-space:nowrap}
+.tag.off{background:var(--acc)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch} /* tables scroll inside this wrapper, never the page */
+table.tbl{border-collapse:collapse;width:100%}
+.tbl th,.tbl td{text-align:left;padding:.4rem .6rem;border-bottom:1px solid #8884}
+.tbl th,.tbl td{padding:var(--sp-2) var(--sp-3);line-height:var(--lh-ui);vertical-align:top}
+.tbl th{font-size:var(--fs-sm);font-weight:600;color:var(--mut)}
+.tbl tfoot td{font-weight:600}
+
+/* news feed */
+ul.news{list-style:none;padding:0}
+ul.news li{display:flex;align-items:flex-start;margin:.8rem 0}
+ul.news li.hide{display:none} /* beats the flex rule above (same specificity as the generic li.hide needs help) */
+.nd{flex:none;width:4.8rem;margin-right:.7rem;font-size:.8rem;font-weight:600;color:var(--mut);padding-top:.1rem}
+.nb{flex:1;min-width:0}
+.nt{margin:.15rem 0}
+.tag.unc{background:var(--warn);color:#fff}
+.tag.ctag{background:var(--bg-c);color:#123;border-left:3px solid var(--bd-c)}
+.tag.unc,.chip{color:var(--on-acc)}
+@media(prefers-color-scheme:dark){.tag.unc{color:#12151c}} /* 8:1 on #fb923c */
+ul.news li{margin:0;padding:var(--sp-3) 0;border-top:1px solid #8883}
+ul.news li:first-child{border-top:0;padding-top:var(--sp-1)}
+.nd{width:5.2rem;margin-right:var(--sp-4);font-size:var(--fs-sm);line-height:var(--lh-prose);padding-top:0}
+.nt{margin:0 0 var(--sp-1)}
+.nd{font-variant-numeric:tabular-nums}
+
+@media(max-width:560px){
+  section{padding:.8rem .9rem;margin:.7rem 0}
+  .tbl th,.tbl td{padding:.4rem .5rem;font-size:.85rem}
+  section{padding:var(--sp-4) 18px;margin:var(--sp-4) 0}
+  .tbl th,.tbl td{padding:var(--sp-2);font-size:var(--fs-sm)}
+  ul.news li{display:block} /* date above the item: the side column left ~200px for text */
+  .nd{width:auto;margin:0 0 2px}
+}
+
+/* To-Do cards: [checkbox] [title + due badge] [chevron], details below; one column on phones, two when there is room */
+.tprog{margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:#8882;color:var(--mut);font-size:.75rem;font-weight:600;vertical-align:middle;white-space:nowrap}
+.tcards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));grid-gap:var(--sp-3,12px);align-items:start}
+.tcards>li{margin:0}
+.tcard{border:1px solid #8885;border-radius:12px;background:var(--bg)}
+.tcard:hover{border-color:#8888}
+.tcard.done .tc-title{color:var(--mut);text-decoration:line-through}
+.tc-head{display:flex;align-items:center}
+.tc-hit{flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;cursor:pointer}
+.tc-hit input{width:22px;height:22px;margin:0;cursor:pointer}
+.tc-hit input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tc-ico{flex:none;display:flex;align-items:center;justify-content:center;width:44px;color:var(--mut)}
+.tc-ico::before{content:"i";display:flex;align-items:center;justify-content:center;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;font:italic 700 .75rem/1 Georgia,serif}
+.tc-title{flex:1;min-width:0;padding:.55rem .4rem;overflow-wrap:anywhere}
+.tc-due{display:inline-block;margin-left:.3rem;padding:0 .45rem;border-radius:999px;background:#fde68a;color:#5b3a00;font-size:.75rem;font-weight:700;line-height:1.6;white-space:nowrap}
+.tc-chev{flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.tc-chev::after{content:"";width:.5em;height:.5em;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);transition:transform .15s}
+.tc-chev[aria-expanded="true"]::after{transform:rotate(-135deg)}
+.tc-chev:focus-visible{outline:3px solid var(--acc);outline-offset:-3px;border-radius:10px}
+.tcard.hasbody .tc-title{cursor:pointer}
+.tc-body{padding:0 .9rem .8rem 44px;font-size:.92em;line-height:1.5}
+.tc-body[hidden]{display:none}
+.tc-hit,.tc-chev,.tc-ico,.tprog,.tag,.chip{-webkit-user-select:none;user-select:none}

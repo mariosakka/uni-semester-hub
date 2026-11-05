@@ -1,0 +1,108 @@
+/* Schedule feature CSS, copied from style.css then typography.css (typography overrides keep winning by coming later). */
+/* from style.css */
+.d{display:block;padding:.18rem 0;border-radius:4px;font-weight:400;border:2px solid transparent}
+.cnav button,.gwrap button,.gpre button{min-height:44px;min-width:44px;padding:.3rem .8rem;border-radius:8px;border:1px solid var(--mut);background:var(--bg);color:var(--fg);font-size:1rem;cursor:pointer}
+/* week picker: wraps; on phones the title takes a row and the buttons are thumb-sized */
+.swk{display:flex;align-items:center;flex-wrap:wrap;margin-bottom:.4rem}
+.swk>*{margin:0 .5rem .5rem 0}
+.swk button{min-height:44px;min-width:44px;padding:.3rem .8rem;border-radius:8px;border:1px solid var(--mut);background:var(--bg);color:var(--fg);font-size:1rem;cursor:pointer}
+.swk button:disabled{opacity:.4;cursor:default}
+.swk #ics{margin-left:auto;margin-right:0;background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* weekly grid (wide screens) and day-by-day agenda (phones) share the same session markup */
+.sched{display:grid;grid-template-columns:44px repeat(5,minmax(0,1fr));gap:4px;min-width:680px}
+.sh{text-align:center;font-weight:600;padding:.3rem;background:var(--bg);border-radius:8px}
+.sc{position:relative}
+.sched{--rh:64px}
+.times div{height:var(--rh);font-size:.75rem;color:var(--mut);border-top:1px solid #8884}
+.ev,.acard{border-radius:8px;padding:.3rem .45rem;font-size:.78rem;line-height:1.25;border-left:4px solid var(--bd-c);background:var(--bg-c);color:#222}
+.ev{position:absolute;left:0;right:0;overflow:hidden;overflow-wrap:anywhere}
+.ev small,.acard small{display:block;opacity:.8;margin-top:.2rem}
+.ev.dev,.acard.dev{outline:2px dashed #e67e22;outline-offset:-2px}
+.ev.cx,.acard.cx{opacity:.5}
+.ev.cx .t,.acard.cx .t{text-decoration:line-through}
+.badge{display:block;margin-top:.25rem;font-size:.7rem;font-weight:600;color:#9a4a00}
+.sc.off,.ag.off{background:repeating-linear-gradient(45deg,#cfd3da44,#cfd3da44 6px,#e9ebef22 6px,#e9ebef22 12px);border-radius:8px}
+.dayoff{position:absolute;top:2px;left:2px;right:2px;font-size:.7rem;font-weight:600;color:var(--mut);text-align:center;z-index:1}
+.agenda{display:none}
+.ag{margin:.5rem 0;padding:.2rem .4rem .4rem}
+.ag h3{margin:.3rem 0;font-size:1rem}
+.agoff{font-size:.8rem;font-weight:600;color:var(--mut)}
+.acard{margin:.4rem 0;padding:.5rem .7rem;font-size:.95rem}
+.ag .note{margin:.2rem 0}
+
+.legend{display:flex;flex-wrap:wrap;margin:.5rem 0 0;font-size:.75rem}
+.legend>*{margin:0 .5rem .5rem 0}
+.legend .d{display:inline-block;padding:.15rem .5rem}
+.d.off{background:repeating-linear-gradient(45deg,#cfd3da,#cfd3da 3px,#e9ebef 3px,#e9ebef 6px);color:#123}
+.chip{padding:.1rem .6rem;border-radius:999px;background:var(--acc);color:#fff;font-size:.75rem}
+.hc,.gchip{display:inline-block;margin:0 .3rem .3rem 0;padding:.05rem .5rem;border:1px solid #8886;border-radius:6px;font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums}
+.gchip{border-radius:999px}
+
+@media(max-width:720px),(min-width:900px) and (max-width:1039px){
+  .sched{display:none}
+  .agenda{display:block}
+  .swk b{order:0;flex:1 1 100%;margin-right:0}
+  .swk #pw{order:1}.swk #nw{order:2}.swk #tw{order:3}.swk .chip{order:4}
+  .swk #ics{order:5;flex:1 1 100%;margin:0 0 .5rem}
+}
+.gwrap{display:flex;flex-wrap:wrap;align-items:center;margin:.1rem 0 .2rem}
+.gwrap>*{margin:0 .5rem .5rem 0}
+.gpanel{flex:1 1 100%;margin:0 0 .5rem;padding:.6rem .8rem;border:1px solid #8886;border-radius:10px;background:var(--bg)}
+.gpanel[hidden]{display:none}
+.gpanel h3{margin:.1rem 0 .4rem}
+.grow{display:flex;align-items:center;justify-content:space-between;margin:.35rem 0;padding:.3rem .5rem;border-left:4px solid var(--bd-c);border-radius:6px;background:var(--bg-c);color:#222}
+.grow select{min-height:44px;max-width:60%;padding:.3rem .5rem;font:inherit;font-size:16px;color:var(--fg);background:var(--card);border:1px solid #8886;border-radius:8px}
+.gpre{display:flex;flex-wrap:wrap;margin:.5rem 0}
+.gpre button{margin:0 .4rem .4rem 0}
+@media(max-width:720px){
+  .gpanel{position:fixed;left:0;right:0;bottom:0;z-index:40;flex:none;margin:0;max-height:75vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:16px 16px 0 0;background:var(--card);padding:.8rem 1rem max(1rem,env(safe-area-inset-bottom));box-shadow:0 -4px 16px #0006}
+}
+/* schedule legend: same chips as the calendar legend (.legend .d), one chip per marker/course */
+.legend .d.sdev{background:#fff7ed;color:#7c2d12;border:2px dashed #e67e22}
+.legend .d.scx{background:#e5e7eb;color:#374151;text-decoration:line-through}
+.legend .d.sunc{background:#ffe4d6;color:#7c2d12;font-weight:700}
+.legend .d.sextra{background:linear-gradient(90deg,#e5e7eb 50%,#9ca3af 50%);color:#111827}
+.legend .d.cs{background:var(--bg-c);color:#222;border-left:4px solid var(--bd-c)}
+/* three or more sessions side by side: keep time and title, drop the teacher/place line (it is in the day popup) */
+.ev.dense{padding:.15rem .25rem;font-size:.66rem !important;border-left-width:3px}
+.ev.dense small,.ev.dense .badge{display:none}
+.ev.dense>b,.ev.dense .t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} /* full text in the tooltip and the day popup */
+/* schedule cards are controls (they open the session modal) */
+.ev[role=button],.acard[role=button]{cursor:pointer;-webkit-user-select:none;user-select:none}
+.ev[role=button]:hover,.acard[role=button]:hover{box-shadow:0 1px 5px #0004}
+.ev[role=button]:focus-visible,.acard[role=button]:focus-visible{outline:3px solid var(--acc);outline-offset:2px;z-index:2}
+/* label chips on cards and in the legend: type letter, subgroup, room, online */
+.lbs{display:block;margin-top:.15rem}
+.lb{display:inline-block;margin:.1rem .25rem .1rem 0;padding:0 .35rem;border-radius:4px;border:1px solid #0006;background:#ffffffb3;color:#222;font-size:.7rem;font-weight:700;line-height:1.5;font-style:normal}
+.lb.lt{background:#222;border-color:#222;color:#fff}
+.lb.lo{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.legend .d .lb{margin:0 .3rem 0 0;vertical-align:baseline}
+.ev.dense .lx{display:none}
+.ev.dense .lb{font-size:.6rem;padding:0 .2rem;margin-right:.15rem}
+.legend .d.slb{background:#f3f4f6;color:#111827}
+/* from typography.css */
+.tag,.chip{font-size:var(--fs-xs);font-weight:550;line-height:1.5;padding:.05rem .45rem;white-space:nowrap}
+.chip{padding:.15rem .7rem}
+.tag.unc,.chip,#side nav a.on,.cmodes button[aria-pressed="true"],.swk #ics{color:var(--on-acc)}
+.times,.mg,.wn,.nd,.acard>b,.ev>b,.swk b,.cnav b,.sh{font-variant-numeric:tabular-nums}
+.swk,.cnav{margin-bottom:var(--sp-2)}
+.swk>*,.cnav>*,.gwrap>*{margin:0 var(--sp-2) var(--sp-2) 0}
+.legend{font-size:var(--fs-xs);line-height:var(--lh-ui)}
+/* schedule: grid blocks keep their size (64px hour rows); agenda cards get room */
+.sh{padding:var(--sp-2) var(--sp-1);line-height:var(--lh-ui)}
+.ev{letter-spacing:-.005em}
+.ag{margin:var(--sp-4) 0;padding:var(--sp-1) var(--sp-2) var(--sp-2)}
+.ag h3{margin:var(--sp-2) 0}
+.acard{margin:var(--sp-2) 0;padding:var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);font-size:var(--fs-body);line-height:var(--lh-ui)}
+.acard small{font-size:var(--fs-sm);margin-top:var(--sp-1)}
+.ev.cx,.acard.cx,.sl.cx{opacity:.7} /* was .5 (about 3:1); .7 keeps the faded look at >=4.5:1 on every tint, light and dark */
+.ev.cx small,.acard.cx small{opacity:1}   /* no stacked fading */
+.ev.cx .badge,.acard.cx .badge{color:#3a1c00} /* #9a4a00 faded to 2.8:1 */
+.dayoff,.agoff{color:var(--fg)} /* muted text on the dark hatching was 3.2:1 */
+.gpanel{padding:var(--sp-3) var(--sp-4)}
+.grow{margin:var(--sp-2) 0;padding:var(--sp-1) var(--sp-3)}
+@media(max-width:560px){
+  .acard .badge{font-size:var(--fs-xs)}
+}
+summary,button,select,.chip,.gchip,.legend,.swk,.gpanel,.sh,.times{-webkit-user-select:none;user-select:none}

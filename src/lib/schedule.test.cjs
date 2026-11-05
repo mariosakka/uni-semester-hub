@@ -1,8 +1,8 @@
-// Run: node src/schedule.test.js [set]   (default: sample). Per semester: week resolution, .ics, study plan and directory HTML.
+// Run: node src/schedule.test.js [set]   (default: sample). Per semester: week resolution, session data, .ics, lanes.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const root = path.join(__dirname, "..", "..");
 const ctx = vm.createContext({window: {}, console});
-require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]);
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "groups", "schedule", "calendar"]);
 const set = process.argv[2] || "sample";
 vm.runInContext(fs.readFileSync(path.join(root, "public", "data", set, "data.js"), "utf8"), ctx);
 const run = code => vm.runInContext(code, ctx);
@@ -13,8 +13,6 @@ assert(count >= 1, "at least one semester");
 let timetabled = 0;
 for (let i = 0; i < count; i++) {
   const V = "semesterView(N, SEMS[" + i + "])";
-  const html = run(`studyplanHTML(${V}) + directoryHTML(${V})`);
-  assert(typeof html === "string" && html.length > 0 && !html.includes("Whole programme"), `semester ${i} study plan renders`);
   if (!run(`!!(${V}.weeks && ${V}.weeks.segments)`)) continue; // placeholder semester: no timetable
   timetabled++;
   const n = run(`weekCount(${V})`);
@@ -61,3 +59,12 @@ for (let i = 0; i < count; i++) {
   }
 }
 assert(timetabled >= 1, "at least one semester with a timetable");
+// pure view helpers
+{
+  const s = (day, start, end) => ({day, start, end});
+  const a = s(0, 9, 11), b = s(0, 10, 12), c = s(0, 12, 13), d = s(1, 9, 10);
+  const L = run("layoutLanes").call(null, [a, b, c, d]);
+  assert.deepStrictEqual([...L.get(a)], [0, 2]); assert.deepStrictEqual([...L.get(b)], [1, 2]);
+  assert.deepStrictEqual([...L.get(c)], [0, 1]); assert.deepStrictEqual([...L.get(d)], [0, 1]);
+  console.log("layoutLanes ok");
+}

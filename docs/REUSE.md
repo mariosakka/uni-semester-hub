@@ -1,6 +1,6 @@
 # Reusing uni-hub
 
-One data set (`data/<set>/data.js`) holds the whole programme: `years[]` contain `semesters[]` (format: [SCHEMA.md](SCHEMA.md), section "v2"). You normally keep editing the same set instead of copying folders.
+One data set (`public/data/<set>/data.js`) holds the whole programme: `years[]` contain `semesters[]` (format: [SCHEMA.md](SCHEMA.md), section "v2"). You normally keep editing the same set instead of copying folders.
 
 ## Start a new semester
 
@@ -10,7 +10,7 @@ One data set (`data/<set>/data.js`) holds the whole programme: `years[]` contain
 4. `timetable`: adjust each slot (day 0-4, start/end, room, parity, group) and every `rules[].weeks` range; weeks not covered by a rule are "not held".
 5. `daysOff`, `calendar.periods`, `calendar.months` (`[year, month0]`), `keyDates`: replace with the new official calendar and your real deadlines.
 6. Clear `deviations` and `extraSessions` (`[]`); they are dated and only valid for the old term. Drop old per-course items and checklist items from `sections`.
-7. Run `node scripts/validate.mjs data/<set>/data.js`, open the page and click through every week once.
+7. Run `node scripts/validate.mjs public/data/<set>/data.js`, open the page and click through every week once.
 
 The page opens on the semester that is running today, so nothing else needs switching.
 
@@ -53,22 +53,22 @@ Timetable image or xlsx
 Official calendar PDF
 - Copy the teaching, exam and vacation date ranges into the semester's `calendar.periods` and holidays into `daysOff`, exam and deadline dates into `keyDates`.
 - Count teaching weeks to fill `weeks.segments`; the number must match the official week count.
-- Put the PDF or a picture in `data/<set>/` and reference it via `calendar.pdf` / `calendar.image` (paths are relative to the data set folder; do not commit it if it is not public).
+- Put the PDF or a picture in `public/data/<set>/` and reference it via `calendar.pdf` / `calendar.image` (paths are relative to the data set folder; do not commit it if it is not public).
 
 ## Sharing a template without private content
 
 - Share a stripped data set: keep structure, course names and timetable if public, and remove contacts, personal notes, invite links and meeting links.
-- Use placeholders (`"Teacher A"`, `"https://example.com/"`) and publish it as a `data/<name>/` folder or a gist, not your working file.
+- Use placeholders (`"Teacher A"`, `"https://example.com/"`) and publish it as a `public/data/<name>/` folder or a gist, not your working file.
 - Write deviations as short factual notes ("No class") and mark anything not confirmed by the teacher or faculty `unconfirmed: true`.
 - Before sharing, search the folder for `@`, `+`, `http`, `zoom`, `meet.` and `t.me`, then run the validator.
 
 ## Branding: logos, author and footer
 
-Set `meta.logos` (images in `data/<set>/logos/`, `bg` for logos with white artwork), `meta.author`, `meta.programmeLine` and `meta.disclaimer`. The logos appear at the top of the sidebar and in the footer; keys you leave out show nothing. Only use logos you may use, and keep the "unofficial page" disclaimer if you are not the institution.
+Set `meta.logos` (images in `public/data/<set>/logos/`, `bg` for logos with white artwork), `meta.author`, `meta.programmeLine` and `meta.disclaimer`. The logos appear at the top of the sidebar and in the footer; keys you leave out show nothing. Only use logos you may use, and keep the "unofficial page" disclaimer if you are not the institution.
 
 ## Which data set opens by default, and publishing
 
-`index.html` names the default set in `<meta name="hub-default-set" content="...">`. For a fork: change it to your set (or `sample`), remove `!data/aie/` from `.gitignore` and delete `data/aie/`, then add your own. Everything tracked in git is public once GitHub Pages is on (Settings, Pages, Source: GitHub Actions), so keep invite links, meeting links, phone numbers and personal names out of any published set.
+`index.html` names the default set in `<meta name="hub-default-set" content="...">`. For a fork: change it to your set (or `sample`), remove `!public/data/aie/` from `.gitignore` and delete `public/data/aie/`, then add your own. Everything tracked in git is public once GitHub Pages is on (Settings, Pages, Source: GitHub Actions), so keep invite links, meeting links, phone numbers and personal names out of any published set.
 
 ## Releases
 

@@ -2,11 +2,11 @@
 
 ## Privacy rule
 
-Never commit real names, phone numbers, email addresses, invite links or meeting links (Zoom, Meet, Teams, ...), in code, data, issues or screenshots. `data/sample/` must contain fictional placeholders only. The other tracked set (`data/aie/`) is the maintainer's published data; keep it free of invite and meeting links, phone numbers and personal names too.
+Never commit real names, phone numbers, email addresses, invite links or meeting links (Zoom, Meet, Teams, ...), in code, data, issues or screenshots. `public/data/sample/` must contain fictional placeholders only. The other tracked set (`public/data/aie/`) is the maintainer's published data; keep it free of invite and meeting links, phone numbers and personal names too.
 
 ## Before opening a PR
 
-- `node scripts/validate.mjs data/sample/data.js` passes
+- `node scripts/validate.mjs public/data/sample/data.js` passes
 - `node scripts/validate.mjs --selftest` passes
 - Open `index.html` from `file://` and check light and dark mode
 - No build tools, no runtime dependencies, no network requests

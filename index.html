@@ -9,34 +9,10 @@
 <meta name="theme-color" content="#12151c" media="(prefers-color-scheme: dark)">
 <title></title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="src/style.css">
-<link rel="stylesheet" href="src/typography.css">
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
-<!-- phones/tablets: top bar + off-canvas drawer; desktop: the same <aside> is a fixed sidebar -->
-<div id="bar"><button id="menu" type="button" data-ta="aria-label=nav.menuOpen" aria-expanded="false" aria-controls="side">&#9776;</button><b id="bar-sem"></b></div>
-<aside id="side" tabindex="-1" data-ta="aria-label=nav.label">
-  <div id="side-logos"></div>
-  <div class="brand"><b id="title"></b><span id="prog"></span></div>
-  <input id="q" type="search" data-ta="placeholder=nav.searchPlaceholder;aria-label=nav.searchLabel">
-  <nav id="tabs" data-ta="aria-label=nav.sections"></nav>
-  <div id="sems" role="group" data-ta="aria-label=nav.yearSemester"></div>
-</aside>
-<div id="scrim"></div>
-<div id="content">
-  <header class="page"><h1 id="ptitle"></h1></header>
-  <main id="app"></main>
-  <footer id="foot"></footer>
-</div>
-<script src="src/strings.js"></script>
-<script src="src/util.js"></script>
-<script src="src/semester.js"></script>
-<script src="src/groups.js"></script>
-<script src="src/schedule.js"></script>
-<script src="src/calendar.js"></script>
-<script src="src/daymodal.js"></script>
-<script src="src/plan.js"></script>
-<script src="src/render.js"></script>
-<script src="src/main.js"></script>
+<div id="root"></div>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>
