@@ -1,15 +1,15 @@
 // Run: node src/strings.test.js   Static scan: every t()/tx() key used in src/*.js and index.html exists in HUB_STRINGS, no UI text left
 // behind unnoticed (unused keys only warn), plus override / fallback / interpolation / locale behaviour.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
-const root = path.join(__dirname, "..");
+const root = path.join(__dirname, "..", "..");
 const ctx = vm.createContext({console: {warn: (...a) => warns.push(a.join(" "))}, Intl});
 const warns = [];
 const run = code => vm.runInContext(code, ctx);
-vm.runInContext(fs.readFileSync(path.join(__dirname, "strings.js"), "utf8"), ctx, {filename: "strings.js"});
-vm.runInContext(fs.readFileSync(path.join(__dirname, "util.js"), "utf8"), ctx, {filename: "util.js"});
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util"]);
 
 // 1. static scan
-const files = fs.readdirSync(__dirname).filter(f => f.endsWith(".js") && f !== "strings.js" && !f.endsWith(".test.js")).map(f => ["src/" + f, fs.readFileSync(path.join(__dirname, f), "utf8")]);
+const walk = d => fs.readdirSync(d, {withFileTypes: true}).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+const files = walk(path.join(root, "src")).filter(f => /\.(js|vue)$/.test(f) && !/strings\.js$/.test(f)).map(f => [path.relative(root, f), fs.readFileSync(f, "utf8")]);
 files.push(["index.html", fs.readFileSync(path.join(root, "index.html"), "utf8")]);
 const keys = new Set(Object.keys(run("HUB_STRINGS"))), used = new Set(), missing = [];
 const note = (file, key) => { used.add(key); if (!keys.has(key)) missing.push(`${file}: ${key}`); };

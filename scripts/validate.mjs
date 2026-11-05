@@ -1,15 +1,11 @@
 #!/usr/bin/env node
-// Usage: node scripts/validate.mjs data/<set>/data.js   |   --selftest
+// Usage: node scripts/validate.mjs public/data/<set>/data.js   |   --selftest
 // Accepts the legacy flat shape and v2 (programme -> years -> semesters), see docs/SCHEMA.md.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-// default UI string keys (src/strings.js is a plain script: evaluate it to read HUB_STRINGS)
-const STRING_KEYS = (() => {
-  const c = { console };
-  vm.runInNewContext(readFileSync(new URL('../src/strings.js', import.meta.url), 'utf8'), c);
-  return new Set(Object.keys(c.HUB_STRINGS));
-})();
+import { HUB_STRINGS } from '../src/lib/strings.js';
+const STRING_KEYS = new Set(Object.keys(HUB_STRINGS));
 
 const KINDS = ['list', 'news', 'schedule', 'calendar', 'course', 'contacts', 'links', 'table', 'studyplan', 'directory'];
 const TABS = ['news', 'todo', 'overview', 'schedule', 'calendar', 'courses', 'plan', 'contacts', 'info'];
@@ -258,7 +254,7 @@ if (arg === '--selftest') {
   if (li1.length || li2.length !== 4) { console.error('selftest list items FAILED', li1, li2); process.exit(1); }
   console.log(`selftest ok (bad samples produced ${b.length} and ${d.length} errors)`);
 } else if (!arg) {
-  console.error('usage: node scripts/validate.mjs data/<set>/data.js | --selftest');
+  console.error('usage: node scripts/validate.mjs public/data/<set>/data.js | --selftest');
   process.exit(2);
 } else {
   let D;

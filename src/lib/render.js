@@ -1,8 +1,15 @@
+import {t, tx} from "./strings.js";
+import {esc, parseDate, fmtDate} from "./util.js";
+import {visible} from "./groups.js";
+import {timeline, courseOf, place, renderSchedule} from "./schedule.js";
+import {renderCalendar} from "./calendar.js";
+import {cap} from "./daymodal.js";
+import {gradingSummary, people, peopleLine, planToggle, studyplanHTML, directoryHTML} from "./plan.js";
 // Section renderers. Item strings and titles are trusted HTML written by the data author.
-const link = (url, text) => `<a href="${esc(url)}">${text}</a>`;
+export const link = (url, text) => `<a href="${esc(url)}">${text}</a>`;
 
 // news: date badge, title, text, tags. "new" = dated within the last 7 days (local dates, future-dated items are not new)
-function newsItem(it, D) {
+export function newsItem(it, D) {
   const d = parseDate(it.date), now = new Date(), age = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - d) / 864e5);
   const c = it.course ? courseOf(D, it.course) : null, yr = d.getFullYear() === now.getFullYear() ? "" : ` ${d.getFullYear()}`;
   return `<time class="nd" datetime="${esc(it.date)}">${fmtDate(d)}${yr}</time><div class="nb"><b>${it.title}</b>` +
@@ -12,24 +19,24 @@ function newsItem(it, D) {
 }
 
 // list items: a string ("[ ] title" = tickable, other text = plain) or { title, text?, due?, check?, open? }
-const itemCheck = it => typeof it === "string" ? it.startsWith("[ ] ") : !!(it && it.check === true);
-const itemTitle = it => typeof it === "string" ? (it.startsWith("[ ] ") ? it.slice(4) : it) : String((it && it.title) || "");
-const dueTag = due => due ? ` <span class="tc-due">${esc(due)}</span>` : "";
-const listItemHTML = it => typeof it === "string" ? itemTitle(it) : itemTitle(it) + dueTag(it.due) + (it.text ? `<div class="nt">${it.text}</div>` : ""); // plain lists (outside To-Do)
+export const itemCheck = it => typeof it === "string" ? it.startsWith("[ ] ") : !!(it && it.check === true);
+export const itemTitle = it => typeof it === "string" ? (it.startsWith("[ ] ") ? it.slice(4) : it) : String((it && it.title) || "");
+export const dueTag = due => due ? ` <span class="tc-due">${esc(due)}</span>` : "";
+export const listItemHTML = it => typeof it === "string" ? itemTitle(it) : itemTitle(it) + dueTag(it.due) + (it.text ? `<div class="nt">${it.text}</div>` : ""); // plain lists (outside To-Do)
 
-const ITEMS = { // kind -> how one item becomes <li> content
+export const ITEMS = { // kind -> how one item becomes <li> content
   list: listItemHTML,
   news: newsItem,
   links: i => link(i.url, i.label) + (i.note ? ` – ${i.note}` : ""),
   contacts: i => [`<b>${i.name}</b>`, i.role, i.email && link("mailto:" + i.email, esc(i.email)), i.phone && link("tel:" + i.phone.replace(/[^\d+]/g, ""), esc(i.phone)), i.note].filter(Boolean).join(" · ")
 };
 
-function tableHTML(sec) {
+export function tableHTML(sec) {
   return `<div class="tw"><table class="tbl"><thead><tr>${sec.columns.map(c => `<th>${c}</th>`).join("")}</tr></thead>` +
     `<tbody>${sec.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 
-function courseHead(D, sec) {
+export function courseHead(D, sec) {
   const c = courseOf(D, sec.course), bits = [];
   if ((c.teachers || []).length) bits.push(c.teachers.map(t => esc(t.name) + (t.role ? ` (${esc(t.role)})` : "")).join(", "));
   if (c.ects) bits.push(esc(t("course.ects", {n: c.ects})));
@@ -43,7 +50,7 @@ function courseHead(D, sec) {
 // To-Do tab: every list item is a card = [checkbox] [title + due badge] [chevron] with optional details below.
 // Ticking a card closes it, done cards start closed, `open: true` starts a card open; closed cards keep their text in the DOM (hidden), so the filter
 // still matches it. Tick ids stay `${section id}:${item index}` as in plain lists.
-function todoCards(s, sec, id, items, done, save) {
+export function todoCards(s, sec, id, items, done, save) {
   const ul = document.createElement("ul"), total = items.filter(itemCheck).length, base = `tc${sec._scope || ""}-${id}`.replace(/[^\w-]/g, "_");
   ul.className = "tcards";
   const prog = () => { const el = s.querySelector(".tprog"); if (el) el.textContent = t("todo.progress", {done: items.filter((it, i) => itemCheck(it) && done.has(`${id}:${i}`)).length, total}); };
@@ -78,7 +85,7 @@ function todoCards(s, sec, id, items, done, save) {
 }
 
 // store(scope) -> {done, save}: done = Set of ticked item ids, persisted through save()
-function renderSections(app, D, set, store) {
+export function renderSections(app, D, set, store) {
   (D.sections || []).forEach(sec => {
     if (sec.kind === "schedule" && !((D.weeks || {}).segments || []).length) return; // semester without a timetable
     if (sec.kind === "calendar" && !((D.calendar || {}).months || (D.calendar || {}).semesters || []).length) return;
@@ -130,14 +137,14 @@ function renderSections(app, D, set, store) {
 }
 
 // Tabs: a section goes to its `tab` id, else to a default tab by kind. D.tabs ([{id,title}]) overrides the default tab list.
-const AUTO_TAB = {news: "news", schedule: "schedule", calendar: "calendar", course: "courses", studyplan: "plan", directory: "contacts", contacts: "contacts", links: "info", table: "info"};
-const DEFAULT_TABS = [["news", "tab.news"], ["todo", "tab.todo"], ["schedule", "tab.schedule"], ["calendar", "tab.calendar"], ["courses", "tab.courses"], ["plan", "tab.plan"], ["contacts", "tab.contacts"], ["info", "tab.info"]]; // [id, string key]
+export const AUTO_TAB = {news: "news", schedule: "schedule", calendar: "calendar", course: "courses", studyplan: "plan", directory: "contacts", contacts: "contacts", links: "info", table: "info"};
+export const DEFAULT_TABS = [["news", "tab.news"], ["todo", "tab.todo"], ["schedule", "tab.schedule"], ["calendar", "tab.calendar"], ["courses", "tab.courses"], ["plan", "tab.plan"], ["contacts", "tab.contacts"], ["info", "tab.info"]]; // [id, string key]
 
 // a list with a tickable item or `highlight` is a to-do list, any other list is news
-const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(itemCheck)) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
+export const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(itemCheck)) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
 
 // returns the tab list for D and moves sections with an unknown tab into the first one
-function setupTabs(D) {
+export function setupTabs(D) {
   const secs = [...document.querySelectorAll("#app section")];
   let tabs = D.tabs || DEFAULT_TABS.map(([id, key]) => ({id, title: t(key)}));
   if (!tabs.some(t => t.id === "overview")) secs.forEach(s => { if (s.dataset.tab === "overview") s.dataset.tab = "news"; }); // old data sets
@@ -147,16 +154,16 @@ function setupTabs(D) {
   return tabs;
 }
 
-const ICON = { // one 24px outline path per tab id; custom tabs get a dot
+export const ICON = { // one 24px outline path per tab id; custom tabs get a dot
   news: "M4 5h13v14H6a2 2 0 01-2-2zM17 9h3v8a2 2 0 01-2 2M8 9h5M8 13h5", todo: "M5 4h14v16H5zM8.5 9l1.5 1.5L13 7.5M8.5 15l1.5 1.5 3-3M15 10h1M15 16h1", schedule: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4", courses: "M4 19V5a1 1 0 011-1h13v14H6a2 2 0 00-2 2zM4 19a2 2 0 002 2h14",
   plan: "M5 4h14v16H5zM9 9h6M9 13h6M9 17h3", contacts: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0",
   info: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v6M12 7.5v.01"
 };
-const icon = id => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON[id] || "M12 10.5v3"}"/></svg>`;
+export const icon = id => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON[id] || "M12 10.5v3"}"/></svg>`;
 
 // sidebar nav: mark tab `cur` (first tab if unknown) and show only its sections; links point at #<semesterId>/<tab>
-function showTab(tabs, cur, semId) {
+export function showTab(tabs, cur, semId) {
   document.body.classList.toggle("tabbed", tabs.length > 0);
   if (cur === "overview" && !tabs.some(t => t.id === "overview")) cur = "news"; // old links
   if (!tabs.some(t => t.id === cur)) cur = (tabs[0] || {}).id;
@@ -166,7 +173,7 @@ function showTab(tabs, cur, semId) {
 }
 
 // filter box: hides non-matching items; built-in schedule/calendar and pinned sections stay visible
-function applyFilter(q) {
+export function applyFilter(q) {
   q = q.toLowerCase();
   document.body.classList.toggle("searching", !!q); // searching shows matches from every tab
   document.querySelectorAll("#app section").forEach(s => {

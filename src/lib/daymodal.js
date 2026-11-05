@@ -1,9 +1,14 @@
+import {t} from "./strings.js";
+import {esc, iso, parseDate, addDays, fmtDate, fmtLong, fmtTime} from "./util.js";
+import {courseOf, typeName, place, sessionKey, sessionInfo} from "./schedule.js";
+import {kd, dayInfo} from "./calendar.js";
+import {EVAL, evalCode} from "./plan.js";
 // Details modal: a day (Calendar) or one session (Schedule card). A div with role="dialog" (not <dialog>, for Safari 14): backdrop, close button,
 // Esc, focus moved in and returned, Tab kept inside, iOS-safe body scroll lock, previous/next day (day mode). One instance for the page, content
 // built from dayInfo() (calendar.js) or sessionInfo() (schedule.js).
-let DM = null;
+export let DM = null;
 
-function dmBuild() {
+export function dmBuild() {
   const root = document.createElement("div");
   root.className = "dm"; root.hidden = true;
   root.innerHTML = `<div class="dm-back"></div><div class="dm-card" role="dialog" aria-modal="true" aria-labelledby="dm-title" tabindex="-1">` +
@@ -33,10 +38,10 @@ function dmBuild() {
 }
 
 // iOS Safari ignores overflow:hidden on <body> for scrolling, so the page is pinned with position:fixed and the scroll offset restored on close
-function dmLock(m) { if (m.locked) return; m.y = window.pageYOffset; document.body.style.top = -m.y + "px"; document.body.classList.add("modal-open"); m.locked = true; }
-function dmUnlock(m) { if (!m.locked) return; document.body.classList.remove("modal-open"); document.body.style.top = ""; window.scrollTo(0, m.y); m.locked = false; }
+export function dmLock(m) { if (m.locked) return; m.y = window.pageYOffset; document.body.style.top = -m.y + "px"; document.body.classList.add("modal-open"); m.locked = true; }
+export function dmUnlock(m) { if (!m.locked) return; document.body.classList.remove("modal-open"); document.body.style.top = ""; window.scrollTo(0, m.y); m.locked = false; }
 
-function dayHTML(V, info) {
+export function dayHTML(V, info) {
   const out = [], tag = (cls, text) => `<span class="tag ${cls}">${esc(text)}</span>`, rng = d => fmtDate(parseDate(d));
   if (info.week) out.push(`<p class="dm-week">${esc(t(info.parity === "odd" ? "schedule.weekOdd" : "schedule.weekEven", {n: info.week}))}</p>`);
   if (info.period) out.push(`<p>${esc(t("modal.period", {label: info.period.label, from: rng(info.period.from), to: rng(info.period.to)}))}</p>`);
@@ -55,8 +60,8 @@ function dayHTML(V, info) {
   return out.join("");
 }
 
-const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
-function sessionHTML(info) {
+export const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
+export function sessionHTML(info) {
   const tag = (cls, text) => `<span class="tag ${cls}">${esc(text)}</span>`, row = (k, v) => `<dt>${esc(t(k))}</dt><dd>${v}</dd>`, out = [];
   out.push(row("session.type", esc(cap(info.typeName)) + (info.group ? ` · ${esc(t("schedule.subgroup", {n: info.group}))}` : "")));
   out.push(row("session.when", `${esc(fmtLong(info.date))}, ${fmtTime(info.start)}–${fmtTime(info.end)}`));
@@ -73,7 +78,7 @@ function sessionHTML(info) {
   return `<dl class="sm-dl">${out.join("")}</dl><p><button type="button" class="dm-open" data-open-day="${esc(info.key)}">${esc(t("session.openDay"))}</button></p>`;
 }
 
-function dmRender(m, focusSel) {
+export function dmRender(m, focusSel) {
   const V = m.D.viewFor ? m.D.viewFor(m.key) : m.D, sess = m.mode === "session";
   const info = sess ? sessionInfo(m.D, m.s) : null;
   m.card.className = "dm-card" + (sess ? ` csess c-${info.course.color || "grey"}` : ""); // course colour bar on top of a session card
@@ -88,9 +93,9 @@ function dmRender(m, focusSel) {
   if (focusSel) { const f = m.root.querySelector(focusSel); if (f) f.focus(); }
 }
 
-function dmGo(dir) { const m = DM; m.key = iso(addDays(parseDate(m.key), dir)); dmRender(m, dir < 0 ? ".dm-prev" : ".dm-next"); }
+export function dmGo(dir) { const m = DM; m.key = iso(addDays(parseDate(m.key), dir)); dmRender(m, dir < 0 ? ".dm-prev" : ".dm-next"); }
 
-function dmClose(noFocus) {
+export function dmClose(noFocus) {
   const m = DM;
   if (!m || m.root.hidden) return;
   m.root.hidden = true; dmUnlock(m);
@@ -99,7 +104,7 @@ function dmClose(noFocus) {
   if (back) back.focus();
 }
 
-function openDayModal(D, key, opener, box, refind) {
+export function openDayModal(D, key, opener, box, refind) {
   const m = DM || dmBuild();
   Object.assign(m, {D, key, opener, box, refind: refind || `[data-k="${key}"]`, mode: "day", s: null});
   dmRender(m);
@@ -107,7 +112,7 @@ function openDayModal(D, key, opener, box, refind) {
   m.root.querySelector(".dm-close").focus();
 }
 
-function openSessionModal(D, sess, opener, box) {
+export function openSessionModal(D, sess, opener, box) {
   const m = DM || dmBuild();
   Object.assign(m, {D, key: sess.key, opener, box, refind: `[data-sk="${sessionKey(sess)}"]`, mode: "session", s: sess});
   dmRender(m);

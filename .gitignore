@@ -1,10 +1,11 @@
 # Other local data sets stay private; the sample and the published AIE set are tracked
-data/*
-!data/sample/
-!data/aie/
+public/data/*
+!public/data/sample/
+!public/data/aie/
 
 node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
 *.local.*
+dist/

@@ -1,7 +1,7 @@
 // Run: node src/todo.test.js   To-Do list items: string or object forms, tickable detection, default tab, plain-list rendering (DOM behaviour is checked in the browser)
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const ctx = vm.createContext({window: {}, console});
-for (const f of ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]) vm.runInContext(fs.readFileSync(path.join(__dirname, f + ".js"), "utf8"), ctx, {filename: f});
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]);
 const run = code => vm.runInContext(code, ctx);
 
 assert.strictEqual(run('itemCheck("[ ] Do it")'), true);

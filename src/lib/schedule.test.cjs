@@ -1,10 +1,10 @@
 // Run: node src/schedule.test.js [set]   (default: sample). Per semester: week resolution, .ics, study plan and directory HTML.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
-const root = path.join(__dirname, "..");
+const root = path.join(__dirname, "..", "..");
 const ctx = vm.createContext({window: {}, console});
-for (const f of ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]) vm.runInContext(fs.readFileSync(path.join(root, "src", f + ".js"), "utf8"), ctx, {filename: f});
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]);
 const set = process.argv[2] || "sample";
-vm.runInContext(fs.readFileSync(path.join(root, "data", set, "data.js"), "utf8"), ctx);
+vm.runInContext(fs.readFileSync(path.join(root, "public", "data", set, "data.js"), "utf8"), ctx);
 const run = code => vm.runInContext(code, ctx);
 
 run("var N = normalize(window.HUB_DATA), SEMS = flatten(N);");

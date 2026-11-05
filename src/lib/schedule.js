@@ -1,7 +1,13 @@
+import {t} from "./strings.js";
+import {esc, pad, iso, parseDate, addDays, fmtDate, dayName, fmtTime, inRanges} from "./util.js";
+import {discoverGroups, groupFor, visible, setGroup, setAllGroups, resetGroups, groupSummary} from "./groups.js";
+import {weekNumberOf} from "./calendar.js";
+import {cap, openSessionModal} from "./daymodal.js";
+import {link} from "./render.js";
 // Weekly timetable: pure logic (weekSessions, buildIcs) + DOM rendering (renderSchedule).
-const weekCount = D => D.weeks.segments.reduce((n, s) => n + s.count, 0);
+export const weekCount = D => D.weeks.segments.reduce((n, s) => n + s.count, 0);
 
-function mondayOf(D, w) { // week numbers run consecutively through the segments
+export function mondayOf(D, w) { // week numbers run consecutively through the segments
   for (const s of D.weeks.segments) {
     if (w <= s.count) return addDays(parseDate(s.start), 7 * (w - 1));
     w -= s.count;
@@ -10,7 +16,7 @@ function mondayOf(D, w) { // week numbers run consecutively through the segments
 
 // Picker timeline: every calendar week from the first teaching week, including breaks and the
 // exam/break weeks that follow the last teaching week. w = teaching week number, or null.
-function timeline(D) {
+export function timeline(D) {
   const segs = D.weeks.segments, nums = {}, out = [];
   let k = 0;
   for (const sg of segs) for (let i = 0; i < sg.count; i++) nums[iso(addDays(parseDate(sg.start), 7 * i))] = ++k;
@@ -29,22 +35,22 @@ function timeline(D) {
   return out;
 }
 // entry for the week containing today; before/after the timeline: the first/last entry
-function currentIndex(T, today = new Date()) {
+export function currentIndex(T, today = new Date()) {
   const i = T.findIndex(e => today < addDays(e.m, 7));
   return i < 0 ? T.length - 1 : i;
 }
-const isNow = (e, today = new Date()) => today >= e.m && today < addDays(e.m, 7);
+export const isNow = (e, today = new Date()) => today >= e.m && today < addDays(e.m, 7);
 
-const courseOf = (D, id) => (D.courses || []).find(c => c.id === id) || {id, title: id, color: "grey"};
-const TYPE_KEYS = {course: "type.course", lab: "type.lab", project: "type.project", seminar: "type.seminar"};
-const typeName = type => TYPE_KEYS[type] ? t(TYPE_KEYS[type]) : type;
-const LETTER_KEYS = {course: "plan.abbr.course", lab: "plan.abbr.lab", project: "plan.abbr.project", seminar: "plan.abbr.seminar"};
-const typeLetter = type => LETTER_KEYS[type] ? t(LETTER_KEYS[type]) : String(type || "").charAt(0).toUpperCase();
-const shortName = (D, id) => { const c = courseOf(D, id); return c.short || c.title; };
-const sessionTitle = (D, e) => { const c = courseOf(D, e.course); return `${c.short || c.title} (${typeName(e.type)}${e.group ? " " + t("schedule.subgroup", {n: e.group}) : ""})`; };
+export const courseOf = (D, id) => (D.courses || []).find(c => c.id === id) || {id, title: id, color: "grey"};
+export const TYPE_KEYS = {course: "type.course", lab: "type.lab", project: "type.project", seminar: "type.seminar"};
+export const typeName = type => TYPE_KEYS[type] ? t(TYPE_KEYS[type]) : type;
+export const LETTER_KEYS = {course: "plan.abbr.course", lab: "plan.abbr.lab", project: "plan.abbr.project", seminar: "plan.abbr.seminar"};
+export const typeLetter = type => LETTER_KEYS[type] ? t(LETTER_KEYS[type]) : String(type || "").charAt(0).toUpperCase();
+export const shortName = (D, id) => { const c = courseOf(D, id); return c.short || c.title; };
+export const sessionTitle = (D, e) => { const c = courseOf(D, e.course); return `${c.short || c.title} (${typeName(e.type)}${e.group ? " " + t("schedule.subgroup", {n: e.group}) : ""})`; };
 
 // every session of week w, with status ok | dev (differs from the timetable) | cancel
-function weekSessions(D, w) {
+export function weekSessions(D, w) {
   const m = mondayOf(D, w), keys = [0, 1, 2, 3, 4].map(d => iso(addDays(m, d))), out = [];
   for (const e of D.timetable || []) {
     if (!visible(D, e)) continue;
@@ -72,16 +78,16 @@ function weekSessions(D, w) {
   return out;
 }
 
-const placeFor = (mode, room) => mode === "online" ? t("schedule.online") : (room || t("schedule.inPerson"));
-const place = s => placeFor(s.mode, s.room);
+export const placeFor = (mode, room) => mode === "online" ? t("schedule.online") : (room || t("schedule.inPerson"));
+export const place = s => placeFor(s.mode, s.room);
 
 // stable id of a session (card <-> modal, focus return after a re-render)
-const sessionKey = s => [s.course, s.type, s.group || 0, s.key, s.start].join("-");
-const cardAria = (D, s) => [courseOf(D, s.course).title, typeName(s.type) + (s.group ? " " + t("schedule.subgroup", {n: s.group}) : ""),
+export const sessionKey = s => [s.course, s.type, s.group || 0, s.key, s.start].join("-");
+export const cardAria = (D, s) => [courseOf(D, s.course).title, typeName(s.type) + (s.group ? " " + t("schedule.subgroup", {n: s.group}) : ""),
   fmtTime(s.start) + "–" + fmtTime(s.end), s.status === "cancel" ? t("modal.notHeld") : place(s)].join(", ");
 
 // everything the session modal shows, as data
-function sessionInfo(D, s) {
+export function sessionInfo(D, s) {
   const c = courseOf(D, s.course), w = weekNumberOf(D, s.date);
   return {course: c, type: s.type, typeName: typeName(s.type), group: s.group, date: s.date, key: s.key, start: s.start, end: s.end,
     week: w, parity: w ? (w % 2 ? "odd" : "even") : null, place: place(s), basePlace: placeFor(s.baseMode, s.baseRoom),
@@ -91,18 +97,18 @@ function sessionInfo(D, s) {
 }
 
 // hour range of the grid, stable across weeks
-function hourRange(D) {
+export function hourRange(D) {
   const all = [...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])];
   if (!all.length) return [8, 18];
   return [Math.floor(Math.min(...all.map(e => e.start))), Math.ceil(Math.max(...all.map(e => e.end)))];
 }
 
-const icsEsc = s => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
-const fold = l => l.match(/.{1,73}/gu).join("\r\n ");
-const stamp = (d, h) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(Math.floor(h))}${pad(Math.round((h % 1) * 60))}00`;
+export const icsEsc = s => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+export const fold = l => l.match(/.{1,73}/gu).join("\r\n ");
+export const stamp = (d, h) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(Math.floor(h))}${pad(Math.round((h % 1) * 60))}00`;
 
 // iCalendar text with one event per session (cancelled ones left out); floating local time
-function buildIcs(D, now = new Date()) {
+export function buildIcs(D, now = new Date()) {
   const name = (D.meta || {}).title || t("ics.calendarName"), ts = now.toISOString().replace(/[-:]|\.\d+/g, "");
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//uni-hub//EN", "CALSCALE:GREGORIAN", fold("X-WR-CALNAME:" + icsEsc(name))];
   for (let w = 1; w <= weekCount(D); w++) for (const s of weekSessions(D, w)) {
@@ -118,7 +124,7 @@ function buildIcs(D, now = new Date()) {
 
 // iOS Safari only starts a blob download if the link is in the DOM and the URL outlives the click, so: append, click,
 // revoke 10 s later. Without `download` support (very old browsers) the .ics opens as a data: URL, which iOS offers to add to Calendar.
-function downloadIcs(D) {
+export function downloadIcs(D) {
   const text = buildIcs(D), a = document.createElement("a"), name = ((D.meta || {}).calendarFilename || t("ics.fileName")) + (D.legacy || !D.id ? "" : "-" + D.id) + ".ics";
   if (!("download" in a) || !window.URL || !URL.createObjectURL) { location.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(text); return; }
   a.href = URL.createObjectURL(new Blob([text], {type: "text/calendar;charset=utf-8"}));
@@ -128,7 +134,7 @@ function downloadIcs(D) {
 }
 
 // swatches reuse the CSS of the real blocks; one legend under both the grid and the phone agenda
-function scheduleLegendHTML(D) {
+export function scheduleLegendHTML(D) {
   const lg = (cls, label, mark = "") => `<span class="d ${cls}">${mark}${esc(label)}</span>`; // same chips as the calendar legend
   const rows = [...(D.timetable || []).filter(e => visible(D, e)), ...(D.extraSessions || [])], used = new Set(rows.map(e => e.course));
   const types = ["course", "lab", "project", "seminar"].filter(ty => rows.some(e => e.type === ty));
@@ -144,7 +150,7 @@ function scheduleLegendHTML(D) {
 }
 
 // subgroup chooser: a disclosure under the toolbar (inline on wide screens, a bottom sheet on phones, see CSS)
-function groupsHTML(D) {
+export function groupsHTML(D) {
   const gs = discoverGroups(D);
   if (!gs.length) return "";
   const all = [...new Set(gs.flatMap(g => g.groups))].sort();
@@ -161,13 +167,13 @@ function groupsHTML(D) {
     `<button type="button" id="gclose">${esc(t("schedule.groups.close"))}</button></div></div>`;
 }
 
-let closeGroups = null; // closes the open chooser of the schedule currently shown; Esc and outside clicks are handled once, here
+export let closeGroups = null; // closes the open chooser of the schedule currently shown; Esc and outside clicks are handled once, here
 if (typeof document !== "undefined" && document.addEventListener) { // (node tests load this file without a DOM)
   document.addEventListener("keydown", e => { if (e.key === "Escape" && closeGroups) closeGroups(true); });
   document.addEventListener("click", e => { if (closeGroups && !e.target.closest(".gwrap")) closeGroups(false); });
 }
 
-function wireGroups(box, D, rerender) {
+export function wireGroups(box, D, rerender) {
   const btn = box.querySelector("#gbtn"), panel = box.querySelector("#gpanel");
   if (!btn) { closeGroups = null; return; }
   const open = on => { D._gopen = on; panel.hidden = !on; btn.setAttribute("aria-expanded", String(on)); };
@@ -188,8 +194,8 @@ function wireGroups(box, D, rerender) {
 // Cards wrap their text; the hour rows grow (CSS variable --rh) until every card fits, so nothing is cut off.
 // Measuring needs the grid to be visible (it is hidden on other tabs and on phones, where the agenda shows), so a
 // ResizeObserver re-fits when the grid is shown or its width changes; fonts loading changes line breaks too.
-const BASE_RH = 64, MAX_RH = 240;
-function fitSchedule(box) {
+export const BASE_RH = 64, MAX_RH = 240;
+export function fitSchedule(box) {
   const grid = box.querySelector(".sched");
   if (!grid) return;
   if (!grid.dataset.watched) {
@@ -205,7 +211,7 @@ function fitSchedule(box) {
   grid.style.setProperty("--rh", Math.min(rh, MAX_RH) + "px");
 }
 
-function renderSchedule(box, D, i) {
+export function renderSchedule(box, D, i) {
   const T = timeline(D), real = currentIndex(T);
   if (i === undefined) i = D._wi === undefined ? real : D._wi;
   D._wi = i; // the shown week, kept for refresh() after a subgroup change

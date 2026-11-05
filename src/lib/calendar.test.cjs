@@ -1,12 +1,12 @@
 // Run: node src/calendar.test.js [set]   (default: aie when present, else sample). Pure helpers: calendar ranges, week lookup, day info
 // with deviations, year data, subgroup filtering (defaults, per-course choice, "all", unknown values) and the .ics respecting it.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
-const root = path.join(__dirname, "..");
+const root = path.join(__dirname, "..", "..");
 const store = {}, ctx = vm.createContext({window: {}, console, localStorage: {getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = v; }}});
-for (const f of ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]) vm.runInContext(fs.readFileSync(path.join(root, "src", f + ".js"), "utf8"), ctx, {filename: f});
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "groups", "schedule", "calendar", "daymodal", "plan", "render"]);
 const run = code => vm.runInContext(code, ctx);
-const set = process.argv[2] || (fs.existsSync(path.join(root, "data", "aie")) ? "aie" : "sample");
-vm.runInContext(fs.readFileSync(path.join(root, "data", set, "data.js"), "utf8"), ctx);
+const set = process.argv[2] || (fs.existsSync(path.join(root, "public", "data", "aie")) ? "aie" : "sample");
+vm.runInContext(fs.readFileSync(path.join(root, "public", "data", set, "data.js"), "utf8"), ctx);
 run("var N = normalize(window.HUB_DATA), SEMS = flatten(N); var first = SEMS.find(s => (s.weeks || {}).segments); var V = semesterView(N, first); V.groupKey = 'k:' + first.id;");
 const d = s => `new Date('${s}T12:00')`;
 

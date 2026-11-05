@@ -1,8 +1,8 @@
 // Run: node src/plan.test.js   Study plan helpers (stat strip, bars) and the plan HTML: selected semester only, no links/emails/phones.
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
-const root = path.join(__dirname, "..");
+const root = path.join(__dirname, "..", "..");
 const ctx = vm.createContext({window: {}, console, Intl});
-for (const f of ["strings", "util", "semester", "plan"]) vm.runInContext(fs.readFileSync(path.join(root, "src", f + ".js"), "utf8"), ctx, {filename: f});
+require("../../scripts/loadlib.cjs")(ctx, ["strings", "util", "semester", "plan"]);
 const run = code => vm.runInContext(code, ctx), json = code => JSON.parse(run(`JSON.stringify(${code})`)); // json(): plain objects (vm objects have another prototype)
 
 // helpers
@@ -16,7 +16,7 @@ assert.strictEqual(run("barPct(5, 0)"), 100, "no max: full bar, never NaN");
 
 // HTML for every semester of the sample and the real set: one semester only, no links / emails / phones
 for (const set of ["sample", "aie"]) {
-  const file = path.join(root, "data", set, "data.js");
+  const file = path.join(root, "public", "data", set, "data.js");
   if (!fs.existsSync(file)) continue;
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx);
   run("var N = normalize(window.HUB_DATA), SEMS = flatten(N);");

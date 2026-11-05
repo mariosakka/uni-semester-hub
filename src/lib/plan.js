@@ -1,32 +1,36 @@
+import {t} from "./strings.js";
+import {esc} from "./util.js";
+import {semesterView} from "./semester.js";
+import {ITEMS} from "./render.js";
 // Study plan (selected semester only) and contact directory: HTML builders reading the courses data (no DOM access except planToggle, node-testable).
 // Needs esc (util.js) and ITEMS (render.js) at call time; D is a semester view (semesterView) with D.programme.
 
-const HOURS = [["course", "plan.abbr.course", "plan.hours.course"], ["seminar", "plan.abbr.seminar", "plan.hours.seminar"], ["lab", "plan.abbr.lab", "plan.hours.lab"], ["project", "plan.abbr.project", "plan.hours.project"]]; // [field, abbreviation key, name key]
-const EVAL = {E: ["exam", "plan.eval.exam"], V: ["cont", "plan.eval.cont"], P: ["proj", "plan.eval.proj"]}; // first letter of `evaluation` -> [css class, name key]
-const evalCode = c => String(c.evaluation || "").trim().charAt(0).toUpperCase();
-const hoursSum = h => HOURS.reduce((n, [k]) => n + (+(h || {})[k] || 0), 0);
+export const HOURS = [["course", "plan.abbr.course", "plan.hours.course"], ["seminar", "plan.abbr.seminar", "plan.hours.seminar"], ["lab", "plan.abbr.lab", "plan.hours.lab"], ["project", "plan.abbr.project", "plan.hours.project"]]; // [field, abbreviation key, name key]
+export const EVAL = {E: ["exam", "plan.eval.exam"], V: ["cont", "plan.eval.cont"], P: ["proj", "plan.eval.proj"]}; // first letter of `evaluation` -> [css class, name key]
+export const evalCode = c => String(c.evaluation || "").trim().charAt(0).toUpperCase();
+export const hoursSum = h => HOURS.reduce((n, [k]) => n + (+(h || {})[k] || 0), 0);
 // "–" when no ECTS are known, "≥N ECTS" when only some are, "N ECTS" when all are (unknown is never summed as 0)
-const ectsLabel = cs => {
+export const ectsLabel = cs => {
   const known = (cs || []).filter(c => +c.ects), n = known.reduce((t, c) => t + +c.ects, 0);
   return !known.length ? t("plan.unknown") : known.length < cs.length ? t("plan.ectsAtLeast", {n}) : t("plan.ects", {n});
 };
 // counts for the stat strip; hoursKnown = subjects that have weekly hours (partial totals are shown as "≥N")
-function planStats(cs) {
+export function planStats(cs) {
   cs = cs || [];
   const withHours = cs.filter(c => hoursSum(c.hours) > 0);
   return {subjects: cs.length, hours: withHours.reduce((n, c) => n + hoursSum(c.hours), 0), hoursKnown: withHours.length,
     exams: cs.filter(c => evalCode(c) === "E").length, continuous: cs.filter(c => evalCode(c) === "V").length,
     other: cs.filter(c => c.evaluation && evalCode(c) !== "E" && evalCode(c) !== "V").length};
 }
-const barPct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * (+v || 0) / (max || 1)))); // bar width in %
+export const barPct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * (+v || 0) / (max || 1)))); // bar width in %
 
 // "Final exam 60%, Project 40%" or "" when no components are given
-const gradingSummary = c => ((c.grading || {}).components || []).map(x => esc(x.name) + (x.weight != null ? ` ${x.weight}%` : "")).join(", ");
+export const gradingSummary = c => ((c.grading || {}).components || []).map(x => esc(x.name) + (x.weight != null ? ` ${x.weight}%` : "")).join(", ");
 
-const people = c => [...(c.teachers || []), ...(c.contacts || [])];
-const peopleLine = list => list.map(p => ITEMS.contacts(p)).join("; ");
+export const people = c => [...(c.teachers || []), ...(c.contacts || [])];
+export const peopleLine = list => list.map(p => ITEMS.contacts(p)).join("; ");
 
-function gradingHTML(c) {
+export function gradingHTML(c) {
   const g = c.grading;
   if (!g) return "";
   const comps = g.components || [];
@@ -39,7 +43,7 @@ function gradingHTML(c) {
 }
 
 // one subject = a <tbody>: the main row (cells carry data-label for the phone card layout) + a hidden detail row opened by .ptog
-function subjectRow(c, i, maxEcts) {
+export function subjectRow(c, i, maxEcts) {
   const id = `pd-${i}`, dash = esc(t("plan.unknown")), lab = k => esc(t(k));
   const ev = EVAL[evalCode(c)], hrs = HOURS.filter(([k]) => +(c.hours || {})[k] > 0), tot = hoursSum(c.hours);
   const comps = (c.grading || {}).components || [], tch = c.teachers || [];
@@ -55,7 +59,7 @@ function subjectRow(c, i, maxEcts) {
 }
 
 // click handler for the subject toggles (attached once to the study-plan section)
-function planToggle(e) {
+export function planToggle(e) {
   const b = e.target.closest && e.target.closest(".ptog");
   if (!b) return;
   const open = b.getAttribute("aria-expanded") !== "true", row = document.getElementById(b.getAttribute("aria-controls"));
@@ -63,7 +67,7 @@ function planToggle(e) {
   if (row) row.hidden = !open;
 }
 
-function studyplanHTML(D) {
+export function studyplanHTML(D) {
   const P = D.programme, cs = D.courses || [];
   const heading = `<h3>${esc(((P.years.find(y => y.id === D.yearId) || {}).title || "") + (P.years.length > 1 ? " · " : "") + (D.title || t("plan.thisSemester")))}</h3>`;
   if (!cs.length) return `${heading}<p class="note">${esc(t("plan.noSubjects"))}</p>`;
@@ -76,7 +80,7 @@ function studyplanHTML(D) {
     cs.map((c, i) => subjectRow(c, i, maxE)).join("") + `</table>`;
 }
 
-function directoryHTML(D) {
+export function directoryHTML(D) {
   const prog = (D.sections || []).filter(s => s.kind === "contacts").flatMap(s => s.items || []);
   const subj = (D.courses || []).filter(c => people(c).length);
   return (prog.length ? `<h3>${esc(t("plan.programme"))}</h3><ul>${prog.map(p => `<li>${ITEMS.contacts(p)}</li>`).join("")}</ul>` : "") +

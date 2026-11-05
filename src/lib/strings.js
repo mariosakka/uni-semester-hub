@@ -1,8 +1,13 @@
+import {esc} from "./util.js";
+import {place} from "./schedule.js";
+import {kd} from "./calendar.js";
+import {cap} from "./daymodal.js";
+import {link} from "./render.js";
 // UI strings: one flat default (English) table, read only through t() / tx(). A data set can reword or translate any key with
 // meta.strings = { "key": "text" } and set meta.locale ("ro-RO") for weekday/month names and date formats. Strings are PLAIN TEXT:
 // t() returns text, tx() escapes the template and fills {placeholders} with HTML the calling code built. docs/STRINGS.md lists every key
 // (node scripts/gen-strings-doc.mjs). Plain script (no modules) so it works from file://; also evaluated by node for the validator/tests.
-var HUB_STRINGS = {
+export var HUB_STRINGS = {
   // document + navigation
   "doc.title": "Semester hub",
   "nav.menuOpen": "Open menu",
@@ -172,11 +177,11 @@ var HUB_STRINGS = {
   "plan.noContacts": "No contacts listed."
 };
 
-var HUB_LOCALE = "en-GB"; // Intl locale for weekday/month names and date formats (meta.locale)
-var HUB_OVERRIDES = {};
+export var HUB_LOCALE = "en-GB"; // Intl locale for weekday/month names and date formats (meta.locale)
+export var HUB_OVERRIDES = {};
 
 // meta.strings / meta.locale of the loaded data set; never throws, unknown keys and non-strings are ignored with a warning
-function setStrings(meta) {
+export function setStrings(meta) {
   var m = meta || {}, s = m.strings;
   HUB_OVERRIDES = {};
   HUB_LOCALE = "en-GB";
@@ -194,7 +199,7 @@ function setStrings(meta) {
   });
 }
 
-function hubTemplate(key) {
+export function hubTemplate(key) {
   if (key in HUB_OVERRIDES) return HUB_OVERRIDES[key];
   if (key in HUB_STRINGS) return HUB_STRINGS[key];
   console.warn("missing string key " + key);
@@ -202,12 +207,12 @@ function hubTemplate(key) {
 }
 
 // plain text: {name} placeholders are replaced by vars.name as-is (use for textContent / attributes)
-function t(key, vars) {
+export function t(key, vars) {
   return hubTemplate(key).replace(/\{(\w+)\}/g, function (all, n) { return vars && n in vars ? String(vars[n]) : all; });
 }
 
 // HTML: the template is escaped (so a reworded string can't inject markup), then each {name} is replaced by vars.name, which the
 // caller must already have escaped / built as HTML
-function tx(key, vars) {
+export function tx(key, vars) {
   return esc(hubTemplate(key)).replace(/\{(\w+)\}/g, function (all, n) { return vars && n in vars ? String(vars[n]) : all; });
 }
