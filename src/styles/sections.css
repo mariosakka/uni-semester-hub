@@ -88,3 +88,12 @@ ul.ctl>li:first-child{border-top:0}
 .ct-name{font-weight:600}
 .ct-role,.ct-note{color:var(--mut);font-size:var(--fs-sm)}
 .ct-det{font-size:var(--fs-sm);overflow-wrap:anywhere}
+.chead.tagline{margin:0 0 var(--sp-3)}.tagline .tag{margin-left:0}
+
+/* lighter weights: bold only where it marks structure (Inter is variable, so intermediate weights are real) */
+b,strong{font-weight:600}
+h2{font-weight:600}
+h3,h4{font-weight:560}
+.cgroup>summary{font-weight:550}
+.ct-name{font-weight:560}
+.nd,.tbl th{font-weight:550}
