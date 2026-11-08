@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/mariosakka/uni-semester-hub/compare/v1.4.0...v1.4.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* dissertation agreement, bring 2 physical copies as backup ([a8de9a6](https://github.com/mariosakka/uni-semester-hub/commit/a8de9a646abbe8e381be3fda40400e10a179c9cf))
+
 ## [1.4.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.3.0...v1.4.0) (2026-11-08)
 
 
