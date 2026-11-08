@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/mariosakka/uni-semester-hub/compare/v1.4.2...v1.4.3) (2026-11-08)
+
+
+### Bug Fixes
+
+* no top gap in cards whose duplicate heading was removed ([432cfee](https://github.com/mariosakka/uni-semester-hub/commit/432cfee759cbab02417b250ed17983f32509334f))
+
 ## [1.4.2](https://github.com/mariosakka/uni-semester-hub/compare/v1.4.1...v1.4.2) (2026-11-08)
 
 
