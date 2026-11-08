@@ -97,3 +97,4 @@ h3,h4{font-weight:560}
 .cgroup>summary{font-weight:550}
 .ct-name{font-weight:560}
 .nd,.tbl th{font-weight:550}
+section.notitle>:first-child{margin-top:0}

@@ -31,7 +31,7 @@ const tags = (title.match(/<span class=.tag[^>]*>.*?<\/span>/g) || []).join(" ")
 const builtin = props.sec.kind === "schedule" || props.sec.kind === "calendar";
 const isTodo = props.sec.kind === "list" && (props.sec.tab || defaultTab(props.sec)) === "todo";
 // "on": the shell mounts only the current tab's sections
-const cls = computed(() => ["on", {[`course c-${course && course.color || "grey"}`]: course, todo: props.sec.highlight, "custom builtin": builtin}]);
+const cls = computed(() => ["on", {[`course c-${course && course.color || "grey"}`]: course, todo: props.sec.highlight, "custom builtin": builtin, notitle: dup}]);
 </script>
 
 <template>
