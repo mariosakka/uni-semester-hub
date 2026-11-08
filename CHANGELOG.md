@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.3.0...v1.4.0) (2026-11-08)
+
+
+### Features
+
+* remove checkboxes, collapsible course sub-sections, clearer contact blocks ([67ebee1](https://github.com/mariosakka/uni-semester-hub/commit/67ebee1c90d318360e4f2b2836cd75b5058d38e1))
+
 ## [1.3.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.2.0...v1.3.0) (2026-11-08)
 
 
