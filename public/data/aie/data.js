@@ -911,6 +911,12 @@ window.HUB_DATA = {
               "highlight": true,
               "items": [
                 {
+                  "title": "Dissertation topic: signed agreement (1 physical copy)",
+                  "due": "4 Dec 2026",
+                  "check": true,
+                  "text": "Final-year notice (bachelor and dissertation) <span class='tag off'>official</span>: the proposals are posted on <a href='https://fils.upb.ro/tema-proiect/'>fils.upb.ro/tema-proiect</a>. Contact the professors, agree on a topic and bring the agreement signed by you and the professor, <b>1 signed physical copy</b>, by <b>4 December</b>. Group leaders collect the agreements and hand them to the tutor of the specialization. Unconfirmed whether this applies to year 1 of the master: check with the secretariat."
+                },
+                {
                   "title": "Present Research 1 to the committee",
                   "due": "18–22 Jan 2027 (week 14)",
                   "check": true,
@@ -959,6 +965,12 @@ window.HUB_DATA = {
               "to": "2026-12-01",
               "kind": "task",
               "label": "Research 1: choose a topic and a coordinator (by the beginning of December)"
+            },
+            {
+              "from": "2026-12-04",
+              "to": "2026-12-04",
+              "kind": "task",
+              "label": "Dissertation topic: signed agreement, 1 physical copy (final-year notice)"
             },
             {
               "from": "2027-01-18",
