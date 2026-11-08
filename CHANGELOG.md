@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/mariosakka/uni-semester-hub/compare/v1.4.1...v1.4.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* drop headings that repeat the page title, lighter font weights ([d61fbc1](https://github.com/mariosakka/uni-semester-hub/commit/d61fbc136c9edf336afbbab7988a81bac4e48dde))
+
 ## [1.4.1](https://github.com/mariosakka/uni-semester-hub/compare/v1.4.0...v1.4.1) (2026-11-08)
 
 
