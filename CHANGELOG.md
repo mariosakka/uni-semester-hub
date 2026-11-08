@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.2.0...v1.3.0) (2026-11-08)
+
+
+### Features
+
+* dissertation topic agreement due 4 Dec (to-do and calendar) ([#4](https://github.com/mariosakka/uni-semester-hub/issues/4)) ([f4ad275](https://github.com/mariosakka/uni-semester-hub/commit/f4ad2759cd399a9576701e10b3d988b241c96ac8))
+
 ## [1.2.0](https://github.com/mariosakka/uni-semester-hub/compare/v1.1.0...v1.2.0) (2026-11-05)
 
 
