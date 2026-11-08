@@ -1,8 +1,8 @@
 import {reactive} from "vue";
 
-// Open/closed state of the to-do cards of one list. Done cards start closed, `open: true` starts a card open.
-export function useTodoCard(items, isDone) {
+// Open/closed state of the to-do cards of one list. `open: true` starts a card open.
+export function useTodoCard(items) {
   const hasText = it => typeof it === "object" && it !== null && !!it.text;
-  const open = reactive(items.map((it, i) => hasText(it) && it.open === true && !isDone(it, i)));
-  return {open, toggle: i => { open[i] = !open[i]; }, close: i => { open[i] = false; }};
+  const open = reactive(items.map(it => hasText(it) && it.open === true));
+  return {open, toggle: i => { open[i] = !open[i]; }};
 }

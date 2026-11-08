@@ -51,10 +51,11 @@ window.HUB_DATA = {
 
 
   sections: [                              // rendered top to bottom, in this order
-    { kind: "list",     title: "Administrative", pinned: true, items: [ "[ ] tickable item", "plain item" ] },
+    { kind: "list",     title: "Administrative", pinned: true, items: [ "item", "another item" ] },
     { kind: "schedule", title: "Weekly schedule" },                  // built-in: weekly grid + week picker + .ics export
     { kind: "calendar", title: "Academic calendar" },                // built-in: week / month / year views with day popups
-    { kind: "course",   course: "ml", items: [ "…" ] },              // header (teachers, ECTS, evaluation) + items
+    { kind: "course",   course: "ml", items: [ "…" ],                  // header (teachers, ECTS, evaluation) + general items
+      groups: [ { title: "Materials", items: [ "…" ], open: false } ] }, // collapsible sub-sections; contacts get their own group
     { kind: "contacts", title: "Contacts", items: [ { name: "…", role: "…", email: "…", phone: "…", note: "…" } ] },
     { kind: "links",    title: "Useful links", items: [ { label: "…", url: "https://…", note: "…" } ] },
     { kind: "table",    title: "Study plan", columns: ["Subject","ECTS","Eval."], rows: [ ["…", 5, "E"] ] },
@@ -64,7 +65,6 @@ window.HUB_DATA = {
 ```
 
 Rules the engine must follow:
-- Tickable items (`"[ ] …"`) persist in `localStorage` keyed by `<set>:<section index or id>:<item index>`; give sections an optional `id` to keep ticks stable when reordering.
 - A set may omit any optional key; missing pieces just don't render.
 - The filter box hides non-matching list items; `schedule`, `calendar` and sections with `pinned: true` stay visible.
 - Colours come from CSS classes `c-<color>`; light and dark mode both supported.
@@ -103,7 +103,7 @@ window.HUB_DATA = {
 - **Per-semester calendar:** one `calendar` object per semester (a single month list, no inner `semesters` array). `image`/`pdf` are relative to `public/data/<set>/`.
 - **Automatic semester:** semesters are ordered by the start of `weeks.segments[0]` (or, with no weeks, by `calendar.periods[0].from`). The active one is the last semester whose start is ≤ today; before the first it is the first, after the last it is the last. A semester with neither weeks nor periods is never auto-selected. The user can pick any semester; the choice lives in the URL hash (`#<semesterId>/<tab>`), so links and reloads keep it. With no hash, the automatic one opens.
 - **Navigation:** a sidebar (an off-canvas drawer on phones): logos and title at the top, search, the tabs of the selected semester, and at the bottom a **Year** select (hidden when there is only one year) and a **Semester** select for that year (the automatic one reads "… · now"). Changing either goes through the URL hash.
-- **Common sections:** `common` sections are prepended to every semester's sections (so Administrative info is written once). Tick state is stored per semester for semester sections and shared for `common` ones.
+- **Common sections:** `common` sections are prepended to every semester's sections (so Administrative info is written once).
 - **Course ids** only need to be unique inside a semester.
 - **Legacy flat shape** (the `meta/weeks/courses/timetable/…/sections` layout above, no `years`) is still accepted: the engine wraps it into one year with one semester, using `meta.academicYear` / `meta.semester` as titles. A legacy `calendar.semesters` list is ignored in v2.
 - A semester may be a placeholder: only `id`, `title` and some `sections` (e.g. the subject list from the study plan). It then shows just those sections; the schedule and calendar sections are omitted automatically when there is no `weeks`/`calendar`.
@@ -151,7 +151,7 @@ Calendar rendering note: period kinds `vac` and `break` are drawn exactly like `
 
 Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study plan, Contacts, Info (empty ones hidden; the first non-empty one is the landing tab). The `overview` tab id is gone; a section that still says `tab: "overview"` is treated as `news`.
 
-- **Default placement of `list` sections:** a list that has any tickable item (`"[ ] …"`) or `highlight: true` goes to **To-Do**; every other list goes to **News**. Set `tab: "news"` / `tab: "todo"` on a section to override.
+- **Default placement of `list` sections:** a list with `highlight: true` goes to **To-Do**; every other list goes to **News**. Set `tab: "news"` / `tab: "todo"` on a section to override.
 - **New section kind `news`** → default tab `news`. A dated feed, newest first:
   ```js
   { kind: "news", title: "Announcements", items: [
@@ -162,7 +162,7 @@ Default tabs are now: **News**, **To-Do**, Schedule, Calendar, Courses, Study pl
       course: "hc" } ] }             // optional course id: shows the course's colour/short name as a tag
   ```
   Items sort by `date` descending (ties keep file order). Each shows the date as a badge, the title in bold, then `text`, then the tags. Items with a date in the last 7 days get a "new" badge. The filter box searches news items like list items.
-- Typical split: **News** = only the dated announcements feed (`kind: "news"`); **To-Do** = tickable tasks and deadlines (including "Do now" and research-topic deadlines); **Info** = administrative notes (cards, certificates, rooms, faculty pages), contacts and useful links.
+- Typical split: **News** = only the dated announcements feed (`kind: "news"`); **To-Do** = tasks and deadlines (including "Do now" and research-topic deadlines); **Info** = administrative notes (cards, certificates, rooms, faculty pages), contacts and useful links.
 
 Sections that describe administrative information (cards, certificates, rooms, faculty pages) are ordinary `list` sections placed on the Info tab with `tab: "info"`; the News tab is meant for the dated `news` feed only.
 
@@ -175,13 +175,11 @@ Per semester: `keyDates: [ { from, to?, kind: "task"|"exam", label } ]`. They ar
 Items of a `list` section are a string or an object:
 
 ```js
-"[ ] Tickable card without details",          // string: "[ ] title" = tickable, any other text = note card
-"Plain note card",
+"Card without details",
 { title: "Upload enrolment documents",         // plain text or html
   text: "html details shown when the card is expanded (optional)",
   due: "15 Oct",                               // short text shown as a badge next to the title (optional)
-  check: true,                                 // true = tickable (default false = note card)
-  open: false }                                // true = starts expanded (never for a ticked card)
+  open: false }                                // true = starts expanded
 ```
 
-On the **To-Do tab** every item of every list becomes its own card: `[checkbox] [title + due badge] [chevron]`, details below. Ticking a card collapses it, ticked cards start collapsed on load, a card without `text` has no chevron, the user can open any card by hand (state is not saved). The section heading shows a progress count ("1 / 2 done") when the list has tickable items. Ticks are saved under `${section id (or index)}:${item index}`, the same keys as plain lists, so reordering items still moves ticks. Lists on other tabs keep the plain look; an object item there shows title, badge and details.
+On the **To-Do tab** every item of every list becomes its own card: `[icon] [title + due badge] [chevron]`, details below. A card without `text` has no chevron; the user can open any card by hand (state is not saved). Lists on other tabs keep the plain look; an object item there shows title, badge and details.

@@ -31,12 +31,12 @@ window.HUB_DATA = {
 
   // ---- common: programme-wide sections, prepended to every semester's sections ----
   common: [
-    // tab: "info" overrides the default (tickable lists go to To-Do); the items stay tickable
+    // tab: "info" overrides the default (lists go to News unless highlight: true or tab: "todo")
     { kind: "list", id: "admin", title: "Administrative", pinned: true, tab: "info", items: [
-      "[ ] Collect your student card at the registrar's office (A001)",
-      "[ ] Complete enrolment and upload documents at <a href='https://portal.example.org'>portal.example.org</a>",
-      "[ ] Activate your university account and email",
-      "[ ] Join the course platform and the programme mailing list",
+      "Collect your student card at the registrar's office (A001)",
+      "Complete enrolment and upload documents at <a href='https://portal.example.org'>portal.example.org</a>",
+      "Activate your university account and email",
+      "Join the course platform and the programme mailing list",
       "Office hours of the registrar: Mon-Fri 9:00-12:00"
     ] },
     { kind: "contacts", title: "Programme contacts", tab: "info", items: [
@@ -184,7 +184,6 @@ window.HUB_DATA = {
         // tabs: left out = automatic (Overview, Schedule, Calendar, Courses, Info)
 
         // sections: this semester's sections (after the `common` ones), rendered top to bottom
-        // "[ ] " prefix = tickable item (saved in localStorage). Give sections an id to keep ticks stable.
         sections: [
           // news kind -> News tab (dated feed, newest first; items older than 7 days lose the "new" badge)
           { kind: "news", title: "Announcements", items: [
@@ -200,28 +199,36 @@ window.HUB_DATA = {
               text: "Pick a topic from the <a href='https://example.org/ethics-topics'>topic list</a>; draft due 26 Nov." },
             { date: "2027-11-03", title: "Student cards ready for pickup", source: "official" }
           ] },
-          // To-Do tab: every item is a card. An item is a string ("[ ] title" = tickable, plain text = note card) or an object
-          // { title, text (details, html), due (badge), check (true = tickable), open (start expanded) }. Ticked cards collapse.
+          // To-Do tab: every item is a card. An item is a string or an object
+          // { title, text (details, html), due (badge), open (start expanded) }.
           { kind: "list", id: "now", title: "Do now", highlight: true, tab: "todo", items: [
-            { title: "Upload enrolment documents", due: "15 Oct", check: true,
+            { title: "Upload enrolment documents", due: "15 Oct",
               text: "Use the portal at <a href='https://portal.example.org'>portal.example.org</a>. PDF scans are fine; originals are checked at the registrar's office (A001)." },
-            { title: "Pick your lab subgroup", check: true, text: "Schedule tab, <b>Subgroups</b> button. Your choice is remembered in this browser." },
-            "[ ] Bring a USB drive to the first lab",
+            { title: "Pick your lab subgroup", text: "Schedule tab, <b>Subgroups</b> button. Your choice is remembered in this browser." },
+            "Bring a USB drive to the first lab",
             { title: "Install Python 3.12 and Jupyter before the first lab", open: true,
               text: "Use the course environment file: <code>conda env create -f env.yml</code>." },
             "Office hours are posted on the course platform"
           ] },
           { kind: "schedule", title: "Weekly schedule" },
           { kind: "calendar", title: "Academic calendar" },
+          // course: optional plain `items` (always visible) plus `groups`: collapsible sub-sections ({ title, items, open? });
+          // a "Contacts" group is added automatically from the course's teachers/contacts
           { kind: "course", course: "ml", items: [
-            "Slides and notebooks on the course platform",
-            "Final grade: 70% exam, 30% lab reports",
-            "[ ] Read chapter 1 before the first lecture"
+            "Final grade: 70% exam, 30% lab reports"
+          ], groups: [
+            { title: "Materials", open: true, items: [
+              "Slides and notebooks on the course platform",
+              "Read chapter 1 before the first lecture"
+            ] },
+            { title: "Visiting professors", items: [
+              "Guest talk on 9 Nov, attend on site (room A101)"
+            ] }
           ] },
           { kind: "course", course: "db", items: [
             "Continuous assessment: 3 lab tasks and one quiz",
             "Lectures on even weeks only",
-            "[ ] Set up the lab database account"
+            "Set up the lab database account"
           ] },
           { kind: "course", course: "st", items: [
             "Written exam plus short oral",
@@ -229,7 +236,7 @@ window.HUB_DATA = {
           ] },
           { kind: "course", course: "vz", items: [
             "Team project (3-4 students), pitch on 14 Dec",
-            "[ ] Form a team and register the topic"
+            "Form a team and register the topic"
           ] },
           { kind: "course", course: "et", items: [
             "One 1500-word essay, draft due 26 Nov",
@@ -314,21 +321,21 @@ window.HUB_DATA = {
               text: "See the list at <a href='https://example.org/capstone'>example.org/capstone</a>." },
             { date: "2028-03-20", title: "Cluster maintenance on Saturday", source: "secretariat", course: "bd", unconfirmed: true }
           ] },
-          // tickable list without highlight -> To-Do tab by default; makes the To-Do tab exist in this semester
+          // tab: "todo" puts a list on the To-Do tab; makes the To-Do tab exist in this semester
           { kind: "list", id: "exams", title: "Before the exam session", tab: "todo", items: [
-            { title: "Check your exam seat and room on the portal", check: true, text: "Seats are published two weeks before the first exam." },
-            { title: "Submit the Big Data lab portfolio", due: "26 May", check: true, text: "One PDF with the five lab reports; late submissions lose 10% per day." },
-            "[ ] Revise past Optimisation papers"
+            { title: "Check your exam seat and room on the portal", text: "Seats are published two weeks before the first exam." },
+            { title: "Submit the Big Data lab portfolio", due: "26 May", text: "One PDF with the five lab reports; late submissions lose 10% per day." },
+            "Revise past Optimisation papers"
           ] },
           { kind: "list", id: "now", title: "Do now", highlight: true, tab: "todo", items: [
-            { title: "Register your Capstone topic", due: "31 Mar", check: true, text: "Pick a supervisor first; the form is on the course platform." },
+            { title: "Register your Capstone topic", due: "31 Mar", text: "Pick a supervisor first; the form is on the course platform." },
             { title: "Refresh linear algebra for Optimisation", text: "Chapters 1-3 of the course notes are enough." }
           ] },
           { kind: "schedule", title: "Weekly schedule" },
           { kind: "calendar", title: "Academic calendar" },
           { kind: "course", course: "nl", items: [
             "Final grade: 60% exam, 40% lab project",
-            "[ ] Install the course toolkit before week 1"
+            "Install the course toolkit before week 1"
           ] },
           { kind: "course", course: "bd", items: [
             "Continuous assessment: lab portfolio due 26 May",

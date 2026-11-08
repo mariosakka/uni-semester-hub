@@ -15,12 +15,6 @@ li{margin:.3rem 0}
 li{margin:var(--sp-2) 0}
 p,li,.nt{text-wrap:pretty}
 li.hide,tr.hide,section.hide{display:none}
-li.check{list-style:none;margin-left:-1.2rem}
-li.check{margin-left:-1.3rem}
-li.check label{display:block;padding:.15rem 0}
-li.check label{padding:var(--sp-1) 0;line-height:var(--lh-ui)}
-li.check input{width:1.25rem;height:1.25rem;vertical-align:-.2rem;margin:0 .3rem 0 0}
-li.done label{text-decoration:line-through;opacity:.55}
 .tag{font-size:.75rem;padding:.05rem .4rem;border-radius:5px;background:var(--mut);color:var(--bg);margin-left:.3rem}
 .tag,.chip{font-size:var(--fs-xs);font-weight:550;line-height:1.5;padding:.05rem .45rem;white-space:nowrap}
 .tag.off{background:var(--acc)}
@@ -57,17 +51,12 @@ ul.news li:first-child{border-top:0;padding-top:var(--sp-1)}
   .nd{width:auto;margin:0 0 2px}
 }
 
-/* To-Do cards: [checkbox] [title + due badge] [chevron], details below; one column on phones, two when there is room */
-.tprog{margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:#8882;color:var(--mut);font-size:.75rem;font-weight:600;vertical-align:middle;white-space:nowrap}
+/* To-Do cards: [icon] [title + due badge] [chevron], details below; one column on phones, two when there is room */
 .tcards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));grid-gap:var(--sp-3,12px);align-items:start}
 .tcards>li{margin:0}
 .tcard{border:1px solid #8885;border-radius:12px;background:var(--bg)}
 .tcard:hover{border-color:#8888}
-.tcard.done .tc-title{color:var(--mut);text-decoration:line-through}
 .tc-head{display:flex;align-items:center}
-.tc-hit{flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;cursor:pointer}
-.tc-hit input{width:22px;height:22px;margin:0;cursor:pointer}
-.tc-hit input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .tc-ico{flex:none;display:flex;align-items:center;justify-content:center;width:44px;color:var(--mut)}
 .tc-ico::before{content:"i";display:flex;align-items:center;justify-content:center;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;font:italic 700 .75rem/1 Georgia,serif}
 .tc-title{flex:1;min-width:0;padding:.55rem .4rem;overflow-wrap:anywhere}
@@ -79,4 +68,23 @@ ul.news li:first-child{border-top:0;padding-top:var(--sp-1)}
 .tcard.hasbody .tc-title{cursor:pointer}
 .tc-body{padding:0 .9rem .8rem 44px;font-size:.92em;line-height:1.5}
 .tc-body[hidden]{display:none}
-.tc-hit,.tc-chev,.tc-ico,.tprog,.tag,.chip{-webkit-user-select:none;user-select:none}
+
+/* course sub-sections (native <details>) and contact blocks */
+.cgroup{margin:var(--sp-3) 0;border:1px solid #8884;border-radius:10px}
+.cgroup>summary{display:flex;align-items:center;gap:var(--sp-2);min-height:44px;padding:0 var(--sp-4);font-weight:600;cursor:pointer;list-style:none}
+.cgroup>summary::-webkit-details-marker{display:none}
+.cgroup>summary::after{content:"";margin-left:auto;width:.5em;height:.5em;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);transition:transform .15s}
+.cgroup[open]>summary::after{transform:rotate(-135deg)}
+.cgroup>summary:focus-visible{outline:3px solid var(--acc);outline-offset:-3px;border-radius:10px}
+.cgroup[open]>summary{border-bottom:1px solid #8883}
+.cgroup>ul{padding:var(--sp-2) var(--sp-4) var(--sp-3) calc(var(--sp-4) + 1.3rem)}
+.cgroup>ul.ctl{padding-left:var(--sp-4)}
+.cg-n{font-size:var(--fs-xs);font-weight:550;color:var(--mut);background:#8882;border-radius:999px;padding:0 .5rem}
+ul.ctl{list-style:none;padding:0}
+ul.ctl>li{margin:0;padding:var(--sp-2) 0;border-top:1px solid #8883}
+ul.ctl>li:first-child{border-top:0}
+.ct{display:block;line-height:var(--lh-ui)}
+.ct>span{display:block}
+.ct-name{font-weight:600}
+.ct-role,.ct-note{color:var(--mut);font-size:var(--fs-sm)}
+.ct-det{font-size:var(--fs-sm);overflow-wrap:anywhere}

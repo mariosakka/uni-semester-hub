@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import {test, expect, vi} from "vitest";
+import {test, expect} from "vitest";
 import {mount} from "@vue/test-utils";
 import {readFileSync} from "node:fs";
 import {normalize, flatten, semesterView} from "../../lib/semester.js";
@@ -8,20 +8,12 @@ import SectionView from "../SectionView.vue";
 
 const data = new Function("window", readFileSync("public/data/sample/data.js", "utf8") + "\nreturn window.HUB_DATA;")({});
 const N = normalize(data), D = semesterView(N, flatten(N)[0]);
-const save = vi.fn(), done = new Set();
-const hub = {base: "data/sample/", store: () => ({done, save})};
+const hub = {base: "data/sample/"};
 const view = sec => mount(SectionView, {props: {sec, semester: D}, global: {provide: {[HubKey]: hub}}});
 
-test("todo cards: progress chip, rich title, tick persists, details toggle", async () => {
-  const sec = D.sections.find(s => s.kind === "list" && s.highlight);
-  const w = view(sec);
-  const total = sec.items.filter(it => typeof it === "string" ? it.startsWith("[ ] ") : it.check === true).length;
-  expect(w.find(".tprog").text()).toBe(`0 / ${total} done`);
-  const box = w.find(".tcard.task input[type=checkbox]");
-  await box.setValue(true);
-  expect(save).toHaveBeenCalled();
-  expect(done.size).toBe(1);
-  expect(w.find(".tprog").text()).toBe(`1 / ${total} done`);
+test("todo cards: rich title, details toggle, no checkbox", async () => {
+  const w = view(D.sections.find(s => s.kind === "list" && s.highlight));
+  expect(w.find("input[type=checkbox]").exists()).toBe(false);
   const chev = w.find(".tc-chev");
   const before = chev.attributes("aria-expanded");
   await chev.trigger("click");
@@ -33,4 +25,5 @@ test("news and a course section render trusted markup", () => {
   expect(news.findAll(".news li").length).toBeGreaterThan(0);
   const course = view(D.sections.find(s => s.kind === "course"));
   expect(course.find("p.chead").exists()).toBe(true);
+  expect(course.findAll("details.cgroup").length).toBeGreaterThan(0); // contacts and/or data groups
 });

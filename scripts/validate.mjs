@@ -36,14 +36,23 @@ function checkSections(list, name, e, cid, allowCourse, tabs = TABS, w = () => {
         if (it?.course !== undefined) { if (allowCourse) cid(q + '.course', it.course); else w(q + '.course', 'courses are per semester; the tag is not resolved in common'); }
       });
     }
-    if (s.kind === 'list' && Array.isArray(s.items)) s.items.forEach((it, j) => { // a string, or { title, text?, due?, check?, open? }
+    if (s.kind === 'list' && Array.isArray(s.items)) s.items.forEach((it, j) => { // a string, or { title, text?, due?, open? }
       const q = `${p}.items[${j}]`;
       if (typeof it === 'string') return;
-      if (!it || typeof it !== 'object' || Array.isArray(it)) return e(q, 'must be a string or an object { title, text?, due?, check?, open? }');
+      if (!it || typeof it !== 'object' || Array.isArray(it)) return e(q, 'must be a string or an object { title, text?, due?, open? }');
       if (typeof it.title !== 'string' || !it.title) e(q + '.title', 'required');
       for (const k of ['text', 'due']) if (it[k] !== undefined && typeof it[k] !== 'string') e(`${q}.${k}`, 'must be a string');
-      for (const k of ['check', 'open']) if (it[k] !== undefined && typeof it[k] !== 'boolean') e(`${q}.${k}`, 'must be true or false');
+      for (const k of ['open']) if (it[k] !== undefined && typeof it[k] !== 'boolean') e(`${q}.${k}`, 'must be true or false');
     });
+    if (s.kind === 'course' && s.groups !== undefined) { // groups: [{ title, items: [string], open? }] (collapsible sub-sections)
+      if (!Array.isArray(s.groups)) e(p + '.groups', 'must be an array');
+      else s.groups.forEach((g, j) => {
+        const q = `${p}.groups[${j}]`;
+        if (!g || typeof g.title !== 'string' || !g.title) e(q + '.title', 'required');
+        if (!Array.isArray(g?.items) || g.items.some(x => typeof x !== 'string')) e(q + '.items', 'must be an array of strings');
+        if (g?.open !== undefined && typeof g.open !== 'boolean') e(q + '.open', 'must be true or false');
+      });
+    }
     if (s.kind === 'table' && !(Array.isArray(s.columns) && Array.isArray(s.rows))) e(p, 'table needs columns and rows');
   });
 }
@@ -239,7 +248,7 @@ if (arg === '--selftest') {
   const c = validate(v2), d = validate(v2bad);
   if (c.length || d.length < 5) { console.error('selftest v2 FAILED', c, d); process.exit(1); }
   const wn = [], n1 = validate({ meta: { title: 't' }, common: [{ kind: 'news', items: [{ date: '2026-11-03', title: 'x', course: 'a' }] }], years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', courses: [{ id: 'a', title: 'A' }],
-    sections: [{ kind: 'news', items: [{ date: '2026-11-03', title: 'x', course: 'a', source: 'official', unconfirmed: true }] }, { kind: 'list', tab: 'overview', items: ['y'] }, { kind: 'list', tab: 'todo', items: ['[ ] z'] }] }] }] }, wn);
+    sections: [{ kind: 'news', items: [{ date: '2026-11-03', title: 'x', course: 'a', source: 'official', unconfirmed: true }] }, { kind: 'list', tab: 'overview', items: ['y'] }, { kind: 'list', tab: 'todo', items: ['z'] }] }] }] }, wn);
   const n2 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', courses: [{ id: 'a', title: 'A' }],
     sections: [{ kind: 'news', items: [{ date: '2026-02-30', title: 'x' }, { date: '2026-11-03' }, { date: '2026-11-03', title: 'x', course: 'zz' }] }, { kind: 'news' }] }] }] });
   if (n1.length || wn.length !== 2 || n2.length !== 4) { console.error('selftest news FAILED', n1, wn, n2); process.exit(1); }
@@ -248,9 +257,9 @@ if (arg === '--selftest') {
   const t2 = validate({ ...structuredClone(ok), meta: { title: 't', locale: 5, strings: { 'nav.year': 3 } } });
   const t3 = validate({ ...structuredClone(ok), meta: { title: 't', strings: ['x'] } });
   if (t1.length || ws.length !== 1 || t2.length !== 2 || t3.length !== 1) { console.error('selftest strings FAILED', t1, ws, t2, t3); process.exit(1); }
-  // list items: strings and { title, text?, due?, check?, open? } objects
-  const li1 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: ['a', '[ ] b', { title: 'c', text: '<i>x</i>', due: '1 Dec', check: true, open: false }] }] }] }] });
-  const li2 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: [{ text: 'no title' }, { title: 'c', check: 'yes' }, 5, { title: 'd', due: 3 }] }] }] }] });
+  // list items: strings and { title, text?, due?, open? } objects
+  const li1 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: ['a', { title: 'c', text: '<i>x</i>', due: '1 Dec', open: false }] }] }] }] });
+  const li2 = validate({ meta: { title: 't' }, years: [{ id: 'y', title: 'Y', semesters: [{ id: 'p', title: 'P', sections: [{ kind: 'list', items: [{ text: 'no title' }, { title: 'c', open: 'yes' }, 5, { title: 'd', due: 3 }] }] }] }] });
   if (li1.length || li2.length !== 4) { console.error('selftest list items FAILED', li1, li2); process.exit(1); }
   console.log(`selftest ok (bad samples produced ${b.length} and ${d.length} errors)`);
 } else if (!arg) {

@@ -37,7 +37,7 @@ window.HUB_DATA = {
       "tab": "info",
       "pinned": true,
       "items": [
-        "[ ] Announcements for the master are shared by the group representative; ask them to add you.",
+        "Announcements for the master are shared by the group representative; ask them to add you.",
         "<b>Student cards:</b> new record books (carnete) and ID cards (legitimații) are being made for everyone. Old record book is full – don't bring old ones (head secretary, 20 Oct). Photos were already given at admission (1 record book, 1 ID, 2 diploma).",
         "2 Nov: \"some legitimații are ready\" (head secretary). No later update – ask the secretariat. You can collect your own once ready.",
         "Torn card: wait for news on which record books were generated, then ask the secretariat.",
@@ -743,12 +743,10 @@ window.HUB_DATA = {
                 {
                   "title": "Pick a Research 1 topic and a coordinator",
                   "due": "by the beginning of December",
-                  "check": true,
                   "text": "Topic proposals (more were announced for the following week): <a href='https://docs.google.com/spreadsheets/d/1pXD1p3bzzxDnJImbCp37k5w3q9AKQRV46xQ5eJV6Zpo/edit?usp=sharing'>Google Sheet</a>. You may also propose your own topic to a specific professor; the list is not mandatory."
                 },
                 {
                   "title": "Data Engineering: check that your Azure/Databricks screenshots reached the teacher",
-                  "check": true,
                   "text": "In the 24 Oct lab 4 the Azure/Databricks resources failed on student accounts, so the teacher asked for screenshots of how far each student got."
                 }
               ]
@@ -870,13 +868,36 @@ window.HUB_DATA = {
               "title": "Applied Machine Learning for Eng. Systems (\"Mr. Bujor\")",
               "items": [
                 "Thu 17–19 course, labs 15–17 (SG1) and 19–21 (SG2). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan). Thu 5 Nov reported online.",
-                "Teacher (28 Oct, official): reinforcement learning is the current topic; the part before project work starts is better in person. Online options are discussed in class, not from one day to the next.",
-                "<b>Next SAP session: Thu 12 Nov</b> (the SAP contact told the teacher; the 22 Oct lab started at 15:30 and the lecture with the SAP profs at 17:00).",
-                "<b>SAP:</b> a guest from SAP came to the ML course on 15 Oct (in person, from 17:00). Course repo, where SAP invitations and materials are posted: <a href='https://github.com/pradu3/amles-oct2026'>pradu3/amles-oct2026</a>.",
-                "Create a free SAP HANA trial account: <a href='https://www.sap.com/products/data-cloud/hana/trial.html'>trial</a>. If it keeps loading, log in via the <a href='https://cockpit.hanatrial.ondemand.com/trial/#/home/trial'>cockpit</a>.",
-                "15 Oct lab work shared in class: sin approximation with an MLP; auto-mpg with MLP, Keras and RandomForest (<a href='https://www.kaggle.com/datasets/uciml/autompg-dataset'>dataset</a>).",
-                "29 Oct: the lab ran late (teacher stayed to ~19:00, lab run twice). Two pastebin links of material were shared (<a href='https://pastebin.com/SiAUbNZa'>1</a>, <a href='http://pastebin.com/MsMbaqYe'>2</a>); contents not described.",
-                "Project weight (unverified): solo 7% (12-page report from scientific articles), duo 5%, maybe 3%. Confirm with the teacher."
+                "Teacher (28 Oct, official): reinforcement learning is the current topic; the part before project work starts is better in person. Online options are discussed in class, not from one day to the next."
+              ],
+              "groups": [
+                {
+                  "title": "Visiting professors",
+                  "open": true,
+                  "items": [
+                    "<b>Next SAP session: Thu 12 Nov</b> (the SAP contact told the teacher; the 22 Oct lab started at 15:30 and the lecture with the SAP profs at 17:00).",
+                    "<b>SAP:</b> a guest from SAP came to the ML course on 15 Oct (in person, from 17:00). Course repo, where SAP invitations and materials are posted: <a href='https://github.com/pradu3/amles-oct2026'>pradu3/amles-oct2026</a>."
+                  ]
+                },
+                {
+                  "title": "Visiting professors' materials",
+                  "items": [
+                    "Create a free SAP HANA trial account: <a href='https://www.sap.com/products/data-cloud/hana/trial.html'>trial</a>. If it keeps loading, log in via the <a href='https://cockpit.hanatrial.ondemand.com/trial/#/home/trial'>cockpit</a>."
+                  ]
+                },
+                {
+                  "title": "Materials",
+                  "items": [
+                    "15 Oct lab work shared in class: sin approximation with an MLP; auto-mpg with MLP, Keras and RandomForest (<a href='https://www.kaggle.com/datasets/uciml/autompg-dataset'>dataset</a>).",
+                    "29 Oct: the lab ran late (teacher stayed to ~19:00, lab run twice). Two pastebin links of material were shared (<a href='https://pastebin.com/SiAUbNZa'>1</a>, <a href='http://pastebin.com/MsMbaqYe'>2</a>); contents not described."
+                  ]
+                },
+                {
+                  "title": "Labs & projects",
+                  "items": [
+                    "Project weight (unverified): solo 7% (12-page report from scientific articles), duo 5%, maybe 3%. Confirm with the teacher."
+                  ]
+                }
               ]
             },
             {
@@ -884,12 +905,30 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "de",
               "items": [
-                "Mon 17–19 course (Dascălu, also the dean), Tue 18–20 project/lab (Cosmin, online on Teams). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan).",
-                "Teams: install MS Teams, sign in with your UPB account, open the \"Data Eng\" class; the lab is the recurring \"Laboratory\" meeting at 18:00. The project should be weekly, pending the e-learning platform (Dascălu, 25 Sep).",
-                "<b>Wed 4 Nov from 18:00:</b> recovery lab for the cancelled Tue 27 Oct lab (Cosmin, official). Past guest lecture: Devista Software (LegalTech), 19 Oct.",
-                "Azure for Students account with your faculty email: <a href='https://azure.microsoft.com/en-us/free/students'>sign up</a>.",
-                "24 Oct lab 4: Azure/Databricks resources failed for student accounts. The teacher asked for screenshots of how far you got. The second tutorial is skipped if the first fails.",
-                "Mon course guests: a different speaker took the 26 Oct session; the teacher will come in November to present the app built for an insurance company. 2 Nov: an entrepreneur guest, in person, no homework or class work."
+                "Mon 17–19 course (Dascălu, also the dean), Tue 18–20 project/lab (Cosmin, online on Teams). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan)."
+              ],
+              "groups": [
+                {
+                  "title": "Visiting professors",
+                  "open": true,
+                  "items": [
+                    "Mon course guests: a different speaker took the 26 Oct session; the teacher will come in November to present the app built for an insurance company. 2 Nov: an entrepreneur guest, in person, no homework or class work."
+                  ]
+                },
+                {
+                  "title": "Labs & projects",
+                  "items": [
+                    "<b>Wed 4 Nov from 18:00:</b> recovery lab for the cancelled Tue 27 Oct lab (Cosmin, official). Past guest lecture: Devista Software (LegalTech), 19 Oct.",
+                    "24 Oct lab 4: Azure/Databricks resources failed for student accounts. The teacher asked for screenshots of how far you got. The second tutorial is skipped if the first fails."
+                  ]
+                },
+                {
+                  "title": "Online access & accounts",
+                  "items": [
+                    "Teams: install MS Teams, sign in with your UPB account, open the \"Data Eng\" class; the lab is the recurring \"Laboratory\" meeting at 18:00. The project should be weekly, pending the e-learning platform (Dascălu, 25 Sep).",
+                    "Azure for Students account with your faculty email: <a href='https://azure.microsoft.com/en-us/free/students'>sign up</a>."
+                  ]
+                }
               ]
             },
             {
@@ -897,10 +936,22 @@ window.HUB_DATA = {
               "kind": "course",
               "course": "fai",
               "items": [
-                "Tue 20–22 course, online (Zoom), even weeks only (2 h every 2 weeks ≈ 1 h/week). Fri 17–19 lab SG1 (Geamănu). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan).",
-                "Course Moodle: <a href='https://moodle.adrianchifu.com/course/view.php?id=27'>moodle.adrianchifu.com</a> (separate account: use \"Forgot password\" → search by your faculty email; the Zoom link is on the course page).",
-                "Zoom link is posted on Prof. Chifu's Moodle and on the Politehnica platform. The Moodle link didn't work for some on 20 Oct; installing the Zoom app fixed it.",
-                "Fri 27 Nov and 4 Dec lab: reportedly online (teacher at a conference) – unconfirmed."
+                "Tue 20–22 course, online (Zoom), even weeks only (2 h every 2 weeks ≈ 1 h/week). Fri 17–19 lab SG1 (Geamănu). Evaluation: <b>E</b> (final exam), 5 ECTS (official study plan)."
+              ],
+              "groups": [
+                {
+                  "title": "Online access & accounts",
+                  "items": [
+                    "Course Moodle: <a href='https://moodle.adrianchifu.com/course/view.php?id=27'>moodle.adrianchifu.com</a> (separate account: use \"Forgot password\" → search by your faculty email; the Zoom link is on the course page).",
+                    "Zoom link is posted on Prof. Chifu's Moodle and on the Politehnica platform. The Moodle link didn't work for some on 20 Oct; installing the Zoom app fixed it."
+                  ]
+                },
+                {
+                  "title": "Labs & projects",
+                  "items": [
+                    "Fri 27 Nov and 4 Dec lab: reportedly online (teacher at a conference) – unconfirmed."
+                  ]
+                }
               ]
             },
             {
@@ -913,13 +964,11 @@ window.HUB_DATA = {
                 {
                   "title": "Dissertation topic: signed agreement (1 physical copy)",
                   "due": "4 Dec 2026",
-                  "check": true,
                   "text": "Final-year notice (bachelor and dissertation) <span class='tag off'>official</span>: the proposals are posted on <a href='https://fils.upb.ro/tema-proiect/'>fils.upb.ro/tema-proiect</a>. Contact the professors, agree on a topic and bring the agreement signed by you and the professor, <b>1 signed physical copy</b>, by <b>4 December</b>. Group leaders collect the agreements and hand them to the tutor of the specialization. Unconfirmed whether this applies to year 1 of the master: check with the secretariat."
                 },
                 {
                   "title": "Present Research 1 to the committee",
                   "due": "18–22 Jan 2027 (week 14)",
-                  "check": true,
                   "text": "Research I is worth <b>10 ECTS</b>, evaluation V (official study plan). Upload on Moodle a written report of ≥15 pages with ≥20 relevant references, plus a PowerPoint (objectives, methodology, progress, main results). Source: Dascălu, 18 Oct (official)."
                 }
               ]

@@ -25,5 +25,5 @@ export const barPct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * (+v
 // "Final exam 60%, Project 40%" or "" when no components are given
 export const gradingSummary = c => ((c.grading || {}).components || []).map(x => esc(x.name) + (x.weight != null ? ` ${x.weight}%` : "")).join(", ");
 
-export const people = c => [...(c.teachers || []), ...(c.contacts || [])];
+export const people = c => [...(c.teachers || []), ...(c.contacts || [])].filter((p, i, a) => a.findIndex(q => q.name === p.name && q.role === p.role) === i); // teachers listed again as contacts show once
 export const peopleLine = list => list.map(p => ITEMS.contacts(p)).join("; ");

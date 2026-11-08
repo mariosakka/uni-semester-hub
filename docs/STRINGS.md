@@ -74,7 +74,7 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "ﾃ始apoi la sﾄパtﾄ
 | `course.ects` | `{n} ECTS` |
 | `course.evaluation` | `evaluation {value}` |
 | `course.grading` | `Grading: {value}` |
-| `course.contacts` | `Contacts: {value}` |
+| `course.contacts` | `Contacts` |
 
 ## type
 
@@ -173,7 +173,6 @@ meta: { locale: "ro-RO", strings: { "schedule.backToCurrent": "ﾃ始apoi la sﾄパtﾄ
 
 | Key | Default |
 |---|---|
-| `todo.progress` | `{done} / {total} done` |
 | `todo.details` | `Details: {title}` |
 
 ## session

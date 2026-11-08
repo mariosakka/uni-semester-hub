@@ -18,6 +18,7 @@ export function useSearchFilter(cur) {
         el.classList.toggle("hide", !m);
         any ||= m;
       });
+      if (f) s.querySelectorAll("details.cgroup").forEach(d => { d.open = !!d.querySelector("li:not(.hide)"); }); // show matches inside collapsed groups
       s.classList.toggle("hide", !any && !s.classList.contains("builtin") && !s.dataset.pinned);
     });
   }

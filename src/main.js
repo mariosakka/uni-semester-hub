@@ -20,15 +20,6 @@ function boot(raw) {
   const N = normalize(raw), SEMS = flatten(N), auto = autoSemester(SEMS);
   document.title = N.meta.title || t("doc.title");
 
-  // tick state: legacy sets keep their old single key; v2 stores ticks per semester plus one shared "common" bucket
-  const stores = {};
-  const store = scope => stores[scope] ||= (() => {
-    const key = scope === "legacy" ? `hub-done:${SET}` : `hub-done:${SET}:${scope}`;
-    let done;
-    try { done = new Set(JSON.parse(localStorage.getItem(key) || "[]")); } catch { done = new Set(); }
-    return {done, save: () => { try { localStorage.setItem(key, JSON.stringify([...done])); } catch { /* blocked storage */ } }}; // blocked storage: ticks last until reload
-  })();
-
   // one view per semester, shared by everything that reads it (the page, the Calendar's day modal and Year view, subgroup choices);
   // viewFor(day) gives the view of the semester a day belongs to, openWeek(w) jumps to a week of the Schedule tab
   const views = {};
@@ -41,7 +32,7 @@ function boot(raw) {
     return V;
   }
 
-  mountRoot(App, {hub: {set: SET, base: `data/${SET}/`, N, SEMS, auto, store, viewOf}});
+  mountRoot(App, {hub: {set: SET, base: `data/${SET}/`, N, SEMS, auto, viewOf}});
 }
 
 if (!/^\w[\w.-]*$/.test(SET)) fail(t("err.invalidSet"));

@@ -42,7 +42,7 @@ export var HUB_STRINGS = {
   "course.ects": "{n} ECTS",
   "course.evaluation": "evaluation {value}",
   "course.grading": "Grading: {value}",
-  "course.contacts": "Contacts: {value}",
+  "course.contacts": "Contacts",
   // session types and labels
   "type.course": "course",
   "type.lab": "lab",
@@ -117,7 +117,6 @@ export var HUB_STRINGS = {
   "modal.extra": "Extra session",
   "modal.openSchedule": "Open in Schedule",
   // To-Do cards
-  "todo.progress": "{done} / {total} done",
   "todo.details": "Details: {title}",
   // session modal (opened from a schedule card)
   "session.type": "Type",

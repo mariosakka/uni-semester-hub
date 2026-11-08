@@ -1,22 +1,15 @@
 import {test, expect} from "vitest";
-import {itemCheck, itemTitle, listItemHTML} from "./render.js";
+import {itemTitle, listItemHTML} from "./render.js";
 import {defaultTab, tabsFor, tabOf, tabIcon} from "./tabs.js";
-import {t} from "./strings.js";
 
-// To-Do list items: string or object forms, tickable detection, default tab, plain-list rendering (DOM behaviour: component tests)
-test("itemCheck / itemTitle", () => {
-  expect(itemCheck("[ ] Do it")).toBe(true);
-  expect(itemCheck("plain")).toBe(false);
-  expect(itemCheck({title: "x", check: true})).toBe(true);
-  expect(itemCheck({title: "x"})).toBe(false);
-  expect(itemCheck({title: "x", check: "yes"})).toBe(false); // only true ticks
-  expect(itemTitle("[ ] Do it")).toBe("Do it");
+// To-Do list items: string or object forms, default tab, plain-list rendering (DOM behaviour: component tests)
+test("itemTitle", () => {
+  expect(itemTitle("Do it")).toBe("Do it");
   expect(itemTitle({title: "T <b>b</b>"})).toBe("T <b>b</b>");
   expect(itemTitle({})).toBe("");
 });
 
-test("default tab: tickable item or highlight -> todo, otherwise news", () => {
-  expect(defaultTab({kind: "list", items: ["a", {title: "b", check: true}]})).toBe("todo");
+test("default tab: highlight -> todo, otherwise news", () => {
   expect(defaultTab({kind: "list", items: ["a", {title: "b", text: "c"}]})).toBe("news");
   expect(defaultTab({kind: "list", highlight: true, items: ["a"]})).toBe("todo");
 });
@@ -26,7 +19,6 @@ test("plain lists render an object as title + due badge + details", () => {
   expect(h.startsWith("Pay") && h.includes('class="tc-due">1 Dec<') && h.includes('<div class="nt"><i>soon</i></div>')).toBe(true);
   expect(listItemHTML("text")).toBe("text");
   expect(listItemHTML({title: "x", due: "<b>"})).toContain("&lt;b>"); // due is escaped
-  expect(t("todo.progress", {done: 1, total: 2})).toBe("1 / 2 done");
 });
 
 test("tabs: empty default tabs dropped, unknown tab -> first, overview -> news", () => {

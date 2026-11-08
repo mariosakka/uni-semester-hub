@@ -1,12 +1,11 @@
 import {t} from "./strings.js";
-import {itemCheck} from "./render.js";
 
 // Tabs: a section goes to its `tab` id, else to a default tab by kind. D.tabs ([{id,title}]) overrides the default tab list.
 export const AUTO_TAB = {news: "news", schedule: "schedule", calendar: "calendar", course: "courses", studyplan: "plan", directory: "contacts", contacts: "contacts", links: "info", table: "info"};
 export const DEFAULT_TABS = [["news", "tab.news"], ["todo", "tab.todo"], ["schedule", "tab.schedule"], ["calendar", "tab.calendar"], ["courses", "tab.courses"], ["plan", "tab.plan"], ["contacts", "tab.contacts"], ["info", "tab.info"]]; // [id, string key]
 
-// a list with a tickable item or `highlight` is a to-do list, any other list is news
-export const defaultTab = sec => sec.kind === "list" ? ((sec.highlight || (sec.items || []).some(itemCheck)) ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
+// a `highlight` list is a to-do list, any other list is news
+export const defaultTab = sec => sec.kind === "list" ? (sec.highlight ? "todo" : "news") : AUTO_TAB[sec.kind] || "news";
 
 // schedule/calendar sections of a semester without that data are not shown
 export const sectionShown = (D, sec) =>

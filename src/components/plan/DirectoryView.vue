@@ -13,9 +13,9 @@ const line = p => peopleLine([p]);
 
 <template>
   <template v-if="prog.length || subj.length">
-    <template v-if="prog.length"><h3>{{ t('plan.programme') }}</h3><ul><RichText v-for="(p, i) in prog" :key="i" tag="li" :html="line(p)" /></ul></template>
+    <template v-if="prog.length"><h3>{{ t('plan.programme') }}</h3><ul class="ctl"><RichText v-for="(p, i) in prog" :key="i" tag="li" :html="line(p)" /></ul></template>
     <template v-if="subj.length"><h3>{{ t('plan.bySubject') }}</h3>
-      <template v-for="(c, i) in subj" :key="c.id || i"><h4>{{ c.title }}</h4><ul><RichText v-for="(p, j) in people(c)" :key="j" tag="li" :html="line(p)" /></ul></template>
+      <template v-for="(c, i) in subj" :key="c.id || i"><h4>{{ c.title }}</h4><ul class="ctl"><RichText v-for="(p, j) in people(c)" :key="j" tag="li" :html="line(p)" /></ul></template>
     </template>
   </template>
   <p v-else class="note">{{ t('plan.noContacts') }}</p>
